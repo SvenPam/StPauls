@@ -1,0 +1,83 @@
+﻿@model IEnumerable<Event>
+	@{
+		Layout = null;
+	}
+	@section meta
+    {
+		<title>Event Archive</title>
+	}
+	<div class="container">
+		<h1 class="page-header">@Sites.CurrentSite.SiteShortName Event Archive</h1>
+		<p>
+			<span class="glyphicon glyphicon-plus"></span> <a href="@Url.ActionDomain("Create", "Calendar")">Create a new event</a>
+		</p>
+		<br />
+		<table id="calendar-event-list">
+			<thead>
+				<tr>
+					<th>Title</th>
+					<th>Status</th>
+					<th>Start Date</th>
+					<th>Published</th>
+					<th>Creator</th>
+					<th>Last Edited</th>
+					<th>Last Editor</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var evnt in Model)
+			{
+					<tr>
+						<td>
+							<a href="@evnt.URL">@evnt.Title</a>
+							<p class="text-muted"><span class="glyphicon glyphicon-time"></span> @evnt.StartDate <br /> <span class="glyphicon glyphicon-time"></span> @evnt.EndDate</p>
+						</td>
+						<td>
+							@evnt.Status.ToString()
+						</td>
+						<td>@evnt.StartDate.ToString("dd-MMM-yyy HH:mm")</td>
+						<td>
+							@evnt.TimeStamp.ToString("dd-MMM-yyy HH:mm")
+						</td>
+						<td>
+							@evnt.Creator.FullName
+						</td>
+						<td>
+							@if (evnt.LastModified != null)
+							{
+								@evnt.LastModified.Value.ToString("dd-MMM-yyy HH:mm")
+							}
+						</td>
+						<td>
+							@if (evnt.Editor != null)
+							{
+								@evnt.Editor.FullName
+							}
+						</td>
+						<td>
+							<a href="@Url.ActionDomain("Edit", "Calendar", new { id = evnt.EventID })">Edit</a> | <a href="@Url.ActionDomain("Delete", "Calendar", new { id = evnt.EventID })" class="text-danger">Delete</a>
+						</td>
+					</tr>
+			}
+			</tbody>
+		</table>
+		@section additionalScripts
+{
+			<script src="//cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
+			<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.10/css/jquery.dataTables.min.css">
+			<script>
+			$(document).ready(function () {
+				$('#calendar-event-list').DataTable({
+					"order": [[2, "asc"]],
+					"columnDefs": [
+					{
+						"targets": [2],
+						"visible": false,
+						"searchable": false
+					}]
+				});
+			});
+			</script>
+		}
+	</div>

@@ -1,0 +1,82 @@
+﻿@model IEnumerable<sites.Article>
+
+@section meta
+{
+	<title>@ViewBag.Title</title>
+	<meta name="description" content="Read the latest blog articles from St. Pauls Church, Warton." />
+}
+<div class="container">
+	<div class="row">
+		<div class="col-xs-12">
+			<h1 class="page-header">St. Pauls Blog</h1>
+		</div>
+		<div class="col-md-8 col-sm-12" role="main">
+			@if (User.IsInRole("Contributor") || User.IsInRole("Admin"))
+			{
+				<span class=" glyphicon glyphicon-list"></span> <a href="@Url.ActionDomain("List", "Blog")">Manage Articles</a> @("|")
+				<span class="glyphicon glyphicon-plus"></span> <a href="@Url.ActionDomain("Create", "Blog")">Create a new blog article</a>
+				<br />
+				<br />
+			}
+			@if (Model.Any())
+			{
+				foreach (var article in Model)
+				{
+					<article id="article-@article.ArticleID" data-id="@article.ArticleID">
+						<section class="row">
+							<h2><a href="@Url.ActionDomain("article", "blog", new { slug = @article.TitleCode })">@article.Title</a></h2>
+							<span class="glyphicon glyphicon-time"></span> Published @article.DynamicFormattedDate <span class="glyphicon glyphicon-bookmark padding-sides"></span> <a href="@Url.ActionDomain("Topic", "Blog", new { topicName = article.Topic.URLSlug })">@article.Topic.Name</a>
+							@if (User.IsInRole("Contributor") || User.IsInRole("Admin"))
+							{
+								<span style="padding-left: 30px;" class="glyphicon glyphicon-pencil"></span>
+								<a href="@Url.ActionDomain("Edit", "Blog", new { id = article.ArticleID })">Edit</a>
+								<span style="padding-left: 30px;" class="glyphicon glyphicon-trash"></span>
+								<a href="@Url.ActionDomain("Delete", "Blog", new { id = article.ArticleID })">Delete</a>
+							}
+							@{
+								string fullURL = "http://" + Sites.CurrentSite.Domain + article.Url;
+							}
+							<br /><br />
+							<ul class="social large">
+								<li>
+									<a class="social-icon large share facebook" href="https://www.facebook.com/sharer/sharer.php?u=@fullURL" target="_blank" title="Share this on Facebook">
+										Share this on Facebook
+									</a>
+								</li>
+								<li>
+									<a class="social-icon large share twitter" href="https://twitter.com/home?status=@fullURL" target="_blank" title="Share this on Twitter">
+										Share on Twitter
+									</a>
+								</li>
+								<li>
+									<a class="social-icon large share google" href="https://plus.google.com/share?url=@fullURL" target="_blank" title="Share this on Google+">
+										Share on Google+
+									</a>
+								</li>
+								<li>
+									<a class="social-icon large share linkedin" href="https://www.linkedin.com/shareArticle?mini=true&amp;url=@fullURL" target="_blank" title="Share this on LinkedIn">
+										Share on LinkedIn
+									</a>
+								</li>
+							</ul>
+							<h2 class="author-attribution">
+								<small>by <span>@article.Author.FirstName @article.Author.Surname</span></small>
+							</h2>
+						</section>
+						<section class="article-body">
+							@Html.Raw(@article.HTML)
+						</section>
+						<hr />
+					</article>
+									}
+								}
+								else
+								{
+									<p>No blog articles could be found.</p>
+								}
+		</div>
+		<div class="col-md-4 hidden-sm hidden-xs">
+			@Html.Partial("~/Areas/St_Pauls/Views/Blog/_Aside.cshtml")
+		</div>
+	</div>
+</div>

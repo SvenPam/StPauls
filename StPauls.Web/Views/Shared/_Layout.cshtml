@@ -1,0 +1,17 @@
+﻿@{
+	Layout = "~/Areas/St_Pauls/Views/Shared/_MasterLayout.cshtml";
+}
+@section meta
+{
+	@RenderSection("meta", required: false)
+}
+@RenderSection("outside", false)
+<div class="container pageWrap bg-default">
+	<div class="full-page-height col-xs-12">
+		@RenderBody()
+	</div>
+</div>
+
+@section Scripts {
+	@RenderSection("scripts", required: false)
+}

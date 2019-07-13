@@ -1,0 +1,15 @@
+﻿@{
+    Layout = "~/Areas/St_Pauls/Views/Shared/_MasterLayout.cshtml";
+}
+@section meta
+{
+        @RenderSection("meta", required: false)   
+}
+<div class="pageWrap">
+    <div class="container-fluid">
+        @RenderBody()
+    </div>
+</div>
+@section Scripts {
+    @RenderSection("scripts", required: false)
+}

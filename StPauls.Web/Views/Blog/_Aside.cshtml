@@ -1,0 +1,24 @@
+﻿<div class="hidden-print" role="complementary">
+    <div class="well">
+        <h4>Blog Topics</h4>
+        <div class="clearfix">
+            @foreach (Topic topic in sites.Models.Topics.Items)
+            {
+                <div class="col-lg-6 col-md-12">
+                    <a href="@Url.ActionDomain("Topic", "Blog", new { topicName = @topic.URLSlug })">@topic.Name</a>
+                </div>
+            }
+           </div>
+        </div>
+    <div class="well">
+        <h4>Latest</h4>
+        <div class="clearfix">
+            @foreach (Article article in new sites.WebSQL().Articles.Where(x=> x.SiteID == sites.Sites.CurrentSite.SiteID).OrderByDescending(x => x.TimeStamp).Take(7))
+            {
+                <div class="col-xs-6">
+                    <a href="@Url.ActionDomain("Article", "Blog", new {slug = @article.TitleCode })">@article.Title</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

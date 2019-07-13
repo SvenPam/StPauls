@@ -1,0 +1,74 @@
+﻿@model sites.Models.ReportProblemForm
+
+@{
+    ViewBag.Title = "ReportProblem";
+}
+<div class="container">
+    <h2>Report Problem</h2>
+
+    @using (Html.BeginForm("SendReportProblem", "contact"))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-horizontal">
+            <h4>ReportProblemForm</h4>
+            <p>Sorry to see that your experiencing an issue! None of the fields below are required, however the more you add the quicker the problem can be discovered and fixed. Any server errors are logged, but no context is given from that -- it's therefore <strong>super helpful</strong> if you add steps to reproduce!</p>
+            @*<div class="alert alert-info">
+                Before you report a bug, I may already know about it, <strong><a href="http://trial1991-001-site1.smarterasp.net/page/about/known-bugs">please check here</a></strong>.
+            </div>*@
+            <hr />
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="form-group">
+                @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.Problem, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(model => model.Problem, null, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Problem, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2" for="TryingToDo">Trying to:</label>
+                <div class="col-md-10">
+                    @Html.TextAreaFor(model => model.TryingToDo, new { @class = "form-control", rows = "3", placeholder = "E.g I was trying to create a new blog article." })
+                    @Html.ValidationMessageFor(model => model.TryingToDo, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-2" for="WhatHappened">What Happened?</label>
+                <div class="col-md-10">
+                    @Html.TextAreaFor(model => model.WhatHappened, new { @class = "form-control", rows = "3", placeholder = "E.g Somthing about a Server Error 500 appeared on my screen, and I was unable to continue." })
+                    @Html.ValidationMessageFor(model => model.WhatHappened, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.Steps, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextAreaFor(model => model.Steps, new { @class = "form-control", rows = "5", placeholder = "E.g \n1. Went on \"Create Blog\". \n2. Filled in all fields. \n3. Clicked submit. \n4. Errror appears." })
+                    @Html.ValidationMessageFor(model => model.Steps, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.URL, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.URL, new { htmlAttributes = new { @class = "form-control", placeholder = "The link of the problem page (if you have it)."} })
+                    @Html.ValidationMessageFor(model => model.URL, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Send Report" class="btn btn-default" />
+                </div>
+            </div>
+        </div>
+    }
+
+    <div>
+        <a href="@Url.ActionDomain("Index")">Back to list</a>
+    </div>
+</div>

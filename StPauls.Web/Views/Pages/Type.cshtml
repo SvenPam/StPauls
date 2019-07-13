@@ -1,0 +1,41 @@
+﻿@model sites.Type
+
+@section meta
+{
+    <title>@ViewBag.Title</title>
+}
+<div class="container">
+    <h2>@ViewBag.Title</h2>
+
+
+    @if (Model == null)
+    {
+        foreach (sites.Type type in new sites.WebSQL().Types)
+        {
+            <div class="container">
+                <h4>@type.Name</h4>
+                <div style="padding-left: 10px;">
+                    @foreach (sites.Page page in type.Pages)
+                    {
+                        <a href="~/page/@type.Name.FriendlyURL()/@page.Title.FriendlyURL()">
+                            <div>
+                                <h6>@page.Title</h6>
+                            </div>
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        foreach (sites.Page page in Model.Pages)
+        {
+            <a href="~/page/@Model.Name.FriendlyURL()/@page.Title.FriendlyURL()">
+                <div>
+                    <h4>@page.Title</h4>
+                </div>
+            </a>
+        }
+    }
+</div>

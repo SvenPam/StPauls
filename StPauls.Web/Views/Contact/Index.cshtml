@@ -1,0 +1,83 @@
+﻿@model ContactForm
+@{
+ViewBag.Title = "Contact Us";
+}
+<div class="container">
+	<div class="col-xs-12">
+		<h1 class="page-header">Contact Us</h1>
+		@if (Model.AssociatedPage != null)
+			{
+			<div id="contact-body" class="col-xs-12">
+
+				@Html.Raw(Model.AssociatedPage.HTML)
+			</div>
+			<br />
+			<h2>Alternatively</h2>
+		}
+
+		@using (Html.BeginForm("Contact", "Contact"))
+		{
+			@Html.AntiForgeryToken()
+
+			<div class="form-horizontal col-lg-10">
+				<h4>Send an Enquiry</h4>
+				<hr />
+				@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+				@Html.ValidationMessage("PageExists", new { @class = "text-danger" })
+
+				@Model.Message
+
+				<div class="form-group">
+					<div class="control-label col-md-2">
+						@Html.LabelFor(model => model.Name) *
+					</div>
+					<div class="col-md-10">
+						@Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control " } })
+						@Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-md-2" for="Group_GroupID">Enquiry Type</label>
+					<div class="col-md-10">
+						@Html.DropDownListFor(model => model.GroupID, Model.GroupsDropDown, htmlAttributes: new { @class = "form-control" })
+						@Html.ValidationMessageFor(model => model.Group.GroupID, "", new { @class = "text-danger" })
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-md-2" for="Message">Enquiry *</label>
+					<div class="col-md-10">
+						@Html.TextAreaFor(model => model.Message, htmlAttributes: new { @class = "form-control", rows = 6 })
+						@Html.ValidationMessageFor(model => model.Message, "", new { @class = "text-danger" })
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="control-label col-md-2">@Html.LabelFor(model => model.Email) *</div>
+					<div class="col-md-10">
+						@Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control", type = "email" } })
+						@Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+					</div>
+				</div>
+
+				<div class="form-group">
+					@Html.LabelFor(model => model.Phone, htmlAttributes: new { @class = "control-label col-md-2" })
+					<div class="col-md-10">
+						@Html.EditorFor(model => model.Phone, new { htmlAttributes = new { @class = "form-control", type = "tel" } })
+						@Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger" })
+					</div>
+				</div>
+
+				@*<div class="form-group">
+						<div class="col-md-10">
+							@Html.Recaptcha(publicKey: "6LdkfdwSAAAAABL1099CPTr6473FQFXNLR_04Bb5", privateKey: "6LdkfdwSAAAAAFC8jtUY44wuhC9lmDlFrL6qMAAh")
+						</div>
+					</div>*@
+
+				<div class="form-group">
+					<div class="col-md-offset-2 col-md-10">
+						<input type="submit" value="Send" class="btn btn-default" />
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+</div>

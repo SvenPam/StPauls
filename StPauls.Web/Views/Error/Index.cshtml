@@ -1,0 +1,28 @@
+﻿@section Meta
+{
+    <title>Error</title>
+    <meta name="description" content="Error on site." />
+    <meta property="og:title" content="Site Error" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="Error on site." />
+}
+
+<div class="container">
+    <h1>Site Error</h1>
+    <h4>Our apologies, looks like something has gone wrong.</h4>
+    <hr />
+    <p>The error will have been logged, please try back soon and it may be fixed. If there is still an issue, <a @Url.ActionDomain("Index", "Contact")>Contact Us</a></p>
+    <div class="container">
+        <div class="row">
+            <p>Try one of the links in the header or footer to get back.</p>
+            @*<br />
+            <script type="text/javascript">
+                var GOOG_FIXURL_LANG = 'en';
+                var GOOG_FIXURL_SITE = 'http://www.wartonchurch.org'
+            </script>
+            <script type="text/javascript"
+                    src="http://linkhelp.clients.google.com/tbproxy/lh/wm/fixurl.js">
+            </script>*@
+        </div>
+    </div>
+</div>

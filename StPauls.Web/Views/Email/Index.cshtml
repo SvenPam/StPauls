@@ -1,0 +1,37 @@
+﻿@model sites.Email
+@{
+	Layout = "~/Areas/St_Pauls/Views/Shared/_EmailLayout.cshtml";
+}
+<div class="container">
+	@if (Model.TypeName == "Verification")
+	{
+		<h1>@Model.Title</h1>
+		<p>@Html.Raw(Model.Description)</p>
+	}
+	else if (Model.TypeName == "Enquiry")
+	{
+		<h1>@Model.Title</h1>
+		<p>
+			@Model.TimeStamp.ToString("dd-MMM HH:MM")
+		</p>
+		@Html.Raw(Model.Description)
+		<br />
+	}
+	else
+	{
+
+		<h1>New @Model.TypeName</h1>
+		<p>Hello there, a new @Model.TypeName has been published</p>
+		<br />
+		<h2>@Model.Title</h2>
+		<p>
+			@Model.TimeStamp.ToString("dd-MMM HH:MM")
+		</p>
+		<p class="quote">@Html.Raw(Model.Description)</p>
+		<br />
+		<p>You can see the full version <a href="http://@Sites.CurrentSite.Domain/@Model.ContentURL">here</a>.</p>
+	}
+	<br />
+	<br />
+	<span style="font-size:10px;"><em>Problems with this email?</em> Read it <a href="http://@Sites.CurrentSite.Domain/email/@Model.EmailID">online</a>. <em>Want to stop receiving emails?</em> Please <a href="http://@Sites.CurrentSite.Domain/account/manage">change your account settings</a>. This an an automated message, any replies will be not be seen.</span>
+</div>

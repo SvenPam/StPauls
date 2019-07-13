@@ -1,0 +1,75 @@
+﻿@model sites.Models.SiteMapViewModel
+@{
+	ViewBag.Title = "St. Pauls Church Site Map";
+}
+@section meta
+{
+	<title>Site Map</title>
+}
+<div class="container">
+	<h1>Site Map</h1>
+
+	@foreach (var group in Model.SiteMapNode.Children.OrderBy(x => x.Title).Where(x => x.Depth == 1))
+	{
+		<h3>
+			@if (string.IsNullOrEmpty(group.URL))
+			{
+				@group.Title
+			}
+			else
+			{
+				<a href="@group.URL">@group.Title</a>
+			}
+		</h3>
+		<ul>
+			@foreach (var node in group.Children.OrderBy(x => x.Title))
+			{
+				<li>
+					@if (node.URL == "")
+					{
+
+						<span>@node.Title</span>
+					}
+					else
+					{
+						<a href="@node.URL">@node.Title</a>
+					}
+					<ul>
+						@foreach (var child in node.Children)
+						{
+							<li>
+								<a href="@child.URL">@child.Title</a>
+							</li>
+						}
+					</ul>
+				</li>
+			}
+		</ul>
+	}
+
+
+
+	@*<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+			<div class="panel panel-default">
+				<div class="panel-heading" role="tab" id="headingOne">
+					<a data-toggle="collapse" class="collapsed" data-parent="#accordion" href="#@node.Key" aria-expanded="false" aria-controls="@node.Key">
+						<h4 class="panel-title">
+							<a href="@node.URL">@node.Title</a>
+						</h4>
+					</a>
+				</div>
+				<div id="@node.Key" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+					<div class="panel-body">
+						<ul>
+							@foreach (var child in node.Children)
+							{
+								<li>
+									<a href="@child.URL">@child.Title</a>
+								</li>
+							}
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>*@
+</div>
