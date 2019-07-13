@@ -1,0 +1,17 @@
+﻿@inherits Umbraco.Web.Macros.PartialViewMacroPage
+@{
+    var latestNotices = this.Umbraco.ContentAtRoot().DescendantsOrSelf<Notice>().OrderByDescending(x => x.CreateDate);
+
+}
+
+@if (latestNotices.Any())
+{
+    <h3><a href="/notices)">Church Notices</a></h3>
+    foreach (var notice in latestNotices)
+    {
+        <a class="home-page-notice" href="@notice.Url">
+            <h3>@notice.Name</h3>
+            <p>@notice.BulletinBody</p>
+        </a>
+    }
+}

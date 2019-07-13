@@ -1,0 +1,29 @@
+﻿@inherits Umbraco.Web.Macros.PartialViewMacroPage
+@{
+    var latestEvents = this.Umbraco.ContentAtRoot().DescendantsOrSelf<Event>().Where(x=> x.Status != EventStatus.Expired);
+}
+
+@if (latestEvents.Any())
+{
+    <h3><a href="/calendar">Upcoming Events</a></h3>
+    foreach (var month in latestEvents.GroupBy(x => x.StartDate.Month))
+    {
+        <div>
+            <h3>@month.Key</h3>
+            @foreach (var evnt in month)
+            {
+                <div>
+                    <a href="@evnt.Url">
+                        <strong>@evnt..Day</strong> @evnt.Name
+                        @if (evnt.Status == EventStatus.Soon || evnt.Status == EventStatus.Active)
+                        {
+                            <span class="label label-@evnt.EventStatusBootstrapColourClass">
+                                @evnt.Status
+                            </span>
+                        }
+                    </a>
+                </div>
+            }
+        </div>
+    }
+}

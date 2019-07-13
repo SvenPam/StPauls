@@ -1,0 +1,27 @@
+﻿@inherits Umbraco.Web.Macros.PartialViewMacroPage
+@{
+    var latestArticles = this.Umbraco.ContentAtRoot().DescendantsOrSelf<BlogArticle>().OrderByDescending(x => x.CreateDate);
+}
+
+@if (latestArticles.Any())
+{
+    <div class="col-xs-12">
+        <h3><a href="/blog">Latest Blog Articles</a></h3>
+    </div>
+    foreach (var article in latestArticles.Take(3))
+    {
+        <div class="col-md-4">
+            <div class="thumbnail">
+                @if (article.Image != null)
+                {
+                    <img src="@article.Image.GetCropUrl("Hero - S")" />
+                }
+                <div class="caption">
+                    <h3>@(string.IsNullOrWhiteSpace(article.TitleOverrides) ? article.Name : article.TitleOverrides)</h3>
+                    <p>@article.Description</p>
+                    <a class="btn btn-default" href="@article.Url">Read →</a>
+                </div>
+            </div>
+        </div>
+    }
+}
