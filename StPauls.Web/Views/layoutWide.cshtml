@@ -4,6 +4,15 @@
 }
 <div class="pageWrap">
     <div class="container-fluid">
-        @Html.Partial("~/Views/Page.cshtml", Model)
+        @if (Model.IsDocumentType("page"))
+        {
+            <div class="full-page-height">
+                @Html.Partial("~/Views/Page.cshtml", Model)
+            </div>
+        }
+        else
+        {
+            @RenderBody()
+        }
     </div>
 </div>
