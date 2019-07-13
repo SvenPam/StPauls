@@ -16,7 +16,7 @@
     <RootNamespace>StPauls</RootNamespace>
     <AssemblyName>StPauls</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <UseIISExpress>true</UseIISExpress>
+    <UseIISExpress>false</UseIISExpress>
     <Use64BitIISExpress />
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
@@ -387,6 +387,9 @@
     <Reference Include="Umbraco.ModelsBuilder, Version=8.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Umbraco.ModelsBuilder.8.1.0\lib\net472\Umbraco.ModelsBuilder.dll</HintPath>
     </Reference>
+    <Reference Include="Umbraco.ModelsBuilder.Api, Version=8.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Umbraco.ModelsBuilder.Api.8.1.0\lib\net472\Umbraco.ModelsBuilder.Api.dll</HintPath>
+    </Reference>
     <Reference Include="Umbraco.Web, Version=8.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\UmbracoCms.Web.8.1.0\lib\net472\Umbraco.Web.dll</HintPath>
     </Reference>
@@ -423,10 +426,89 @@
     <Content Include="config\Lang\sv-SE.user.xml" />
     <Content Include="config\Lang\zh-CN.user.xml" />
     <Content Include="config\logviewer.searches.config.js" />
+    <Content Include="Content\bootstrap.css" />
+    <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\datepicker.css" />
+    <Content Include="Content\Image\generic\1.jpg" />
+    <Content Include="Content\Image\generic\2.jpg" />
+    <Content Include="Content\Image\generic\3.jpg" />
+    <Content Include="Content\Image\generic\4.jpg" />
+    <Content Include="Content\Image\generic\5.jpg" />
+    <Content Include="Content\Image\generic\6.jpg" />
+    <Content Include="Content\Image\generic\7.jpg" />
+    <Content Include="Content\Image\generic\8.jpg" />
+    <Content Include="Content\Image\generic\9.jpg" />
+    <Content Include="Content\Image\ico-share.png" />
+    <Content Include="Content\Image\map.png" />
+    <Content Include="Content\Image\PAGE-BACK.JPG" />
+    <Content Include="Content\Image\site-beta.png" />
+    <Content Include="Content\Image\social-sprites.png" />
+    <Content Include="Content\jquery.datetimepicker.css" />
+    <Content Include="Content\mixins\buttons.css" />
+    <Content Include="Content\mixins\buttons.min.css" />
+    <Content Include="Content\normalize.css" />
+    <Content Include="Content\normalize.min.css" />
+    <Content Include="Content\Site.css" />
+    <Content Include="Content\Site.min.css" />
+    <Content Include="Content\variables.css" />
+    <Content Include="Content\variables.min.css" />
+    <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\Base.generated.cs">
+      <DependentUpon>ModelsBuilder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Blog.generated.cs">
+      <DependentUpon>ModelsBuilder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BlogArticle.generated.cs">
+      <DependentUpon>ModelsBuilder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Calendar.generated.cs">
+      <DependentUpon>ModelsBuilder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Event.cs" />
+    <Compile Include="Models\Event.generated.cs">
+      <DependentUpon>ModelsBuilder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\File.generated.cs">
+      <DependentUpon>ModelsBuilder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Folder.generated.cs">
+      <DependentUpon>ModelsBuilder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Home.generated.cs">
+      <DependentUpon>ModelsBuilder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Hub.generated.cs">
+      <DependentUpon>ModelsBuilder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Image.generated.cs">
+      <DependentUpon>ModelsBuilder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Member.generated.cs">
+      <DependentUpon>ModelsBuilder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\ModelsBuilder.cs">
+      <Generator>UmbracoModelsBuilder</Generator>
+      <LastGenOutput>ModelsBuilder.generated.cs</LastGenOutput>
+    </Compile>
+    <Compile Include="Models\ModelsBuilder.generated.cs">
+      <DependentUpon>ModelsBuilder.cs</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="Models\Notice.generated.cs">
+      <DependentUpon>ModelsBuilder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Notices.generated.cs">
+      <DependentUpon>ModelsBuilder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Page.generated.cs">
+      <DependentUpon>ModelsBuilder.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -444,6 +526,86 @@
     <Content Include="config\BackOfficeTours\getting-started.json" />
     <Content Include="config\connectionString.config" />
     <Content Include="App_Plugins\Epiphany.SeoMetadata\package.manifest" />
+    <Content Include="fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="fonts\muli.woff2" />
+    <Content Include="Content\.csscomb.json" />
+    <Content Include="Content\.csslintrc" />
+    <Content Include="Content\alerts.less" />
+    <Content Include="Content\badges.less" />
+    <Content Include="Content\bootstrap.css.map" />
+    <Content Include="Content\bootstrap.less" />
+    <Content Include="Content\breadcrumbs.less" />
+    <Content Include="Content\button-groups.less" />
+    <Content Include="Content\buttons.less" />
+    <Content Include="Content\carousel.less" />
+    <Content Include="Content\close.less" />
+    <Content Include="Content\code.less" />
+    <Content Include="Content\component-animations.less" />
+    <Content Include="Content\dropdowns.less" />
+    <Content Include="Content\forms.less" />
+    <Content Include="Content\glyphicons.less" />
+    <Content Include="Content\grid.less" />
+    <Content Include="Content\input-groups.less" />
+    <Content Include="Content\jumbotron.less" />
+    <Content Include="Content\labels.less" />
+    <Content Include="Content\list-group.less" />
+    <Content Include="Content\media.less" />
+    <Content Include="Content\mixins.less" />
+    <Content Include="Content\mixins\alerts.less" />
+    <Content Include="Content\mixins\background-variant.less" />
+    <Content Include="Content\mixins\border-radius.less" />
+    <Content Include="Content\mixins\buttons.less" />
+    <Content Include="Content\mixins\center-block.less" />
+    <Content Include="Content\mixins\clearfix.less" />
+    <Content Include="Content\mixins\forms.less" />
+    <Content Include="Content\mixins\gradients.less" />
+    <Content Include="Content\mixins\grid-framework.less" />
+    <Content Include="Content\mixins\grid.less" />
+    <Content Include="Content\mixins\hide-text.less" />
+    <Content Include="Content\mixins\image.less" />
+    <Content Include="Content\mixins\labels.less" />
+    <Content Include="Content\mixins\list-group.less" />
+    <Content Include="Content\mixins\nav-divider.less" />
+    <Content Include="Content\mixins\nav-vertical-align.less" />
+    <Content Include="Content\mixins\opacity.less" />
+    <Content Include="Content\mixins\pagination.less" />
+    <Content Include="Content\mixins\panels.less" />
+    <Content Include="Content\mixins\progress-bar.less" />
+    <Content Include="Content\mixins\reset-filter.less" />
+    <Content Include="Content\mixins\resize.less" />
+    <Content Include="Content\mixins\responsive-visibility.less" />
+    <Content Include="Content\mixins\size.less" />
+    <Content Include="Content\mixins\tab-focus.less" />
+    <Content Include="Content\mixins\table-row.less" />
+    <Content Include="Content\mixins\text-emphasis.less" />
+    <Content Include="Content\mixins\text-overflow.less" />
+    <Content Include="Content\mixins\vendor-prefixes.less" />
+    <Content Include="Content\modals.less" />
+    <Content Include="Content\navbar.less" />
+    <Content Include="Content\navs.less" />
+    <Content Include="Content\normalize.css.map" />
+    <Content Include="Content\normalize.less" />
+    <Content Include="Content\pager.less" />
+    <Content Include="Content\pagination.less" />
+    <Content Include="Content\panels.less" />
+    <Content Include="Content\popovers.less" />
+    <Content Include="Content\print.less" />
+    <Content Include="Content\progress-bars.less" />
+    <Content Include="Content\responsive-embed.less" />
+    <Content Include="Content\responsive-utilities.less" />
+    <Content Include="Content\scaffolding.less" />
+    <Content Include="Content\Site.less" />
+    <Content Include="Content\tables.less" />
+    <Content Include="Content\theme.less" />
+    <Content Include="Content\thumbnails.less" />
+    <Content Include="Content\tooltip.less" />
+    <Content Include="Content\type.less" />
+    <Content Include="Content\utilities.less" />
+    <Content Include="Content\variables.css.map" />
+    <Content Include="Content\variables.less" />
+    <Content Include="Content\wells.less" />
     <None Include="packages.config" />
     <Content Include="Views\Web.config" />
     <Content Include="Views\Partials\Grid\Editors\Textstring.cshtml" />
@@ -454,13 +616,7 @@
     <Content Include="Views\Partials\Grid\Editors\Base.cshtml" />
     <Content Include="Views\Partials\Grid\Bootstrap3.cshtml" />
     <Content Include="Views\Partials\Grid\Bootstrap3-Fluid.cshtml" />
-    <Content Include="Views\Blog\Article.cshtml" />
-    <Content Include="Views\Blog\Index.cshtml" />
-    <Content Include="Views\Blog\List.cshtml" />
-    <Content Include="Views\Blog\_Aside.cshtml" />
-    <Content Include="Views\Calendar\Event.cshtml" />
-    <Content Include="Views\Calendar\Index.cshtml" />
-    <Content Include="Views\Calendar\List.cshtml" />
+    <Content Include="Views\Partials\_Aside.cshtml" />
     <Content Include="Views\Contact\Enquiries.cshtml" />
     <Content Include="Views\Contact\Index.cshtml" />
     <Content Include="Views\Contact\ReportProblem.cshtml" />
@@ -468,25 +624,26 @@
     <Content Include="Views\Email\Index.cshtml" />
     <Content Include="Views\Error\Index.cshtml" />
     <Content Include="Views\Error\NotFound.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
-    <Content Include="Views\Home\SiteMap.cshtml" />
-    <Content Include="Views\Notices\Create.cshtml" />
-    <Content Include="Views\Notices\Delete.cshtml" />
-    <Content Include="Views\Notices\Edit.cshtml" />
-    <Content Include="Views\Notices\Index.cshtml" />
-    <Content Include="Views\Notices\List.cshtml" />
-    <Content Include="Views\Notices\Notice.cshtml" />
-    <Content Include="Views\Pages\Index.cshtml" />
-    <Content Include="Views\Pages\List.cshtml" />
-    <Content Include="Views\Pages\Type.cshtml" />
+    <Content Include="Views\SiteMap.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_EmailLayout.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Partials\_Links.cshtml" />
+    <Content Include="Views\Shared\_MasterLayout.cshtml" />
     <Content Include="Views\Shared\_LayoutNoBackground.cshtml" />
     <Content Include="Views\Shared\_LayoutWide.cshtml" />
-    <Content Include="Views\Shared\_Links.cshtml" />
-    <Content Include="Views\Shared\_LoginPartial.cshtml" />
-    <Content Include="Views\Shared\_MasterLayout.cshtml" />
+    <Content Include="Views\article.cshtml" />
+    <Content Include="Views\blog.cshtml" />
+    <Content Include="Views\calendar.cshtml" />
+    <Content Include="Views\event.cshtml" />
+    <Content Include="Views\home.cshtml" />
+    <Content Include="Views\masterLayout.cshtml" />
+    <Content Include="Views\notice.cshtml" />
+    <Content Include="Views\notices.cshtml" />
+    <Content Include="Views\page.cshtml" />
+    <Content Include="Views\MacroPartials\_LatestNotices.cshtml" />
+    <Content Include="Views\MacroPartials\_LatestEvents.cshtml" />
+    <Content Include="Views\MacroPartials\_LatestArticles.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -514,7 +671,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>51604</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:51604/</IISUrl>
+          <IISUrl>http://local.stpaulswarton.co.uk</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
