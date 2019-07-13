@@ -1,0 +1,36 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage<StPauls.Models.Page>
+    <div class="row">
+        <div class="col-xs-12">
+            <h1 class="page-header">@(string.IsNullOrWhiteSpace(Model.TitleOverrides) ? Model.Name : Model.TitleOverrides)</h1>
+            <br />
+            @if (Model.IncludeSocial)
+            {
+
+            }
+        </div>
+        <br />
+        <br />
+    </div>
+    <div class="row">
+        @Html.GetGridHtml(Model, "content");
+    </div>
+
+    @if (Model.IncludeComments)
+    {
+        <div class="row">
+            <div class="col-xs-12">
+                <div id="disqus_thread"></div>
+                <script type="text/javascript">
+				var disqus_shortname = 'stpaulswarton';
+				var disqus_identifier = 'page-@Model.Id';
+				var disqus_title = '@Model.Name';
+				var disqus_url = '@Model.Url';
+				(function () {
+					var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+					dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+					(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				})();
+                </script>
+            </div>
+        </div>
+    }
