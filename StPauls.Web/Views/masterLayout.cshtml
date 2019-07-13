@@ -1,0 +1,125 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage
+@{
+    Layout = null;
+    var homeNode = this.Umbraco.ContentAtRoot().FirstOrDefault() as IPublishedContent;
+}
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="utf-8" />
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <style>
+        @@font-face {
+            font-family: 'Muli';
+            font-style: normal;
+            font-weight: 400;
+            src: local('Muli'), url(/fonts/muli.woff2) format('woff2');
+            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+        }
+    </style>
+    <title>@Model.Name </title>
+    <meta name="description" content="@Model.Value("Description")">
+    <meta property="og:description" content="@Model.Value("Description")" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="http://stpaulswarton.co.uk/Areas/St_Pauls/Content/Image/PAGE-BACK.JPG" />
+
+    <link href="/Content/bootstrap.css" rel="stylesheet" />
+    <link href="/Content/site.css" rel="stylesheet"  />
+</head>
+<body>
+    <header class="navbar navbar-default">
+        <nav class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a href="/" class="navbar-brand">Site Name</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li class="nav-to-home"><a href="/">Home</a></li>
+                    @foreach (var child in homeNode.Children())
+                    {
+                        <li class="nav-to-blog">
+                            <a href="@child.Url">@child.Name</a>
+
+                        </li>
+                    }
+                    @*<li class="dropdown nav-to-about">
+                            <a href="#" class="dropdown-toggle nav-to-about" data-toggle="dropdown">About<span class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="@Url.Action("index", "pages", new { type="about",slug = "about-us" })">About Us</a></li>
+                                <li><a href="@Url.Action("index", "contact")">Contact Us</a></li>
+                                <li><a href="~/page/about/our-services">Services</a></li>
+                                <li class="divider"></li>
+                                <li><a href="@Url.Action("index", "pages", new {type="about", slug = "privacy-policy" })">Privacy Policy</a></li>
+                                <li><a href="@Url.Action("index", "pages", new {type="about", slug = "cookie-policy" })">Cookie Policy</a></li>
+                            </ul>
+                        </li>*@
+
+                    @*@foreach (sites.Type type in typeService.GetItems())
+                        {
+                            if (type.Pages.Any(x => !x.IsHidden))
+                            {
+                                if (type.Pages.Count() == 1)
+                                {
+                                    <li class="nav-to-@type.URLSlug"><a href="@Url.ActionDomain("Index", "Pages", new { type = type.URLSlug, slug = type.Pages.FirstOrDefault().URLSlug })">@type.Name</a></li>
+                                }
+                                else
+                                {
+                                    <li class="dropdown nav-to-@type.URLSlug">
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">@type.Name <span class="caret"></span></a>
+                                        <ul class="dropdown-menu" role="menu">
+                                            @foreach (sites.Page page in type.Pages.Where(x => !x.IsHidden))
+                                            {
+                                                <li><a href="@Url.ActionDomain("Index", "Pages", new { type = page.Type.URLSlug, slug = page.URLSlug })">@page.Title</a></li>
+                                            }
+                                        </ul>
+                                    </li>
+                                }
+
+                            }
+                        }*@
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <main class="body">
+        @RenderBody()
+    </main>
+    <br />
+    <br />
+    <footer class="footer">
+        <div class="container">
+            <nav class="row">
+                @Html.Partial("~/Views/Partials/_Links.cshtml")
+            </nav>
+            <hr />
+            <div class="row">
+                <div class="col-sm-6 col-xs-12">
+                    <p>&copy; @DateTime.UtcNow.ToLocalTime().Year - @homeNode.Name</p>
+                </div>
+                <div class="col-sm-6 col-xs-12 text-right">
+                    Site by <a href="http://ste-pam.com/home/about">Stephen Pammenter</a>  <a href="http://uk.linkedin.com/in/spammenter" style="text-decoration:none;"><span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="https://static.licdn.com/scds/common/u/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View Stephen Pammenter's LinkedIn profile" style="vertical-align:middle;margin-bottom: 5px;" border="0"></span></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    @RenderSection("scripts", required: false)
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date(); a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-68397826-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+    @RenderSection("additionalScripts", required: false)
+</body>
+</html>

@@ -1,0 +1,79 @@
+﻿@model sites.Article
+@section meta
+{
+	<title>@Model.Title</title>
+	<meta name="description" content="@Model.Description" />
+
+	<meta property="og:title" content="@Model.Title" />
+	<meta property="og:type" content="article" />
+	<meta name="description" content="@Model.Description">
+	<meta property="og:url" content="@Model.UrlWithDomain" />
+	<meta property="og:description" content="@Model.Description" />
+	<meta property="og:image" content="@Model.Image" />
+}
+<div class="container">
+	<div class="col-md-8 col-xs-12">
+		<article itemscope itemtype="http://schema.org/BlogPosting">
+			<h1 itemprop="headline" class="page-header">
+				@Model.Title
+			</h1>
+			<p>
+				<span class="glyphicon glyphicon-time"></span> Published <span itemprop="datePublished" content="@Model.TimeStamp">@Model.DynamicFormattedDate</span> <span class="glyphicon glyphicon-bookmark padding-sides"></span> <a href="@Url.ActionDomain("Topic", "Blog", new { topicName = @Model.Topic.URLSlug })">@Model.Topic.Name</a>
+				@if (User.IsInRole("Contributor") || User.IsInRole("Admin"))
+				{
+					<span style="padding-left: 30px;" class="glyphicon glyphicon-pencil"></span>
+					<a href="@Url.ActionDomain("Edit", "Blog", new { id= Model.ArticleID })">Edit</a>
+								<span style="padding-left: 30px;" class="glyphicon glyphicon-trash"></span>
+								<a href="@Url.ActionDomain("Delete", "Blog", new { id= Model.ArticleID })">Delete</a>
+				}
+				<ul class="social large">
+					<li>
+						<a class="social-icon large share facebook" href="https://www.facebook.com/sharer/sharer.php?u=@Request.RawUrl" target="_blank" title="Share this on Facebook">
+							Share this on Facebook
+						</a>
+					</li>
+					<li>
+						<a class="social-icon large share twitter" href="https://twitter.com/home?status=@Request.RawUrl" target="_blank" title="Share this on Twitter">
+							Share on Twitter
+						</a>
+					</li>
+					<li>
+						<a class="social-icon large share google" href="https://plus.google.com/share?url=@Request.RawUrl" target="_blank" title="Share this on Google+">
+							Share on Google+
+						</a>
+					</li>
+					<li>
+						<a class="social-icon large share linkedin" href="https://www.linkedin.com/shareArticle?mini=true&amp;url=@Request.RawUrl" target="_blank" title="Share this on LinkedIn">
+							Share on LinkedIn
+						</a>
+					</li>
+				</ul>
+			</p>
+			<h2 class="author-attribution">
+				<small itemscope itemtype="http://schema.org/Person">by <span itemprop="name">@Model.Author.FirstName @Model.Author.Surname</span></small>
+			</h2>
+			<div itemprop="articleBody">
+				@Html.Raw(Model.HTML)
+			</div>
+			<br />
+			<br />
+		</article>
+		<div class="col-xs-12">
+			<div id="disqus_thread"></div>
+			<script type="text/javascript">
+				var disqus_shortname = 'stpaulswarton';
+				var disqus_identifier = 'article-@Model.ArticleID';
+				var disqus_title = '@Model.Title';
+				var disqus_url = '@Model.UrlWithDomain';
+				(function () {
+					var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+					dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+					(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				})();
+			</script>
+		</div>
+	</div>
+	<div class="col-md-4 hidden-sm hidden-xs">
+		@Html.Partial("~/Areas/St_Pauls/Views/Blog/_Aside.cshtml")
+	</div>
+</div>

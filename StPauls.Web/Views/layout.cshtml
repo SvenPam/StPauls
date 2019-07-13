@@ -1,0 +1,15 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage
+@{
+    Layout = "~/Views/MasterLayout.cshtml";
+}
+<div class="container pageWrap bg-default">
+    @if (Model.IsDocumentType("page"))
+    {
+    <div class="full-page-height">
+        @Html.Partial("~/Views/Page.cshtml", Model)
+    </div>
+    }
+    else {
+        @RenderBody()
+    }
+</div>
