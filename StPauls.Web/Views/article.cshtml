@@ -11,16 +11,16 @@
             <p>
                 <span class="glyphicon glyphicon-time"></span> Published <span itemprop="datePublished" content="@Model.CreateDate.ToIsoString()">@Model.FormattedDate</span> <span class="glyphicon glyphicon-bookmark padding-sides"></span> <a>@Model.Topic</a>
                 @*@if (User.IsInRole("Contributor") || User.IsInRole("Admin"))
-                    {
-                        <span style="padding-left: 30px;" class="glyphicon glyphicon-pencil"></span>
-                        <a href="@Url.ActionDomain("Edit", "Blog", new { id= Model.ArticleID })">Edit</a>
-                        <span style="padding-left: 30px;" class="glyphicon glyphicon-trash"></span>
-                        <a href="@Url.ActionDomain("Delete", "Blog", new { id= Model.ArticleID })">Delete</a>
-                    }*@
+        {
+            <span style="padding-left: 30px;" class="glyphicon glyphicon-pencil"></span>
+            <a href="@Url.ActionDomain("Edit", "Blog", new { id= Model.ArticleID })">Edit</a>
+            <span style="padding-left: 30px;" class="glyphicon glyphicon-trash"></span>
+            <a href="@Url.ActionDomain("Delete", "Blog", new { id= Model.ArticleID })">Delete</a>
+        }*@
                 @if (Model.IncludeSocial)
                 {
                     <br /><br />
-                    @Html.Partial("~/Views/Parials/_SocialSharer.cshtml")
+                    @Html.Partial("~/Views/Partials/_SocialSharer.cshtml")
                 }
             </p>
             <h2 class="author-attribution">
