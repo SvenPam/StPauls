@@ -1,0 +1,41 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage<Notices>
+@{
+    Layout = "Layout.cshtml";
+}
+@{
+    var notices = Model.DescendantsOrSelf<Notice>().Where(x => x.IsPublished());
+}
+<div class="container">
+    <h1>Notices</h1>
+    @*@if (User.IsInRole("Contributor") || User.IsInRole("Admin"))
+        {
+            <div class="col-xs-12">
+                <span class=" glyphicon glyphicon-list"></span> <a href="@Url.ActionDomain("List", "Notices")">Manage Notices</a>|
+                <span class="glyphicon glyphicon-plus"></span> <a href="@Url.ActionDomain("Create", "Notices")">Create a new notice</a>
+                <br />
+                <br />
+            </div>
+        }*@
+    @if (notices.Any())
+    {
+        foreach (var notice in notices)
+        {
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <div class="panel panel-default">
+                    <a href="@notice.Url">
+                        <div class="panel-heading panel-heading-link">
+                            <h3>@notice.Name</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="col-xs-12">@notice.Description</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p>Could not find any notices.</p>
+    }
+</div>

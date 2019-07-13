@@ -1,0 +1,47 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage<Notice>
+@{
+    Layout = "Layout.cshtml";
+}
+<div class="container">
+    <h1>@Model.Name</h1>
+
+    @*@if (User.IsInRole("Contributor") || User.IsInRole("Admin"))
+        {
+            <p>
+                <a href="@Url.ActionDomain("Edit", "Notices", new { id = Model.NoticeID })">Edit</a> |
+                <a href="@Url.ActionDomain("Delete", "Notices", new { id = Model.NoticeID })">Delete</a>
+            </p>
+        }*@
+
+    <div class="col-xs-12">
+        @Model.CreatorName
+        <hr />
+    </div>
+    <div class="col-xs-12">
+        @Model.Description
+        <br />
+        <br />
+    </div>
+    @if (Model.IncludeSocial)
+    {
+        <br /><br />
+        @Html.Partial("~/Views/Partials/_SocialSharer.cshtml")
+    }
+    @if (Model.IncludeComments)
+    {
+        <div class="col-xs-12">
+            <div id="disqus_thread"></div>
+            <script type="text/javascript">
+				var disqus_shortname = 'stpaulswarton';
+                var disqus_identifier = 'notice-@Model.Id';
+                var disqus_title = '@Model.Name';
+				var disqus_url = '@Model.Url';
+                (function () {
+                    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                })();
+            </script>
+        </div>
+    }
+</div>
