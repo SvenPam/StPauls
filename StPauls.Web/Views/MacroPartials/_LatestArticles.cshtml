@@ -5,23 +5,29 @@
 
 @if (latestArticles.Any())
 {
-    <div class="col-xs-12">
-        <h3><a href="/blog">Latest Blog Articles</a></h3>
-    </div>
-    foreach (var article in latestArticles.Take(3))
-    {
-        <div class="col-md-4">
-            <div class="thumbnail">
-                @if (article.Image != null)
-                {
-                    <img src="@article.Image.GetCropUrl("Hero - S")" />
-                }
-                <div class="caption">
-                    <h3>@(string.IsNullOrWhiteSpace(article.TitleOverrides) ? article.Name : article.TitleOverrides)</h3>
-                    <p>@article.Description</p>
-                    <a class="btn btn-default" href="@article.Url">Read →</a>
-                </div>
+    <section class="spacer">
+        <div class="row spacer">
+            <div class="col-xs-12">
+                <h2><a href="/blog">Latest Blog Articles</a></h2>
             </div>
         </div>
-    }
+        <div class="row">
+            @foreach (var article in latestArticles.Take(3))
+            {
+                <div class="col-md-4">
+                    <div class="thumbnail">
+                        @if (article.Image != null)
+                        {
+                            <img src="@article.Image.GetCropUrl("Hero - S")" />
+                        }
+                        <div class="caption">
+                            <h3>@(string.IsNullOrWhiteSpace(article.TitleOverrides) ? article.Name : article.TitleOverrides)</h3>
+                            <p>@article.Description</p>
+                            <a class="btn btn-default" href="@article.Url">Read →</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
 }

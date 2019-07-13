@@ -1,0 +1,36 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage
+@{
+    Layout = "layout.cshtml";
+}
+
+@{
+    var rootContent = Model.Siblings().Where(x => !x.Name.Equals("Not Found") && x.IsPublished());
+
+}
+<div class="row">
+    <section class="section">
+        <div class="section__content">
+            <h1 class="paheHeader">Site Map</h1>
+            <ul>
+                @foreach (var item in rootContent)
+                {
+                    <li>
+                        <a href="@item.Url">@item.Name</a>
+
+                        @if (item.Children.Any())
+                        {
+                            <ul>
+                                @foreach (var child in item.Children)
+                                {
+                                    <li><a href="@child.Url">@child.Name</a></li>
+                                }
+                            </ul>
+                        }
+
+                    </li>
+                }
+            </ul>
+        </div>
+    </section>
+</div>
+
