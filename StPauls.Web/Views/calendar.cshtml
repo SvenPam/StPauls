@@ -1,0 +1,56 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage<StPauls.Models.Calendar>
+@using System.Globalization
+
+@{
+    Layout = "Layout.cshtml";
+    var events = Model.Children<StPauls.Models.Event>().Where(x => x.Status != EventStatus.Expired);
+}
+
+<div class="row">
+    <h1 class="page-header">Upcoming Events</h1>
+</div>
+<div class="row">
+    @*@if (User.IsInRole("Contributor") || User.IsInRole("Admin"))
+        {
+            <span class="glyphicon glyphicon-list"></span> <a href="@Url.ActionDomain("List", "Calendar")">Manage Events</a> @("|")
+            <span class="glyphicon glyphicon-plus"></span> <a href="@Url.ActionDomain("Create", "Calendar")">Create a new event</a>
+            <br />
+            <br />
+        }*@
+    <div id="calendar-index">
+        @if (events.Any())
+        {
+            foreach (Event oneEvent in events)
+            {
+                <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                    <a href="@oneEvent.Url">
+                        <div class="panel panel-default event-panel">
+                            <div class="panel-heading panel-heading-link">
+                                <div class="row">
+                                    <div class="col-xs-6">
+                                        <h1>@oneEvent.StartDate.Day</h1>
+                                        <span class="label label-@oneEvent.EventStatusBootstrapColourClass">@oneEvent.Status</span>
+                                    </div>
+                                    <div class="col-xs-6"><span class="glyphicon glyphicon-time"></span> @oneEvent.StartDate.ToString("HH:mm") <p>@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(oneEvent.StartDate.Month)</p></div>
+                                </div>
+                            </div>
+                            <div class="panel-body event-info">
+                                <div class="col-xs-12">
+                                    <h3>@oneEvent.Title</h3>
+                                    <address>
+                                        @oneEvent.Location
+                                    </address>
+                                </div>
+                                <div class="col-xs-12">@oneEvent.Description</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        }
+        else
+        {
+            <p>Could not find any events.</p>
+        }
+    </div>
+</div>
