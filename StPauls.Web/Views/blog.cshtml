@@ -16,37 +16,16 @@
                         <h2><a href="@article.Url">@article.Title</a></h2>
                         <span class="glyphicon glyphicon-time"></span> Published @article.FormattedDate <span class="glyphicon glyphicon-bookmark padding-sides"></span> <a href="">@article.Topic</a>
                         @*@if (User.IsInRole("Contributor") || User.IsInRole("Admin"))
-                            {
-                                <span style="padding-left: 30px;" class="glyphicon glyphicon-pencil"></span>
-                                <a href="@Url.ActionDomain("Edit", "Blog", new { id = article.ArticleID })">Edit</a>
-                                <span style="padding-left: 30px;" class="glyphicon glyphicon-trash"></span>
-                                <a href="@Url.ActionDomain("Delete", "Blog", new { id = article.ArticleID })">Delete</a>
-                            }*@
+        {
+            <span style="padding-left: 30px;" class="glyphicon glyphicon-pencil"></span>
+            <a href="@Url.ActionDomain("Edit", "Blog", new { id = article.ArticleID })">Edit</a>
+            <span style="padding-left: 30px;" class="glyphicon glyphicon-trash"></span>
+            <a href="@Url.ActionDomain("Delete", "Blog", new { id = article.ArticleID })">Delete</a>
+        }*@
                         @if (article.IncludeSocial)
                         {
                             <br /><br />
-                            <ul class="social large">
-                                <li>
-                                    <a class="social-icon large share facebook" href="https://www.facebook.com/sharer/sharer.php?u=@article.Url" target="_blank" title="Share this on Facebook">
-                                        Share this on Facebook
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="social-icon large share twitter" href="https://twitter.com/home?status=@article.Url" target="_blank" title="Share this on Twitter">
-                                        Share on Twitter
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="social-icon large share google" href="https://plus.google.com/share?url=@article.Url" target="_blank" title="Share this on Google+">
-                                        Share on Google+
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="social-icon large share linkedin" href="https://www.linkedin.com/shareArticle?mini=true&amp;url=@article.Url" target="_blank" title="Share this on LinkedIn">
-                                        Share on LinkedIn
-                                    </a>
-                                </li>
-                            </ul>
+                            @Html.Partial("~/Views/Parials/_SocialSharer.cshtml")
                         }
                         <h2 class="author-attribution">
                             <small>by <span>@article.CreatorName</span></small>

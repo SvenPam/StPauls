@@ -20,28 +20,7 @@
                 @if (Model.IncludeSocial)
                 {
                     <br /><br />
-                    <ul class="social large">
-                        <li>
-                            <a class="social-icon large share facebook" href="https://www.facebook.com/sharer/sharer.php?u=@Model.Url" target="_blank" title="Share this on Facebook">
-                                Share this on Facebook
-                            </a>
-                        </li>
-                        <li>
-                            <a class="social-icon large share twitter" href="https://twitter.com/home?status=@Model.Url" target="_blank" title="Share this on Twitter">
-                                Share on Twitter
-                            </a>
-                        </li>
-                        <li>
-                            <a class="social-icon large share google" href="https://plus.google.com/share?url=@Model.Url" target="_blank" title="Share this on Google+">
-                                Share on Google+
-                            </a>
-                        </li>
-                        <li>
-                            <a class="social-icon large share linkedin" href="https://www.linkedin.com/shareArticle?mini=true&amp;url=@Model.Url" target="_blank" title="Share this on LinkedIn">
-                                Share on LinkedIn
-                            </a>
-                        </li>
-                    </ul>
+                    @Html.Partial("~/Views/Parials/_SocialSharer.cshtml")
                 }
             </p>
             <h2 class="author-attribution">
