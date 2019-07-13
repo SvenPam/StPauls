@@ -1,55 +1,36 @@
 ﻿@inherits UmbracoViewPage<dynamic>
-@using Umbraco.Web.Templates
 @using Newtonsoft.Json.Linq
 
 @if (Model != null && Model.sections != null)
 {
-    var oneColumn = ((System.Collections.ICollection)Model.sections).Count == 1;
-
-    <div class="umb-grid">
-        @if (oneColumn)
-        {
-            foreach (var section in Model.sections) {
-                <div class="grid-section">
-                    @foreach (var row in section.rows) {
-                        @renderRow(row, true);
-                    }
-                </div>
+    foreach (var s in Model.sections)
+    {
+        <div class="col-md-@s.grid column">
+            @foreach (var row in s.rows)
+            {
+                @renderRow(row);
             }
-        }else {
-            <div class="container">
-                <div class="row clearfix">
-                    @foreach (var s in Model.sections) {
-                        <div class="grid-section">
-                            <div class="col-md-@s.grid column">
-                                @foreach (var row in s.rows) {
-                                    @renderRow(row, false);
-                                }
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
-        }
-    </div>
-}
-
-@helper renderRow(dynamic row, bool singleColumn){
-    <div @RenderElementAttributes(row)>
-        @Html.If(singleColumn, "<div class='container'>")
-        <div class="row clearfix">
-            @foreach ( var area in row.areas ) {
-            <div class="col-md-@area.grid column">
-                <div @RenderElementAttributes(area)>
-                    @foreach (var control in area.controls) {
-                        if (control !=null && control.editor != null && control.editor.view != null ) {
-                            <text>@Html.Partial("grid/editors/base", (object)control)</text>
-                        }
-                    }
-                </div>
-            </div>}
         </div>
-        @Html.If(singleColumn, "</div>")
+    }
+}
+@helper renderRow(dynamic row)
+{
+    <div @RenderElementAttributes(row)>
+        <div class="row">
+            @foreach (var area in row.areas)
+            {
+                <div class="col-md-@area.grid column">
+                    <div @RenderElementAttributes(area)>
+                        @foreach (var control in area.controls)
+                        {
+                            if (control != null && control.editor != null && control.editor.view != null)
+                            {
+                                <text>@Html.Partial("grid/editors/base", (object)control)</text>
+                            }
+                        }
+                    </div>
+                </div>}
+        </div>
     </div>
 }
 
@@ -59,7 +40,7 @@
         var attrs = new List<string>();
         JObject cfg = contentItem.config;
 
-        if(cfg != null)
+        if (cfg != null)
             foreach (JProperty property in cfg.Properties())
             {
                 var propertyValue = HttpUtility.HtmlAttributeEncode(property.Value.ToString());
@@ -68,7 +49,8 @@
 
         JObject style = contentItem.styles;
 
-        if (style != null) {
+        if (style != null)
+        {
             var cssVals = new List<string>();
             foreach (JProperty property in style.Properties())
             {
@@ -80,7 +62,7 @@
             }
 
             if (cssVals.Any())
-                attrs.Add("style=\"" + HttpUtility.HtmlAttributeEncode(string.Join(" ", cssVals)) + "\"");
+                attrs.Add("style='" + HttpUtility.HtmlAttributeEncode(string.Join(" ", cssVals)) + "'");
         }
 
         return new MvcHtmlString(string.Join(" ", attrs));
