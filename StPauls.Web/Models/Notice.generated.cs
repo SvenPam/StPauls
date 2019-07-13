@@ -53,6 +53,20 @@ namespace StPauls.Models
 		public string BulletinBody => this.Value<string>("bulletinBody");
 
 		///<summary>
+		/// Include Comments: Choose to include a comment section on this notice.
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder", "8.1.0")]
+		[ImplementPropertyType("includeComments")]
+		public bool IncludeComments => this.Value<bool>("includeComments");
+
+		///<summary>
+		/// Include Social: Choose to include social sharing icons on this notice.
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder", "8.1.0")]
+		[ImplementPropertyType("includeSocial")]
+		public bool IncludeSocial => this.Value<bool>("includeSocial");
+
+		///<summary>
 		/// Location: If this notice is for a specific place, you can specify here.
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder", "8.1.0")]

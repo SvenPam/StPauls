@@ -398,11 +398,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Plugins\Epiphany.SeoMetadata\css\epiphany.seo.metadata.css" />
-    <Content Include="App_Plugins\Epiphany.SeoMetadata\js\epiphany.seo.metadata.js" />
-    <Content Include="App_Plugins\Epiphany.SeoMetadata\views\epiphany.seo.metadata.html" />
-    <Content Include="App_Plugins\Epiphany.SeoMetadata\views\serp1.png" />
-    <Content Include="App_Plugins\Epiphany.SeoMetadata\views\serp2.png" />
     <Content Include="App_Plugins\ModelsBuilder\modelsbuilder.controller.js" />
     <Content Include="App_Plugins\ModelsBuilder\modelsbuilder.html" />
     <Content Include="App_Plugins\ModelsBuilder\modelsbuilder.resource.js" />
@@ -506,6 +501,7 @@
     <Compile Include="Models\Notices.generated.cs">
       <DependentUpon>ModelsBuilder.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\Page.cs" />
     <Compile Include="Models\Page.generated.cs">
       <DependentUpon>ModelsBuilder.cs</DependentUpon>
     </Compile>
@@ -525,7 +521,6 @@
     <Content Include="config\ClientDependency.config" />
     <Content Include="config\BackOfficeTours\getting-started.json" />
     <Content Include="config\connectionString.config" />
-    <Content Include="App_Plugins\Epiphany.SeoMetadata\package.manifest" />
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
@@ -615,7 +610,6 @@
     <Content Include="Views\Partials\Grid\Editors\Embed.cshtml" />
     <Content Include="Views\Partials\Grid\Editors\Base.cshtml" />
     <Content Include="Views\Partials\Grid\Bootstrap3.cshtml" />
-    <Content Include="Views\Partials\Grid\Bootstrap3-Fluid.cshtml" />
     <Content Include="Views\Partials\_Aside.cshtml" />
     <Content Include="Views\Contact\Enquiries.cshtml" />
     <Content Include="Views\Contact\Index.cshtml" />
@@ -627,10 +621,7 @@
     <Content Include="Views\SiteMap.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_EmailLayout.cshtml" />
-    <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Partials\_Links.cshtml" />
-    <Content Include="Views\Shared\_MasterLayout.cshtml" />
-    <Content Include="Views\Shared\_LayoutNoBackground.cshtml" />
     <Content Include="Views\Shared\_LayoutWide.cshtml" />
     <Content Include="Views\article.cshtml" />
     <Content Include="Views\blog.cshtml" />
@@ -644,6 +635,9 @@
     <Content Include="Views\MacroPartials\_LatestNotices.cshtml" />
     <Content Include="Views\MacroPartials\_LatestEvents.cshtml" />
     <Content Include="Views\MacroPartials\_LatestArticles.cshtml" />
+    <Content Include="Views\layout.cshtml" />
+    <Content Include="Views\layoutWide.cshtml" />
+    <Content Include="Views\Partials\_SocialSharer.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
