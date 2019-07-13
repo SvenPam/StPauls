@@ -26,7 +26,7 @@ namespace StPauls.Models
                         return EventStatus.Active;
                     }
                 }
-                else if (this.StartDate < DateTime.Now.AddHours(24))
+                else if (this.StartDate < DateTime.Now.AddDays(7))
                 {
                     return EventStatus.Soon;
                 }
