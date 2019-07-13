@@ -53,6 +53,13 @@ namespace StPauls.Models
 		public Newtonsoft.Json.Linq.JToken Content => this.Value<Newtonsoft.Json.Linq.JToken>("content");
 
 		///<summary>
+		/// Has Wide Layout?: Choose to make the layout of this page wide.
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder", "8.1.0")]
+		[ImplementPropertyType("hasWideLayout")]
+		public bool HasWideLayout => this.Value<bool>("hasWideLayout");
+
+		///<summary>
 		/// Include Comments: Show a comments section.
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder", "8.1.0")]
