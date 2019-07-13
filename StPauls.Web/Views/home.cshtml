@@ -1,0 +1,14 @@
+﻿@inherits UmbracoViewPage
+@{
+    Layout = "Shared/_LayoutNoBackground.cshtml";
+}
+
+<div class="row">
+    <div class="jumbotron home-page-hero">
+        <div class="container">
+            <h1>@Model.Name</h1>
+            <p class="lead">@Model.Value("pageLead")</p>
+        </div>
+    </div>
+</div>
+@Html.GetGridHtml(Model, "content")
