@@ -1,0 +1,131 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage<StPauls.Models.Event>
+@using System.Globalization
+@{
+    Layout = "LayoutWide.cshtml";
+    string titleWidth = Model.EndDate != default(DateTime) ? "6" : "9";
+    TimeSpan toGo = Model.StartDate - DateTime.Now;
+}
+
+@if (toGo.Hours < 0)
+{
+    if (DateTime.Now < Model.EndDate)
+    {
+        toGo = new TimeSpan(-1, 0, 0);
+    }
+}
+<div class="container">
+    <div class="jumbotron">
+        <div class="container">
+            <div class="col-xs-12">
+                <div class="row">
+                    <div class="col-md-@titleWidth col-sm-12">
+                        <h2>@Model.Title</h2>
+                        <p>@Model.CreatorName</p> <p class="text-muted">@Model.Topic</p>
+
+                        @switch (Model.Status)
+                        {
+                            case EventStatus.Expired:
+                                <div class="alert alert-default" role="alert">
+                                    <p><small>Expired</small></p>
+                                </div>
+                                break;
+                            case EventStatus.Active:
+                                <div class="alert alert-success" role="alert">
+                                    <p><small>In Progress</small></p>
+                                </div>
+                                break;
+                            case EventStatus.Soon:
+                                <div class="alert alert-warning" role="alert">
+                                    <p>
+                                        <small>
+                                            @if (toGo.Hours != 0)
+                                            {
+                                                <text>@toGo.Hours hours to go</text>
+                                            }
+                                            else
+                                            {
+                                                <text>@toGo.Minutes minutes to go</text>
+                                            }
+                                        </small>
+                                    </p>
+                                </div>
+                                break;
+                            default:
+                                <div class="alert alert-info" role="alert">
+                                    <p><small>@toGo.Days days to go</small></p>
+                                </div>
+                                break;
+                        }
+                        @if (Model.IncludeSocial)
+                        {
+                            @Html.Partial("~/Views/Parials/_SocialSharer.cshtml")
+                        }
+                        @*@if (User.IsInRole("Contributor") || User.IsInRole("Admin"))
+                            {
+                                <p>
+                                    <a href="@Url.ActionDomain("Edit", "Calendar", new { id = Model.EventID })">Edit</a> |
+                                    <a href="@Url.ActionDomain("Delete", "Calendar", new { id = Model.EventID })">Delete</a>
+                                </p>
+                            }*@
+                    </div>
+                    @if (Model.EndDate != default(DateTime) && Model.StartDate.Day == Model.EndDate.Day)
+                    {
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <h1><small>Start</small><br />@Model.StartDate.ToShortTimeString()</h1>
+                            <p>@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Model.StartDate.Month)</p>
+                            <h3>@Model.StartDate.Day</h3>
+                        </div>
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <h1><small>End</small><br />@Model.EndDate.ToShortTimeString()</h1>
+                            <p>@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Model.EndDate.Month)</p>
+                            <h3>@Model.EndDate.Day</h3>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <h1><small>Start</small><br />@Model.StartDate.Day</h1>
+                            <p>@CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(Model.StartDate.Month)</p>
+                            <span class="glyphicon glyphicon-time"></span> @Model.StartDate.ToShortTimeString()
+                        </div>
+                        if (Model.EndDate != default(DateTime))
+                        {
+                            <div class="col-md-3 col-sm-6 col-xs-12">
+                                <h1><small>End</small><br />@Model.EndDate.Day</h1>
+                                <p>@CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(Model.EndDate.Month)</p>
+                                <span class="glyphicon glyphicon-time"></span> @Model.EndDate.ToShortTimeString()
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top: -30px;" class="bg-default">
+        <div class="col-xs-12">
+            <h4 class="lead">@Model.Description</h4>
+            <br />
+            @Html.GetGridHtml(Model, "content")
+        </div>
+        <br />
+        <br />
+        @if (Model.IncludeComments)
+        {
+            <div class="col-xs-12">
+                <div id="disqus_thread"></div>
+                <script type="text/javascript">
+					var disqus_shortname = 'stpaulswarton';
+					var disqus_identifier = 'event-@Model.Id';
+					var disqus_title = '@Model.Title';
+					var disqus_url = '@Model.Url';
+					(function () {
+						var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+						dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+						(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+					})();
+                </script>
+            </div>
+        }
+    </div>
+</div>
