@@ -450,6 +450,7 @@
     <Content Include="Content\Site.min.css" />
     <Content Include="Content\variables.css" />
     <Content Include="Content\variables.min.css" />
+    <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Web.config" />
