@@ -1,7 +1,7 @@
 ---
 date: 2026-10-17
 tags: [spec, plan, stpauls]
-status: agreed
+status: done
 ---
 
 # Spec 02: layout and stylesheet
@@ -171,14 +171,14 @@ Same content and CSS hooks as spec 00 (`notice-date`, `notice-summary`, `notice-
 
 ## Acceptance
 
-- [ ] `python3 -m unittest discover -s tests -v` passes.
-- [ ] No file under `site/static/Content/` remains, and the built site references nothing under `/Content/`.
-- [ ] CSS under 25,000 bytes and script under 2,048 bytes, both fingerprinted with SRI.
-- [ ] Every token pair in the contrast test meets its threshold.
-- [ ] With script disabled, the menu opens on a phone-width screen and every dropdown opens.
-- [ ] The menu toggle is at least 44 by 44 px and reads "Menu".
-- [ ] A 1024 px wide image or 900 px wide iframe in a notice body stays inside the column at 390 px.
-- [ ] The maintainer signs off the screenshots.
+- [x] `python3 -m unittest discover -s tests -v` passes.
+- [x] No file under `site/static/Content/` remains, and the built site references nothing under `/Content/`.
+- [x] CSS under 25,000 bytes and script under 2,048 bytes, both fingerprinted with SRI.
+- [x] Every token pair in the contrast test meets its threshold.
+- [x] With script disabled, the menu opens on a phone-width screen and every dropdown opens.
+- [x] The menu toggle is at least 44 by 44 px and reads "Menu".
+- [x] A 1024 px wide image or 900 px wide iframe in a notice body stays inside the column at 390 px.
+- [x] The maintainer signs off the screenshots.
 
 ---
 
