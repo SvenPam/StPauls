@@ -6,7 +6,7 @@ status: agreed
 
 # Spec 07: content migration
 
-_One session. A re-runnable script extracts every article, event, notice and page from the live site into Markdown with front matter, copies uploads and hot-linked images into the repo, moves embeds into fields, and writes a report for the maintainer and the church. It is run again on cutover day. See the [design](../design-site-replacement.md) and [conventions](conventions.md)._
+_One session. A re-runnable script extracts every article, event, notice and page from the live site into Markdown with front matter, copies uploads and hot-linked images into the repo, moves embeds into fields, and writes a report for the maintainer and the church. It is run again on cutover day. See the [design](page-cms-feature.md) and [conventions](page-cms-spec-conventions.md)._
 
 ---
 
@@ -37,7 +37,7 @@ _One session. A re-runnable script extracts every article, event, notice and pag
 
 - `scripts/migrate.py` and its unit tests on saved HTML snapshots in `tests/fixtures/live/`.
 - Dates from a maintainer export of the legacy database (`scripts/legacy-dates.csv`), with inferred and flagged fallbacks.
-- Running it: migrated content, uploads in `site/static/uploads/`, upload routes appended to `site/data/legacy.yaml`, `docs/migration-report.md`.
+- Running it: migrated content, uploads in `site/static/uploads/`, upload routes appended to `site/data/legacy.yaml`, `docs/features/page-cms/page-cms-migration-report.md`.
 - Seed notices from spec 00 removed (their migrated versions replace them).
 
 ## Out of scope
@@ -95,7 +95,7 @@ notice,46,2024-03-10T00:00,
 
 Each downloaded upload also gets a `legacy.yaml` rewrite from its exact live path (and the `St_Pauls` spelling) to its new path. Entries are appended once, sorted, under a comment `# uploads (spec 07)`, keeping the existing entries.
 
-### Report (`docs/migration-report.md`)
+### Report (`docs/features/page-cms/page-cms-migration-report.md`)
 
 Front matter and title per the docs conventions. Tables: counts per type; items with inferred dates; failed downloads; iframes kept; removed scripts; files in content folders the script did not write (practice content or Paul's real additions, for the maintainer to keep or delete on cutover day); policy text that no longer applies (any of `Google Analytics`, `Disqus`, `register`, `log in`, `login`, `account`, `subscribe` in a page body, with the page and the sentence).
 
@@ -117,7 +117,7 @@ python3 scripts/migrate.py [--live http://stpaulswarton.co.uk] [--dates scripts/
 ## Manual steps (maintainer)
 
 1. Export `kind,id,start,end` for every event and notice from the legacy database into `scripts/legacy-dates.csv` (CSV, UTF-8, ISO dates). If this cannot be done, say so: the script infers and flags.
-2. Review the migrated content diff and `docs/migration-report.md`. Compare a few pages side by side with the screenshots.
+2. Review the migrated content diff and `docs/features/page-cms/page-cms-migration-report.md`. Compare a few pages side by side with the screenshots.
 3. Pass the policy section of the report to the church (spec 10 follows it up).
 
 ---
@@ -143,15 +143,15 @@ python3 scripts/migrate.py [--live http://stpaulswarton.co.uk] [--dates scripts/
 
 **Tech Stack:** Python 3 standard library (`html.parser`, `urllib`, `csv`, `hashlib`, `re`, `json`), Hugo for the check build.
 
-**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](conventions.md).
+**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](page-cms-spec-conventions.md).
 
 ### Global Constraints
 
-- Everything in [conventions: global constraints](conventions.md#global-constraints).
+- Everything in [conventions: global constraints](page-cms-spec-conventions.md#global-constraints).
 - Standard library only. Python 3.12 compatible.
 - The test suite never touches the network. Snapshots live in `tests/fixtures/live/` and are trimmed to the `<main>` element plus the header and footer navs, with the maintainer's name and links removed.
 - Output front matter keys and file names exactly as in the Output table.
-- The script never writes outside `--site`, `scripts/legacy-dates.csv` excepted (read only), and `docs/migration-report.md`.
+- The script never writes outside `--site`, `scripts/legacy-dates.csv` excepted (read only), and `docs/features/page-cms/page-cms-migration-report.md`.
 
 ### Review Focus
 
@@ -399,7 +399,7 @@ git commit -m "Add migration CLI, report and legacy route update"
 
 **Files:**
 - Delete: `site/content/notices/news-pew-sheets.md`, `safeguarding.md`, `latest-parish-magazine.md`
-- Create (by the script): `site/content/blog/*.md`, `site/content/calendar/*.md`, `site/content/notices/*.md`, `site/content/page/*/*.md`, `site/static/uploads/**`, `docs/migration-report.md`
+- Create (by the script): `site/content/blog/*.md`, `site/content/calendar/*.md`, `site/content/notices/*.md`, `site/content/page/*/*.md`, `site/static/uploads/**`, `docs/features/page-cms/page-cms-migration-report.md`
 - Modify (by the script): `site/content/_index.md`, `site/data/legacy.yaml`
 - Create: `scripts/legacy-dates.csv` (from the maintainer, if provided)
 

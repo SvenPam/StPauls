@@ -6,7 +6,7 @@ status: agreed
 
 # Spec 03: blog, events and notices
 
-_One session. Builds the three dated sections on the new shell: blog articles, calendar events and notices, with topic listings, RSS feeds, live URL patterns, a nightly rebuild, and Pages CMS collections for each. See the [design](../design-site-replacement.md) and [conventions](conventions.md)._
+_One session. Builds the three dated sections on the new shell: blog articles, calendar events and notices, with topic listings, RSS feeds, live URL patterns, a nightly rebuild, and Pages CMS collections for each. See the [design](page-cms-feature.md) and [conventions](page-cms-spec-conventions.md)._
 
 ---
 
@@ -147,11 +147,11 @@ All three `exclude: [_index.md]`. Top level `settings: { content: { merge: true 
 
 **Tech Stack:** Hugo extended 0.167.0, Pages CMS config, GitHub Actions, Python 3 `unittest`.
 
-**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](conventions.md).
+**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](page-cms-spec-conventions.md).
 
 ### Global Constraints
 
-- Everything in [conventions: global constraints](conventions.md#global-constraints).
+- Everything in [conventions: global constraints](page-cms-spec-conventions.md#global-constraints).
 - Front matter keys, taxonomy names, partial names and Pages CMS collection names exactly as in this spec and the site contract.
 - Dates shown as `02-Jan-06`. Event times as `3:04 PM`.
 - Tests that depend on "now" use fixture dates far in the past (`2015-...`) or far in the future (`2099-...`), never near today.

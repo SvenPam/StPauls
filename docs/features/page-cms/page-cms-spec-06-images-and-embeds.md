@@ -6,7 +6,7 @@ status: agreed
 
 # Spec 06: images and embeds
 
-_One session. Serves every uploaded image as resized WebP inside `<picture>`, including images Paul drops into a rich text body, makes anything else fit the column, and turns the Google Calendar and Facebook album iframes into page settings that the editor cannot break. See the [design](../design-site-replacement.md) and [conventions](conventions.md)._
+_One session. Serves every uploaded image as resized WebP inside `<picture>`, including images Paul drops into a rich text body, makes anything else fit the column, and turns the Google Calendar and Facebook album iframes into page settings that the editor cannot break. See the [design](page-cms-feature.md) and [conventions](page-cms-spec-conventions.md)._
 
 ---
 
@@ -136,11 +136,11 @@ Before the build step, `actions/cache` restores `site/resources/_gen` with key `
 
 **Tech Stack:** Hugo extended 0.167.0 image processing and module mounts, GitHub Actions cache, Python 3 `unittest`.
 
-**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](conventions.md).
+**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](page-cms-spec-conventions.md).
 
 ### Global Constraints
 
-- Everything in [conventions: global constraints](conventions.md#global-constraints).
+- Everything in [conventions: global constraints](page-cms-spec-conventions.md#global-constraints).
 - WebP widths exactly 480, 800, 1200, 1600, never above the original. Quality 75.
 - No binary fixtures in the repo. Test images are generated with `helpers.make_png`.
 - Nothing about a missing or foreign image may fail a build or print a warning.

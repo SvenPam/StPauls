@@ -6,7 +6,7 @@ status: agreed
 
 # Spec 09: security and delivery hardening
 
-_One session. Adds security headers and a Content Security Policy built from what the site really loads, long caching for fingerprinted files, a hardened build pipeline, delivery budget tests, and settles the cookie policy. See the [design](../design-site-replacement.md) and [conventions](conventions.md)._
+_One session. Adds security headers and a Content Security Policy built from what the site really loads, long caching for fingerprinted files, a hardened build pipeline, delivery budget tests, and settles the cookie policy. See the [design](page-cms-feature.md) and [conventions](page-cms-spec-conventions.md)._
 
 ---
 
@@ -94,7 +94,7 @@ HTML keeps the platform default, so a publish shows within a minute.
 
 ### Cookies
 
-A how-to `docs/how-to-check-cookies.md` for the maintainer: open the test URL's home page, `/page/about/church-diary` and `/page/gallery/church-gallery` in a private window, open developer tools, Application (Chrome) or Storage (Firefox), Cookies, and list every cookie and its domain for each page. Record the result in the how-to.
+A how-to `docs/features/page-cms/page-cms-how-to-check-cookies.md` for the maintainer: open the test URL's home page, `/page/about/church-diary` and `/page/gallery/church-gallery` in a private window, open developer tools, Application (Chrome) or Storage (Firefox), Cookies, and list every cookie and its domain for each page. Record the result in the how-to.
 
 | Result | What happens |
 |---|---|
@@ -107,7 +107,7 @@ The site itself sets no cookies; a test checks that no template or script calls 
 
 ## Manual steps (maintainer)
 
-1. After merge, run `curl -sI https://brave-coast-006318103.5.azurestaticapps.net/` (or ask Claude) and check the headers, including that exactly one `Strict-Transport-Security` header comes back with `max-age=300` (the platform sends its own on `azurestaticapps.net`; record which one wins in [checked facts](conventions.md#azure-static-web-apps)). Open the church diary and gallery pages and check the embeds still load with the CSP in place.
+1. After merge, run `curl -sI https://brave-coast-006318103.5.azurestaticapps.net/` (or ask Claude) and check the headers, including that exactly one `Strict-Transport-Security` header comes back with `max-age=300` (the platform sends its own on `azurestaticapps.net`; record which one wins in [checked facts](page-cms-spec-conventions.md#azure-static-web-apps)). Open the church diary and gallery pages and check the embeds still load with the CSP in place.
 2. Do the cookie check in the how-to and tell Claude the result.
 3. In GitHub settings, turn on Dependabot alerts and secret scanning for the repository if they are off, and check the Pages CMS GitHub App has access to this repository only.
 
@@ -135,11 +135,11 @@ The site itself sets no cookies; a test checks that no template or script calls 
 
 **Tech Stack:** Azure Static Web Apps config, Hugo templates, GitHub Actions, Dependabot, Python 3 `unittest`.
 
-**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](conventions.md).
+**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](page-cms-spec-conventions.md).
 
 ### Global Constraints
 
-- Everything in [conventions: global constraints](conventions.md#global-constraints).
+- Everything in [conventions: global constraints](page-cms-spec-conventions.md#global-constraints).
 - Header values exactly as in the Headers table.
 - No `'unsafe-inline'` for scripts, no `'unsafe-eval'`, no wildcard in `frame-src`.
 - The generated config stays under 20,480 bytes.
@@ -334,7 +334,7 @@ git commit -m "Pin actions to commits, check the Hugo download and add Dependabo
 ### Task 4: Cookie check and policy outcome
 
 **Files:**
-- Create: `docs/how-to-check-cookies.md`
+- Create: `docs/features/page-cms/page-cms-how-to-check-cookies.md`
 - Modify (only if no cookies): delete `site/content/page/about/cookie-policy.md`, add the redirect to `site/data/legacy.yaml`, add `/page/about/cookie-policy` handling to `tests/fixtures/live-urls.txt` expectations (it becomes a configured redirect)
 - Modify: `tests/test_docs.py`
 

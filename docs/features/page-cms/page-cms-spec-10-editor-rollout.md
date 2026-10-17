@@ -6,7 +6,7 @@ status: agreed
 
 # Spec 10: editor rollout
 
-_One session, plus Paul's practice time. Polishes Pages CMS so every section reads clearly, proves that saving migrated content in the editor loses nothing, writes Paul's guide, and gets Paul practising on the test URL. See the [design](../design-site-replacement.md) and [conventions](conventions.md)._
+_One session, plus Paul's practice time. Polishes Pages CMS so every section reads clearly, proves that saving migrated content in the editor loses nothing, writes Paul's guide, and gets Paul practising on the test URL. See the [design](page-cms-feature.md) and [conventions](page-cms-spec-conventions.md)._
 
 ---
 
@@ -16,8 +16,8 @@ Paul can do every routine edit on his own from the guide, and nothing he saves d
 
 ## Starting point
 
-- Specs 03 to 09 on `main`. Pages CMS has collections for blog, events, notices, a Pages group, Home page and Site settings, built up spec by spec with the field names in the [site contract](conventions.md#front-matter).
-- Migrated content is HTML with embeds in fields (spec 07). `docs/migration-report.md` lists policy text that no longer applies.
+- Specs 03 to 09 on `main`. Pages CMS has collections for blog, events, notices, a Pages group, Home page and Site settings, built up spec by spec with the field names in the [site contract](page-cms-spec-conventions.md#front-matter).
+- Migrated content is HTML with embeds in fields (spec 07). `docs/features/page-cms/page-cms-migration-report.md` lists policy text that no longer applies.
 - Pages CMS (`app.pagescms.org`) cannot be reached from the sandbox. Screenshots and the round-trip check are maintainer steps.
 - Paul is not technical and must never need Git, Markdown or a terminal.
 
@@ -25,8 +25,8 @@ Paul can do every routine edit on his own from the guide, and nothing he saves d
 
 - `.pages.yml` polish: sidebar order, labels and help text on every field, media upload renaming.
 - Round-trip check: the maintainer saves one item of each type without changes, and the agent classifies the resulting diffs.
-- `docs/guide-for-editors.md`: Paul's guide, with places marked for the maintainer's screenshots.
-- `docs/policy-updates.md`: suggested wording for the privacy policy (and the cookie policy if spec 09 kept it), for the church to adopt.
+- `docs/features/page-cms/page-cms-guide-for-editors.md`: Paul's guide, with places marked for the maintainer's screenshots.
+- `docs/features/page-cms/page-cms-policy-updates.md`: suggested wording for the privacy policy (and the cookie policy if spec 09 kept it), for the church to adopt.
 - Inviting Paul and a practice checklist.
 
 ## Out of scope
@@ -72,7 +72,7 @@ Every field has a `label` in plain words and, where the meaning is not obvious, 
 | Lost element or attribute (iframe, table, `target`, image, class used by CSS) | Lossy | Fix before Paul starts: move the element into a field, or adjust config. Record in the guide if Paul must avoid something |
 | Front matter key removed or reordered with a changed value | Lossy | Fix the `.pages.yml` field (missing, wrong type) |
 
-### Guide (`docs/guide-for-editors.md`)
+### Guide (`docs/features/page-cms/page-cms-guide-for-editors.md`)
 
 Written for Paul: second person, short sentences, no jargon, no mention of Git, Markdown, Hugo or files. Each task is numbered steps with a `[screenshot: ...]` marker where the maintainer adds an image. Tasks:
 
@@ -102,7 +102,7 @@ Paul does tasks 2 to 8 on the test URL with made-up content, then deletes what h
 2. Add the screenshots to the guide where marked, export it to PDF and send it to Paul.
 3. Invite Paul in Pages CMS by email.
 4. Watch Paul do the practice checklist, or ask him how it went, and pass on anything confusing.
-5. Pass `docs/policy-updates.md` to the church; Paul applies the agreed wording in Pages CMS.
+5. Pass `docs/features/page-cms/page-cms-policy-updates.md` to the church; Paul applies the agreed wording in Pages CMS.
 
 ---
 
@@ -127,11 +127,11 @@ Paul does tasks 2 to 8 on the test URL with made-up content, then deletes what h
 
 **Tech Stack:** Pages CMS config, Git, Markdown, Python 3 `unittest`.
 
-**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](conventions.md).
+**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](page-cms-spec-conventions.md).
 
 ### Global Constraints
 
-- Everything in [conventions: global constraints](conventions.md#global-constraints).
+- Everything in [conventions: global constraints](page-cms-spec-conventions.md#global-constraints).
 - No field `name` changes in this spec: only `label`, `description`, order and media options. Renaming a key would strand content.
 - The guide never mentions Git, GitHub, Markdown, Hugo, YAML, files or folders.
 
@@ -196,14 +196,14 @@ git commit -m "Order, label and explain every Pages CMS field"
 ### Task 2: Guide and policy suggestions
 
 **Files:**
-- Create: `docs/guide-for-editors.md`, `docs/policy-updates.md`
+- Create: `docs/features/page-cms/page-cms-guide-for-editors.md`, `docs/features/page-cms/page-cms-policy-updates.md`
 - Modify: `tests/test_docs.py`
 
 - [ ] **Step 1: Write the failing doc tests**
 
 ```python
 def test_guide_covers_tasks(self):
-    g = (REPO / "docs/guide-for-editors.md").read_text()
+    g = (REPO / "docs/features/page-cms/page-cms-guide-for-editors.md").read_text()
     self.assertEqual(len(re.findall(r"(?m)^## \d+\. ", g)), 11)
     self.assertIn("[screenshot:", g)
     for banned in ("Git", "GitHub", "Markdown", "Hugo", "YAML", "folder", "file name"):
@@ -211,7 +211,7 @@ def test_guide_covers_tasks(self):
     self.assertNotIn("\u2014", g)
 
 def test_policy_updates(self):
-    p = (REPO / "docs/policy-updates.md").read_text()
+    p = (REPO / "docs/features/page-cms/page-cms-policy-updates.md").read_text()
     self.assertIn("## Privacy policy", p)
     self.assertNotIn("\u2014", p)
 ```
@@ -220,7 +220,7 @@ def test_policy_updates(self):
 
 - [ ] **Step 3: Write both documents**
 
-`policy-updates.md` takes each sentence from the report's policy section, says why it no longer applies, and proposes replacement wording, plus one new paragraph on the contact form (what is collected, that it is emailed to the church through Web3Forms, how long it is kept is the church's call). Run the humanizer skill over both documents.
+`page-cms-policy-updates.md` takes each sentence from the report's policy section, says why it no longer applies, and proposes replacement wording, plus one new paragraph on the contact form (what is collected, that it is emailed to the church through Web3Forms, how long it is kept is the church's call). Run the humanizer skill over both documents.
 
 - [ ] **Step 4: Run the full suite, commit and push**
 
@@ -235,7 +235,7 @@ git push -u origin <session branch>
 ### Task 3: Round-trip check
 
 **Files:**
-- Modify (as needed): `.pages.yml`, `scripts/migrate.py`, `docs/guide-for-editors.md`
+- Modify (as needed): `.pages.yml`, `scripts/migrate.py`, `docs/features/page-cms/page-cms-guide-for-editors.md`
 
 - [ ] **Step 1: Ask the maintainer to do the round-trip saves** (manual step 1) and wait.
 

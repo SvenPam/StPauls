@@ -1,6 +1,6 @@
 # St Paul's Warton website
 
-Rebuild of `stpaulswarton.co.uk` as a static site. Read `docs/discovery-way-forward.md` first, then the spec you were asked to build in `docs/specs/`.
+Rebuild of `stpaulswarton.co.uk` as a static site. Read `docs/features/page-cms/page-cms-discovery-way-forward.md` first, then the spec you were asked to build in `docs/features/page-cms/`.
 
 ## Decisions already made
 
@@ -20,7 +20,7 @@ Do not reopen these without being asked.
 | Personal details | Do not put the maintainer's name, LinkedIn or personal site in the site. The legacy footer has them; leave them out |
 | Content source | The live site is the source of truth. Content is small and mostly HTML blocks. URLs must stay identical to live (`/blog/article/{slug}`, `/calendar/event/{id}/{slug}`, `/notices/notice/{id}/{slug}`, `/page/{type}/{slug}`) |
 | Subscribers | Export found three or four old subscribers. Publish emails dropped. RSS feeds instead, a one-off note to them, then the export is deleted (spec 12) |
-| Trial | Go for the static site (2026-10-17). Phase 1 plan in `docs/design-site-replacement.md` |
+| Trial | Go for the static site (2026-10-17). Phase 1 plan in `docs/features/page-cms/page-cms-feature.md` |
 | Look | Keep the colours and general layout. Readability fixes only. Formal design options are phase 2, after Paul is settled |
 | Logins | Removed. Paul is a Pages CMS collaborator. `/account/*` redirects home |
 | Contact form | Web3Forms, one inbox, key in Site settings, hidden until a real key is set |
@@ -40,6 +40,7 @@ Do not reopen these without being asked.
 - Terse answers. Detail on request.
 - Any message written for someone else (email, SMS, Teams, Slack): humanise it and never use an em dash.
 - Markdown file names must not contain `:`, `/`, `#` or `^`.
+- Docs for the Page CMS migration go in `docs/features/page-cms/` with the `page-cms-` prefix (`page-cms-feature.md` for the plan, `page-cms-spec-` for specs, `page-cms-how-to-` and so on for the rest).
 - Do not create a pull request unless asked. Specs are built on a branch and merged to `main` when the maintainer says so.
 - Manual steps (Azure portal, Entra ID, GitHub secrets, Pages CMS app install) belong to the maintainer. Document them in the spec or a how-to, and say clearly when you are blocked on one.
 
@@ -47,10 +48,12 @@ Do not reopen these without being asked.
 
 | Path | Purpose |
 |---|---|
-| `docs/discovery-current-state.md` | Facts about the live site and the 2019 Umbraco port |
-| `docs/discovery-way-forward.md` | Options, decisions, work outline |
-| `docs/design-site-replacement.md` | Phase 1 design: decisions, architecture, work outline |
-| `docs/specs/` | One spec per working session, 01 to 12. `conventions.md` holds the shared rules and names |
+| `docs/features/page-cms/` | Everything for the Page CMS migration. Every file is named `page-cms-<type>-<topic>.md` |
+| `docs/features/page-cms/page-cms-discovery-current-state.md` | Facts about the live site and the 2019 Umbraco port |
+| `docs/features/page-cms/page-cms-discovery-way-forward.md` | Options, decisions, original work outline |
+| `docs/features/page-cms/page-cms-feature.md` | The plan: decisions, architecture, work outline |
+| `docs/features/page-cms/page-cms-spec-NN-*.md` | One spec per working session, 00 to 12 |
+| `docs/features/page-cms/page-cms-spec-conventions.md` | Shared rules and the names specs pass between each other |
 | `.claude/skills/` | Imported obra/superpowers skills, see `.claude/skills/SUPERPOWERS.md` |
 | `site/` | Hugo site |
 | `infra/` | Bicep for the Static Web App |
@@ -68,11 +71,11 @@ The legacy CSS, images and views needed for reference are on `archive/umbraco-20
 - Install tools outside the repo. Hugo and actionlint from PyPI: `python3 -m venv <dir> && <dir>/bin/pip install hugo==0.167.0 actionlint-py`. Bicep 0.48.1 from NuGet: `https://api.nuget.org/v3-flatcontainer/azure.bicep.commandline.linux-x64/0.48.1/azure.bicep.commandline.linux-x64.0.48.1.nupkg`, extract `tools/bicep` with `python3 -m zipfile -e`, `chmod +x`.
 - `az`, Azure and Pages CMS cannot be reached from the sandbox. Say plainly what was not run locally.
 - The live site `http://stpaulswarton.co.uk` was reachable with `curl`. `www.stpaulswarton.co.uk` did not resolve.
-- Later on 2026-10-17: GitHub release downloads and `git ls-remote` worked, and `raw.githubusercontent.com` served docs sources (Pages CMS, Static Web Apps, Hugo, Web3Forms). The test site `brave-coast-006318103.5.azurestaticapps.net` was reachable. `calendar.google.com`, `embedsocial.com`, `web3forms.com` and DNS-over-HTTPS were blocked. Details in `docs/specs/conventions.md`.
+- Later on 2026-10-17: GitHub release downloads and `git ls-remote` worked, and `raw.githubusercontent.com` served docs sources (Pages CMS, Static Web Apps, Hugo, Web3Forms). The test site `brave-coast-006318103.5.azurestaticapps.net` was reachable. `calendar.google.com`, `embedsocial.com`, `web3forms.com` and DNS-over-HTTPS were blocked. Details in `docs/features/page-cms/page-cms-spec-conventions.md`.
 
 ## Next steps
 
-1. Build the specs in `docs/specs/` in order, one per session, starting with spec 01. Read `docs/specs/conventions.md` first.
+1. Build the specs in `docs/features/page-cms/` in order, one per session, starting with spec 01. Read `docs/features/page-cms/page-cms-spec-conventions.md` first.
 2. Each spec ends with the maintainer's manual steps. Say plainly when blocked on one.
 3. After spec 12, phase 2 (design options) gets its own design.
 

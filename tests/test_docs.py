@@ -4,7 +4,7 @@ import unittest
 from helpers import REPO
 
 WF = (REPO / ".github/workflows/deploy.yml").read_text()
-DOC = (REPO / "docs/how-to-set-up-azure-and-pages-cms.md").read_text(encoding="utf-8")
+DOC = (REPO / "docs/features/page-cms/page-cms-how-to-set-up-azure-and-pages-cms.md").read_text(encoding="utf-8")
 
 
 class SetupHowToTests(unittest.TestCase):

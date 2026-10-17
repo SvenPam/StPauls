@@ -6,7 +6,7 @@ status: agreed
 
 # Spec 11: cutover
 
-_One session to prepare, then cutover day itself with the maintainer and Paul. Puts the bare domain on the Static Web App, sets up Cloudflare for HTTPS and the `www` redirect, writes the cutover runbook, and switches the live site over with a short freeze and a tested rollback. See the [design](../design-site-replacement.md) and [conventions](conventions.md)._
+_One session to prepare, then cutover day itself with the maintainer and Paul. Puts the bare domain on the Static Web App, sets up Cloudflare for HTTPS and the `www` redirect, writes the cutover runbook, and switches the live site over with a short freeze and a tested rollback. See the [design](page-cms-feature.md) and [conventions](page-cms-spec-conventions.md)._
 
 ---
 
@@ -16,7 +16,7 @@ _One session to prepare, then cutover day itself with the maintainer and Paul. P
 
 ## Starting point
 
-- Specs 01 to 10 done. DNS is on Cloudflare, DNS only, pointing at the old App Service; today's records are in `docs/how-to-move-dns-to-cloudflare.md`.
+- Specs 01 to 10 done. DNS is on Cloudflare, DNS only, pointing at the old App Service; today's records are in `docs/features/page-cms/page-cms-how-to-move-dns-to-cloudflare.md`.
 - Static Web App `swa-stpauls-web`, default host `brave-coast-006318103.5.azurestaticapps.net`, no custom domain.
 - `baseURL` is already `https://stpaulswarton.co.uk/`. HSTS is `max-age=300` (spec 09).
 - `scripts/migrate.py` (with `--check`), `scripts/check_urls.py`, `tests/fixtures/live-urls.txt`.
@@ -26,7 +26,7 @@ _One session to prepare, then cutover day itself with the maintainer and Paul. P
 ## In scope
 
 - Bicep: optional `customDomain` parameter adding `Microsoft.Web/staticSites/customDomains@2025-03-01` with `validationMethod: 'dns-txt-token'`.
-- `docs/runbook-cutover.md`: preparation a week ahead, cutover day, checks, rollback, and the messages to Paul.
+- `docs/features/page-cms/page-cms-runbook-cutover.md`: preparation a week ahead, cutover day, checks, rollback, and the messages to Paul.
 - The cutover itself.
 
 ## Out of scope
@@ -112,11 +112,11 @@ Two short messages in the runbook, humanised, no em dash: to Paul the day before
 
 **Tech Stack:** Bicep 0.48.1, Azure CLI (maintainer), Cloudflare dashboard (maintainer), Python 3 scripts.
 
-**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](conventions.md).
+**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](page-cms-spec-conventions.md).
 
 ### Global Constraints
 
-- Everything in [conventions: global constraints](conventions.md#global-constraints).
+- Everything in [conventions: global constraints](page-cms-spec-conventions.md#global-constraints).
 - `customDomain` defaults to empty, so a fresh environment deploys without a domain.
 - Nothing in this spec changes what the site renders.
 - The runbook gives exact values (host names, record types, rule expression), not descriptions of them.
@@ -154,7 +154,7 @@ def test_custom_domain_is_optional(self):
 
 Update `test_static_web_app`: two resources now, the Static Web App found by type; parameters `{"name", "location", "tags", "customDomain"}`.
 
-- [ ] **Step 2: Run them and watch them fail** (Bicep on `PATH`, see [local tools](conventions.md#local-tools))
+- [ ] **Step 2: Run them and watch them fail** (Bicep on `PATH`, see [local tools](page-cms-spec-conventions.md#local-tools))
 
 Run: `python3 -m unittest discover -s tests -p 'test_infra.py' -v`
 
@@ -172,14 +172,14 @@ git commit -m "Add an optional custom domain to the Static Web App"
 ### Task 2: Cutover runbook
 
 **Files:**
-- Create: `docs/runbook-cutover.md`
+- Create: `docs/features/page-cms/page-cms-runbook-cutover.md`
 - Modify: `tests/test_docs.py`
 
 - [ ] **Step 1: Write the failing doc tests**
 
 ```python
 def test_runbook(self):
-    r = (REPO / "docs/runbook-cutover.md").read_text()
+    r = (REPO / "docs/features/page-cms/page-cms-runbook-cutover.md").read_text()
     for h in ("## A week before", "## Cutover day", "## Checks", "## Roll back", "## Messages"):
         self.assertIn(h, r)
     self.assertIn("--validation-method dns-txt-token --no-wait", r)
@@ -189,9 +189,9 @@ def test_runbook(self):
     self.assertNotIn("\u2014", r)
 
 def test_runbook_rollback_uses_recorded_values(self):
-    r = (REPO / "docs/runbook-cutover.md").read_text()
+    r = (REPO / "docs/features/page-cms/page-cms-runbook-cutover.md").read_text()
     rb = r.split("## Roll back", 1)[1].split("\n## ", 1)[0]
-    self.assertIn("how-to-move-dns-to-cloudflare.md", rb)
+    self.assertIn("page-cms-how-to-move-dns-to-cloudflare.md", rb)
     self.assertIn("DNS only", rb)
 ```
 
@@ -224,5 +224,5 @@ Tell the maintainer the week-ahead steps are theirs, and agree a date.
 
 - [ ] **Step 1:** Follow the runbook's day order with the maintainer and Paul. Run every check command yourself and paste results into the session.
 - [ ] **Step 2:** Commit the migrated content and any decided deletions as `Final content sync from the live site`, push, and let the maintainer merge.
-- [ ] **Step 3:** After step 8 passes, record the date and outcome at the top of the runbook and in `docs/discovery-way-forward.md`, commit, push.
+- [ ] **Step 3:** After step 8 passes, record the date and outcome at the top of the runbook and in `docs/features/page-cms/page-cms-discovery-way-forward.md`, commit, push.
 - [ ] **Step 4:** If rollback is used, record why and what to fix, and stop.

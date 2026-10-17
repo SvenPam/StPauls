@@ -6,7 +6,7 @@ status: agreed
 
 # Spec 04: pages, home and menus
 
-_One session. Adds the 14 standing pages under their live `/page/{type}/{slug}` URLs, the home page with its hero, notices and latest articles, a contact page placeholder, and menus built from content so Paul can add a page to the menu with a tick box. See the [design](../design-site-replacement.md) and [conventions](conventions.md)._
+_One session. Adds the 14 standing pages under their live `/page/{type}/{slug}` URLs, the home page with its hero, notices and latest articles, a contact page placeholder, and menus built from content so Paul can add a page to the menu with a tick box. See the [design](page-cms-feature.md) and [conventions](page-cms-spec-conventions.md)._
 
 ---
 
@@ -152,11 +152,11 @@ Field labels: `header` "Show in the top menu", `footer` "Show in the footer", `w
 
 **Tech Stack:** Hugo extended 0.167.0, Pages CMS config, Python 3 `unittest`.
 
-**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](conventions.md).
+**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](page-cms-spec-conventions.md).
 
 ### Global Constraints
 
-- Everything in [conventions: global constraints](conventions.md#global-constraints).
+- Everything in [conventions: global constraints](page-cms-spec-conventions.md#global-constraints).
 - Page type folder names, titles and weights exactly as in the Structure table.
 - `menu-items.html` and `footer-groups.html` return exactly the shapes in the site contract. `header.html` and `footer.html` are not edited.
 - The page type `_index.md` files and `contact-us.md` are the only files under `site/content/page/` this spec creates.

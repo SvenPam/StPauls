@@ -6,7 +6,7 @@ status: agreed
 
 # Spec 01: DNS preparation
 
-_One session, mostly writing. Gets the domain's DNS onto Cloudflare early, still pointing at the old site, so cutover day (spec 11) is a record change and not a hunt for registrar logins. See the [design](../design-site-replacement.md) and [conventions](conventions.md)._
+_One session, mostly writing. Gets the domain's DNS onto Cloudflare early, still pointing at the old site, so cutover day (spec 11) is a record change and not a hunt for registrar logins. See the [design](page-cms-feature.md) and [conventions](page-cms-spec-conventions.md)._
 
 ---
 
@@ -23,7 +23,7 @@ The maintainer has a how-to and a ready-to-send message that, once followed, put
 
 ## In scope
 
-- `docs/how-to-move-dns-to-cloudflare.md`: record the current DNS, find the registrar, create the Cloudflare zone, copy and check records, change nameservers, verify, roll back.
+- `docs/features/page-cms/page-cms-how-to-move-dns-to-cloudflare.md`: record the current DNS, find the registrar, create the Cloudflare zone, copy and check records, change nameservers, verify, roll back.
 - A message the maintainer can send to whoever at the church can reach the registrar, inside the how-to.
 - A table in the how-to for the maintainer to fill in with today's records, so spec 11 knows exactly what to change.
 - Doc tests in `tests/test_docs.py`.
@@ -48,7 +48,7 @@ Proxying (orange cloud), HTTPS settings, redirect rules, the Static Web App cust
 | 6 | Maintainer | Turn off anything Cloudflare enables that changes traffic while DNS only: leave SSL/TLS, Always Use HTTPS and redirect rules untouched | Settings unchanged from defaults, zone still DNS only |
 | 7 | Church contact with maintainer | At the registrar, replace the nameservers with Cloudflare's two | Registrar shows the Cloudflare nameservers |
 | 8 | Maintainer | Verify: Cloudflare shows the zone active, the site loads over HTTP as before, email still arrives at any church addresses on the domain | All three checks pass |
-| 9 | Maintainer | Record the outcome and date in the how-to and in `docs/discovery-way-forward.md` | Recorded |
+| 9 | Maintainer | Record the outcome and date in the how-to and in `docs/features/page-cms/page-cms-discovery-way-forward.md` | Recorded |
 
 ### Lookups the how-to gives
 
@@ -106,12 +106,12 @@ All of steps 1 to 9 above. This spec only writes the documents; nothing in it ca
 
 **Tech Stack:** Markdown, Python 3 `unittest`.
 
-**Spec:** the sections above, from Goal to Acceptance. Shared rules in [conventions](conventions.md).
+**Spec:** the sections above, from Goal to Acceptance. Shared rules in [conventions](page-cms-spec-conventions.md).
 
 ### Global Constraints
 
-- Everything in [conventions: global constraints](conventions.md#global-constraints).
-- The how-to is `docs/how-to-move-dns-to-cloudflare.md`, front matter `tags: [how-to, stpauls, dns]`, `status: draft` until the maintainer records the outcome.
+- Everything in [conventions: global constraints](page-cms-spec-conventions.md#global-constraints).
+- The how-to is `docs/features/page-cms/page-cms-how-to-move-dns-to-cloudflare.md`, front matter `tags: [how-to, stpauls, dns]`, `status: draft` until the maintainer records the outcome.
 - No em dash anywhere in the how-to, including the message.
 - Cloudflare records stay **DNS only** in this spec. The words "Proxied" and "orange cloud" appear only to say not to use them yet.
 
@@ -128,7 +128,7 @@ All of steps 1 to 9 above. This spec only writes the documents; nothing in it ca
 ### Task 1: DNS how-to and church message
 
 **Files:**
-- Create: `docs/how-to-move-dns-to-cloudflare.md`
+- Create: `docs/features/page-cms/page-cms-how-to-move-dns-to-cloudflare.md`
 - Modify: `tests/test_docs.py` (add `DnsHowToTests`)
 
 **Interfaces:**
@@ -138,7 +138,7 @@ All of steps 1 to 9 above. This spec only writes the documents; nothing in it ca
 - [ ] **Step 1: Write the failing tests in `tests/test_docs.py`**
 
 ```python
-DNS = REPO / "docs/how-to-move-dns-to-cloudflare.md"
+DNS = REPO / "docs/features/page-cms/page-cms-how-to-move-dns-to-cloudflare.md"
 
 class DnsHowToTests(unittest.TestCase):
     @classmethod
@@ -202,7 +202,7 @@ Expected: all tests pass (Hugo-dependent tests need Hugo on `PATH`).
 - [ ] **Step 5: Commit**
 
 ```bash
-git add docs/how-to-move-dns-to-cloudflare.md tests/test_docs.py
+git add docs/features/page-cms/page-cms-how-to-move-dns-to-cloudflare.md tests/test_docs.py
 git commit -m "Add how-to for moving DNS to Cloudflare"
 ```
 
@@ -211,7 +211,7 @@ git commit -m "Add how-to for moving DNS to Cloudflare"
 ### Task 2: Hand-off
 
 **Files:**
-- Modify: `docs/discovery-way-forward.md` (one line under Decisions: DNS move in progress, link to the how-to)
+- Modify: `docs/features/page-cms/page-cms-discovery-way-forward.md` (one line under Decisions: DNS move in progress, link to the how-to)
 
 - [ ] **Step 1: Add the line and run the full test suite**
 
@@ -221,7 +221,7 @@ Expected: all pass.
 - [ ] **Step 2: Commit and push the branch**
 
 ```bash
-git add docs/discovery-way-forward.md
+git add docs/features/page-cms/page-cms-discovery-way-forward.md
 git commit -m "Link the DNS how-to from the way forward"
 git push -u origin <session branch>
 ```

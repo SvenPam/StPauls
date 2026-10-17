@@ -6,7 +6,7 @@ status: agreed
 
 # Spec 05: URL parity
 
-_One session. Makes every live URL resolve exactly as it does today, without trailing slashes, adds the XML and HTML site maps, handles old mixed-case and account links, and adds a URL check script for migration and cutover. See the [design](../design-site-replacement.md) and [conventions](conventions.md)._
+_One session. Makes every live URL resolve exactly as it does today, without trailing slashes, adds the XML and HTML site maps, handles old mixed-case and account links, and adds a URL check script for migration and cutover. See the [design](page-cms-feature.md) and [conventions](page-cms-spec-conventions.md)._
 
 ---
 
@@ -19,7 +19,7 @@ Every URL in the live sitemap, and every old link variant seen in live markup, e
 - Specs 02 to 04 on `main`. Internal links have no trailing slash (`href.html`), but Static Web Apps serves both `/x` and `/x/` with 200, so search engines see duplicates.
 - `site/static/staticwebapp.config.json` holds only `responseOverrides`. `baseURL` is `/`. The `sitemap` kind is disabled.
 - Live: 116 URLs in `http://stpaulswarton.co.uk/sitemap.xml`, an HTML site map at `/sitemap`, and links in live markup to `/Calendar`, `/Notices`, `/Contact`, `/Account/Login`, `/Account/Register`.
-- [Checked facts](conventions.md#azure-static-web-apps): file paths are case-sensitive, route case sensitivity is unknown, redirects cannot use captures, the config is limited to 20 KB.
+- [Checked facts](page-cms-spec-conventions.md#azure-static-web-apps): file paths are case-sensitive, route case sensitivity is unknown, redirects cannot use captures, the config is limited to 20 KB.
 
 ## In scope
 
@@ -119,11 +119,11 @@ One path per line, sorted, no host, no trailing slash: every `<loc>` in the live
 
 **Tech Stack:** Hugo extended 0.167.0 (custom output formats), Azure Static Web Apps routing, Python 3 standard library.
 
-**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](conventions.md).
+**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](page-cms-spec-conventions.md).
 
 ### Global Constraints
 
-- Everything in [conventions: global constraints](conventions.md#global-constraints).
+- Everything in [conventions: global constraints](page-cms-spec-conventions.md#global-constraints).
 - `legacy.yaml` keys exactly `rewrites` and `redirects`, entries exactly `{ from, to }`. Spec 07 appends to both.
 - No `redirect` route whose target could match its own `route`.
 - The URL check never runs in the deploy workflow.

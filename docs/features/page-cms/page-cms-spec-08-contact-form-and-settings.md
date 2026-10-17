@@ -6,7 +6,7 @@ status: agreed
 
 # Spec 08: contact form and site settings
 
-_One session. Adds a Site settings file that Paul edits in Pages CMS, moves the footer details into it, and builds the contact form on Web3Forms with a placeholder key, so the form switches on when someone pastes a real key. See the [design](../design-site-replacement.md) and [conventions](conventions.md)._
+_One session. Adds a Site settings file that Paul edits in Pages CMS, moves the footer details into it, and builds the contact form on Web3Forms with a placeholder key, so the form switches on when someone pastes a real key. See the [design](page-cms-feature.md) and [conventions](page-cms-spec-conventions.md)._
 
 ---
 
@@ -19,7 +19,7 @@ _One session. Adds a Site settings file that Paul edits in Pages CMS, moves the 
 - Spec 04 contact placeholder: `site/content/page/about/contact-us.md` (`url: /contact`, `layout: contact`), template `site/layouts/contact.html` showing the address and a link to `/page/about/contact-list`.
 - Footer address, map link, directions link and Facebook link are written in `site/layouts/_partials/footer.html`.
 - Live form fields: Name, Enquiry Type (General Enquiry, Website Enquiry, Weddings and Baptisms, MU, WI), Message, Email, Phone. Believed not to deliver.
-- Web3Forms behaviour: see [checked facts](conventions.md#web3forms-docs-mirror-surjithctlyweb3forms-docs).
+- Web3Forms behaviour: see [checked facts](page-cms-spec-conventions.md#web3forms-docs-mirror-surjithctlyweb3forms-docs).
 - Decision: one inbox for every enquiry type. The inbox is not known yet.
 
 ## In scope
@@ -106,7 +106,7 @@ Every field has a visible `<label for>`. Above the button: one sentence saying t
 
 `site/content/contact-thanks.md`: `title: Thank you`, `url: /contact/thanks`, body "Thank you for getting in touch. Someone from the church will reply as soon as they can." plus a link home. Not in Pages CMS. Excluded from `sitemap.xml`.
 
-### How-to (`docs/how-to-set-up-the-contact-form.md`)
+### How-to (`docs/features/page-cms/page-cms-how-to-set-up-the-contact-form.md`)
 
 Who does it (whoever will receive enquiries, with the maintainer), creating the key at web3forms.com with the receiving address, pasting it into Site settings in Pages CMS, sending a test message, what the free plan allows (about 250 a month), what to do about spam (turn on hCaptcha in the Web3Forms dashboard and ask the maintainer to add its script and CSP entry), and how to change the inbox (new key, paste, done).
 
@@ -144,11 +144,11 @@ Who does it (whoever will receive enquiries, with the maintainer), creating the 
 
 **Tech Stack:** Hugo extended 0.167.0, Web3Forms (plain HTML form), Pages CMS file entry, Python 3 `unittest`.
 
-**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](conventions.md).
+**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](page-cms-spec-conventions.md).
 
 ### Global Constraints
 
-- Everything in [conventions: global constraints](conventions.md#global-constraints).
+- Everything in [conventions: global constraints](page-cms-spec-conventions.md#global-constraints).
 - Settings keys exactly as in the YAML block. Form field `name`s exactly as in the field table.
 - No third-party script. The form is plain HTML that works with script off.
 - Tests never read `site/data/settings.yaml` values; they build with `data_dir`.
@@ -305,7 +305,7 @@ git commit -m "Add the contact form behind a settings key"
 
 **Files:**
 - Modify: `.pages.yml`
-- Create: `docs/how-to-set-up-the-contact-form.md`
+- Create: `docs/features/page-cms/page-cms-how-to-set-up-the-contact-form.md`
 - Modify: `tests/test_cms_config.py`, `tests/test_docs.py`
 
 - [ ] **Step 1: Write the failing tests**

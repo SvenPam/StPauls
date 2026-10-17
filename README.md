@@ -10,15 +10,15 @@ Rebuild in progress. The live site still runs on the legacy CMS.
 
 | Doc | Purpose |
 |---|---|
-| [Current state](docs/discovery-current-state.md) | Live site and 2019 Umbraco port, as found |
-| [Way forward](docs/discovery-way-forward.md) | Options, decision, work outline |
-| [Specs](docs/specs/) | One spec per working session |
+| [Current state](docs/features/page-cms/page-cms-discovery-current-state.md) | Live site and 2019 Umbraco port, as found |
+| [Way forward](docs/features/page-cms/page-cms-discovery-way-forward.md) | Options, decision, work outline |
+| [Plan](docs/features/page-cms/page-cms-feature.md) | Phase 1 plan: decisions, architecture, work outline |
+| [Page CMS migration](docs/features/page-cms/) | Plan, specs and how-tos, one spec per working session |
 
 ## Next steps
 
-1. Build [spec 00](docs/specs/00-editor-trial.md): Hugo, Bicep, GitHub Actions, Pages CMS, Notices only.
-2. Trial with the church editor, record go or no-go in the [way forward](docs/discovery-way-forward.md).
-3. On go, write and build the remaining specs from the work outline, one per session.
+1. Editor trial ([spec 00](docs/features/page-cms/page-cms-spec-00-editor-trial.md)): done, go for the static site.
+2. Build specs 01 to 12 from the [plan](docs/features/page-cms/page-cms-feature.md), one per session.
 
 Context for working in this repo is in [CLAUDE.md](CLAUDE.md).
 

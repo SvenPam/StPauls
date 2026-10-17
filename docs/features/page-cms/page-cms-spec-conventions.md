@@ -6,13 +6,13 @@ status: stable
 
 # Spec conventions
 
-_The rules and names every spec in this folder relies on. Read this file alongside the [design](../design-site-replacement.md) and the spec you are building. A spec that changes a name here updates this file in the same commit._
+_The rules and names every spec in this folder relies on. Read this file alongside the [design](page-cms-feature.md) and the spec you are building. A spec that changes a name here updates this file in the same commit._
 
 ---
 
 ## Before you start a spec
 
-1. Read the [design](../design-site-replacement.md), this file, then the spec.
+1. Read the [design](page-cms-feature.md), this file, then the spec.
 2. Check every **Consumes** line in the spec against `main`. If an earlier spec shipped a different name, update the spec and this file first, and say so in the hand-off.
 3. Work on the session branch. Never push to `main`: it is the deploy branch and Pages CMS commits to it. No pull request unless the maintainer asks.
 4. Manual steps (Azure portal, Entra ID, GitHub settings, Cloudflare, registrar, Pages CMS, Web3Forms) belong to the maintainer. Write them in the spec's how-to, and say plainly when you are blocked on one.
@@ -60,7 +60,8 @@ Every task in every spec includes these.
 
 ### Docs and commits
 
-- Docs follow `docs/discovery-*.md`: YAML front matter (`date`, `tags`, `status`), one H1, italic one-line summary, tables over prose, no em dashes.
+- Everything for this migration lives in `docs/features/page-cms/`, named `page-cms-<type>-<topic>.md`: `page-cms-feature.md` is the plan, `page-cms-spec-NN-<topic>.md` the specs, and how-tos, runbooks, guides and reports follow the same prefix (`page-cms-how-to-...`, `page-cms-runbook-...`).
+- Docs follow `docs/features/page-cms/page-cms-discovery-*.md`: YAML front matter (`date`, `tags`, `status`), one H1, italic one-line summary, tables over prose, no em dashes.
 - Markdown file names never contain `:`, `/`, `#` or `^`.
 - Anything written for someone else to send (email, message) is humanised and has no em dash.
 - Commit messages are a short imperative sentence, as in `git log` (no `feat:` prefix), ending with the session's attribution lines.

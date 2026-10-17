@@ -6,7 +6,7 @@ status: agreed
 
 # Spec 02: layout and stylesheet
 
-_One session. Replaces the copied Bootstrap 3 and legacy CSS with one small stylesheet that keeps the live look, and builds the shared shell every later page uses: header, menu, footer, typography, cards. Applied to Notices and the 404 page. See the [design](../design-site-replacement.md) and [conventions](conventions.md)._
+_One session. Replaces the copied Bootstrap 3 and legacy CSS with one small stylesheet that keeps the live look, and builds the shared shell every later page uses: header, menu, footer, typography, cards. Applied to Notices and the 404 page. See the [design](page-cms-feature.md) and [conventions](page-cms-spec-conventions.md)._
 
 ---
 
@@ -43,7 +43,7 @@ On a phone, the new shell reads better than live, with clear spacing, a big labe
 - Readability: type scale, line height, line length, spacing, images and iframes that never overflow.
 - New `baseof.html`, `head.html`, `header.html`, `footer.html`. Skip link. Favicon.
 - Menu: a "Menu" toggle at least 44 by 44 px that works without script (`:target`) and is enhanced by `site.js`. Dropdowns are `<details>` elements, so they work without script too.
-- `href.html`, `menu-items.html`, `footer-groups.html` and `picture.html` partials (see [site contract](conventions.md#partials-in-sitelayouts_partials)). In this spec the menu and footer come from static `[menus]` entries in `hugo.toml`, matching live. Spec 04 computes them from content.
+- `href.html`, `menu-items.html`, `footer-groups.html` and `picture.html` partials (see [site contract](page-cms-spec-conventions.md#partials-in-sitelayouts_partials)). In this spec the menu and footer come from static `[menus]` entries in `hugo.toml`, matching live. Spec 04 computes them from content.
 - Notices list, notice page and 404 restyled with the new shell.
 - `scripts/screenshots.py` for side-by-side screenshots of live and new, used for sign-off.
 
@@ -192,11 +192,11 @@ Same content and CSS hooks as spec 00 (`notice-date`, `notice-summary`, `notice-
 
 **Tech Stack:** Hugo extended 0.167.0 (Pipes, image processing), plain CSS with custom properties, plain JavaScript, Python 3 `unittest`, Playwright for Python (sandbox only, screenshots).
 
-**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](conventions.md).
+**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](page-cms-spec-conventions.md).
 
 ### Global Constraints
 
-- Everything in [conventions: global constraints](conventions.md#global-constraints).
+- Everything in [conventions: global constraints](page-cms-spec-conventions.md#global-constraints).
 - CSS custom property names exactly as in the Tokens table. Class names exactly as in the header markup block.
 - No CSS framework, no preprocessor, no `@import`. Plain CSS that Hugo's minifier accepts.
 - Breakpoint 768 px for the menu and card grid. Any further breakpoints are the builder's call.

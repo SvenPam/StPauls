@@ -6,7 +6,7 @@ status: agreed
 
 # Design: replace the live site
 
-_The overall plan for replacing `stpaulswarton.co.uk` with the Hugo site and Pages CMS, now that the editor trial has passed. The per-session specs in [specs](specs/) are written from this document. Background: [current state](discovery-current-state.md), [way forward](discovery-way-forward.md)._
+_The overall plan for replacing `stpaulswarton.co.uk` with the Hugo site and Pages CMS, now that the editor trial has passed. The per-session specs in [this folder](./) are written from this document. Background: [current state](page-cms-discovery-current-state.md), [way forward](page-cms-discovery-way-forward.md)._
 
 ---
 
@@ -61,7 +61,7 @@ The project has failed, even if it technically works, if any of these happen:
 
 ## Decisions
 
-Made by the maintainer in the design conversation on 2026-10-17, unless marked _builder's call_. These are in addition to the decisions in [CLAUDE.md](../CLAUDE.md) and the [way forward](discovery-way-forward.md).
+Made by the maintainer in the design conversation on 2026-10-17, unless marked _builder's call_. These are in addition to the decisions in [CLAUDE.md](../../../CLAUDE.md) and the [way forward](page-cms-discovery-way-forward.md).
 
 | Topic | Decision |
 |---|---|
@@ -204,22 +204,22 @@ Made by the maintainer in the design conversation on 2026-10-17, unless marked _
 
 ## Work outline
 
-One spec per session, written with `writing-plans`, each built on a branch and merged to `main` when the maintainer says so. `main` deploys to the test URL until cutover. Shared rules and the names specs pass between each other are in [spec conventions](specs/conventions.md). The original item 03 (content types) was split in two (03 and 04) to keep each session a sensible size, so there are 12 specs. Each content spec adds its own Pages CMS fields, so the editor never strips a field the site relies on; spec 10 polishes them.
+One spec per session, written with `writing-plans`, each built on a branch and merged to `main` when the maintainer says so. `main` deploys to the test URL until cutover. Shared rules and the names specs pass between each other are in [spec conventions](page-cms-spec-conventions.md). The original item 03 (content types) was split in two (03 and 04) to keep each session a sensible size, so there are 12 specs. Each content spec adds its own Pages CMS fields, so the editor never strips a field the site relies on; spec 10 polishes them.
 
 | # | Spec | Delivers | Maintainer and church steps |
 |---|---|---|---|
-| 01 | [DNS preparation](specs/01-dns-preparation.md) | How-to and message for the church to move the domain's DNS to Cloudflare, with records still pointing at the old site. Record of current DNS, including `www` | Find registrar access, create the Cloudflare zone, change nameservers |
-| 02 | [Layout and stylesheet](specs/02-layout-and-stylesheet.md) | New shell: header with a labelled menu button and dropdowns that need no script, footer, cards, typography, contrast-checked tokens. Bootstrap 3 removed. Applied to Notices | Sign off side-by-side screenshots |
-| 03 | [Blog, events and notices](specs/03-blog-events-notices.md) | The three dated sections at live URL patterns, topics, aside, event status, RSS, nightly build with a browser-side safeguard, Pages CMS collections | Check the collections in Pages CMS |
-| 04 | [Pages, home and menus](specs/04-pages-home-and-menus.md) | Standing pages under `/page/{type}/{slug}`, home page with hero, contact placeholder, menus built from page settings, Pages CMS entries | Check the Pages group in Pages CMS |
-| 05 | [URL parity](specs/05-url-parity.md) | No trailing slashes, generated Static Web Apps routes, legacy variants, `sitemap.xml`, HTML `/sitemap`, live URL snapshot and check script | Run the URL check after merge |
-| 06 | [Images and embeds](specs/06-images-and-embeds.md) | Uploads as WebP `<picture>` in fields and bodies, safe fallbacks, embeds as validated page fields, image cache in CI | Try a large upload on a phone |
-| 07 | [Content migration](specs/07-content-migration.md) | Re-runnable extraction from live, images and uploads copied in, links rewritten, upload routes, migration report | Export event and notice dates from the legacy database. Review the migrated content |
-| 08 | [Contact form and site settings](specs/08-contact-form-and-settings.md) | Site settings file, footer from settings, Web3Forms form behind a key, thanks page | Create a Web3Forms key when the inbox is known |
-| 09 | [Security and delivery hardening](specs/09-security-and-delivery.md) | Headers and CSP, cache rules, pinned actions, Hugo checksum, Dependabot, budget tests, cookie policy outcome | Check headers and embeds after merge. Check cookies in a browser |
-| 10 | [Editor rollout](specs/10-editor-rollout.md) | Pages CMS labels and help text, round-trip check on migrated content, guide for Paul, policy wording suggestions | Round-trip saves, screenshots for the guide, invite Paul, practice, church agrees policy wording |
-| 11 | [Cutover](specs/11-cutover.md) | Bare domain on the Static Web App in Bicep, cutover runbook (freeze, re-extract, diff review, DNS flip, URL check, rollback), practice content clean-up | Validate the domain a week ahead, Cloudflare settings, run the day with Paul |
-| 12 | [Handover and decommission](specs/12-handover-and-decommission.md) | HSTS to a year, maintainer runbook, church handover, subscriber note, CLAUDE.md updated | Send the note, delete the export, remove legacy resources |
+| 01 | [DNS preparation](page-cms-spec-01-dns-preparation.md) | How-to and message for the church to move the domain's DNS to Cloudflare, with records still pointing at the old site. Record of current DNS, including `www` | Find registrar access, create the Cloudflare zone, change nameservers |
+| 02 | [Layout and stylesheet](page-cms-spec-02-layout-and-stylesheet.md) | New shell: header with a labelled menu button and dropdowns that need no script, footer, cards, typography, contrast-checked tokens. Bootstrap 3 removed. Applied to Notices | Sign off side-by-side screenshots |
+| 03 | [Blog, events and notices](page-cms-spec-03-blog-events-notices.md) | The three dated sections at live URL patterns, topics, aside, event status, RSS, nightly build with a browser-side safeguard, Pages CMS collections | Check the collections in Pages CMS |
+| 04 | [Pages, home and menus](page-cms-spec-04-pages-home-and-menus.md) | Standing pages under `/page/{type}/{slug}`, home page with hero, contact placeholder, menus built from page settings, Pages CMS entries | Check the Pages group in Pages CMS |
+| 05 | [URL parity](page-cms-spec-05-url-parity.md) | No trailing slashes, generated Static Web Apps routes, legacy variants, `sitemap.xml`, HTML `/sitemap`, live URL snapshot and check script | Run the URL check after merge |
+| 06 | [Images and embeds](page-cms-spec-06-images-and-embeds.md) | Uploads as WebP `<picture>` in fields and bodies, safe fallbacks, embeds as validated page fields, image cache in CI | Try a large upload on a phone |
+| 07 | [Content migration](page-cms-spec-07-content-migration.md) | Re-runnable extraction from live, images and uploads copied in, links rewritten, upload routes, migration report | Export event and notice dates from the legacy database. Review the migrated content |
+| 08 | [Contact form and site settings](page-cms-spec-08-contact-form-and-settings.md) | Site settings file, footer from settings, Web3Forms form behind a key, thanks page | Create a Web3Forms key when the inbox is known |
+| 09 | [Security and delivery hardening](page-cms-spec-09-security-and-delivery.md) | Headers and CSP, cache rules, pinned actions, Hugo checksum, Dependabot, budget tests, cookie policy outcome | Check headers and embeds after merge. Check cookies in a browser |
+| 10 | [Editor rollout](page-cms-spec-10-editor-rollout.md) | Pages CMS labels and help text, round-trip check on migrated content, guide for Paul, policy wording suggestions | Round-trip saves, screenshots for the guide, invite Paul, practice, church agrees policy wording |
+| 11 | [Cutover](page-cms-spec-11-cutover.md) | Bare domain on the Static Web App in Bicep, cutover runbook (freeze, re-extract, diff review, DNS flip, URL check, rollback), practice content clean-up | Validate the domain a week ahead, Cloudflare settings, run the day with Paul |
+| 12 | [Handover and decommission](page-cms-spec-12-handover-and-decommission.md) | HSTS to a year, maintainer runbook, church handover, subscriber note, CLAUDE.md updated | Send the note, delete the export, remove legacy resources |
 
 Spec 01 is first because finding the registrar login is the slowest step and it changes nothing visitors see. The rest is in build order: layout before content, URLs before migration, images before migration so migrated images land in the right place, the form and settings before hardening, hardening once the embeds and form are known, and the editor rollout last so Paul practises on the finished site.
 

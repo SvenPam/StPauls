@@ -6,7 +6,7 @@ status: agreed
 
 # Spec 12: handover and decommission
 
-_One session, about four weeks after cutover. Removes the old site and its Azure resources, raises HSTS to a year, sends the note to the old subscribers and deletes their export, and leaves the maintainer and the church a short runbook so the site needs almost nothing from anyone. See the [design](../design-site-replacement.md) and [conventions](conventions.md)._
+_One session, about four weeks after cutover. Removes the old site and its Azure resources, raises HSTS to a year, sends the note to the old subscribers and deletes their export, and leaves the maintainer and the church a short runbook so the site needs almost nothing from anyone. See the [design](page-cms-feature.md) and [conventions](page-cms-spec-conventions.md)._
 
 ---
 
@@ -26,7 +26,7 @@ Nothing of the old site is left running or costing money, personal data from it 
 
 - `hsts_max_age = 31536000`.
 - The note to the old subscribers.
-- `docs/runbook-maintainer.md` and `docs/handover-for-the-church.md`.
+- `docs/features/page-cms/page-cms-runbook-maintainer.md` and `docs/features/page-cms/page-cms-handover-for-the-church.md`.
 - Decommission checklist for the maintainer.
 - Repo tidy: `CLAUDE.md`, `README.md`, the way forward doc, and status of every spec.
 
@@ -59,13 +59,13 @@ Humanised, no em dash, under 120 words, from the church (signed `[name], St Paul
 
 The legacy CMS is multi-tenant (`/Areas/St_Pauls/`). Step 1 matters: other sites may share the App Service.
 
-### `docs/runbook-maintainer.md`
+### `docs/features/page-cms/page-cms-runbook-maintainer.md`
 
 | Section | Contents |
 |---|---|
 | What runs where | GitHub repo and Actions, Static Web App (Free), Cloudflare (Free), Pages CMS (hosted), Web3Forms (free). Monthly cost: none |
 | Routine | Merge the monthly Dependabot pull request after its checks pass. Nothing else |
-| Updating Hugo | Every place the version appears (workflow `HUGO_VERSION` and `HUGO_SHA256`, `CLAUDE.md`, `docs/specs/conventions.md`), where to get the checksum |
+| Updating Hugo | Every place the version appears (workflow `HUGO_VERSION` and `HUGO_SHA256`, `CLAUDE.md`, `docs/features/page-cms/page-cms-spec-conventions.md`), where to get the checksum |
 | Editors | Inviting or removing someone in Pages CMS |
 | Mistakes | Restoring a deleted or broken page from Git history |
 | If Pages CMS is down or goes away | Edit through the GitHub web editor in the meantime; swap the editor without touching content (way forward doc) |
@@ -73,7 +73,7 @@ The legacy CMS is multi-tenant (`/Areas/St_Pauls/`). Step 1 matters: other sites
 | Domain | Registrar, who holds the login, renewal date (from spec 01), Cloudflare account owner |
 | Checks | `scripts/check_urls.py --base https://stpaulswarton.co.uk` any time something seems off |
 
-### `docs/handover-for-the-church.md`
+### `docs/features/page-cms/page-cms-handover-for-the-church.md`
 
 For the church, not technical, short: who looks after what (Paul edits, the maintainer looks after the technical side), where the domain is registered and when it renews, what to do if the maintainer steps away (the repo, Cloudflare and Azure owners to transfer, in plain words), and that the guide for editors is the place to start for anyone new.
 
@@ -81,8 +81,8 @@ For the church, not technical, short: who looks after what (Paul edits, the main
 
 - `CLAUDE.md`: decisions table gains the decisions made in this project (publish emails dropped, logins removed, contact form on Web3Forms, embeds as fields, short HSTS at cutover then one year). "Next steps" becomes phase 2. Environment notes updated.
 - `README.md`: what the site is, how it is edited, where the runbooks are.
-- `docs/discovery-way-forward.md`: status line that phase 1 is complete, with the date.
-- Every spec in `docs/specs/` from 01 to 12: `status: done`.
+- `docs/features/page-cms/page-cms-discovery-way-forward.md`: status line that phase 1 is complete, with the date.
+- Every spec in `docs/features/page-cms/` from 01 to 12: `status: done`.
 
 ---
 
@@ -116,11 +116,11 @@ For the church, not technical, short: who looks after what (Paul edits, the main
 
 **Tech Stack:** Hugo config, Markdown, Python 3 `unittest`.
 
-**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](conventions.md).
+**Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](page-cms-spec-conventions.md).
 
 ### Global Constraints
 
-- Everything in [conventions: global constraints](conventions.md#global-constraints).
+- Everything in [conventions: global constraints](page-cms-spec-conventions.md#global-constraints).
 - No personal data in any document: no subscriber addresses, no maintainer contact details beyond "the maintainer".
 - The HSTS change ships only after the maintainer confirms manual step 1.
 
@@ -137,24 +137,24 @@ For the church, not technical, short: who looks after what (Paul edits, the main
 ### Task 1: Documents
 
 **Files:**
-- Create: `docs/runbook-maintainer.md`, `docs/handover-for-the-church.md`, `docs/subscriber-note.md`
+- Create: `docs/features/page-cms/page-cms-runbook-maintainer.md`, `docs/features/page-cms/page-cms-handover-for-the-church.md`, `docs/features/page-cms/page-cms-subscriber-note.md`
 - Modify: `tests/test_docs.py`
 
 - [ ] **Step 1: Write the failing doc tests**
 
 ```python
 def test_runbook_lists_every_hugo_version_location(self):
-    r = (REPO / "docs/runbook-maintainer.md").read_text()
-    for place in ("HUGO_VERSION", "HUGO_SHA256", "CLAUDE.md", "docs/specs/conventions.md"):
+    r = (REPO / "docs/features/page-cms/page-cms-runbook-maintainer.md").read_text()
+    for place in ("HUGO_VERSION", "HUGO_SHA256", "CLAUDE.md", "docs/features/page-cms/page-cms-spec-conventions.md"):
         self.assertIn(place, r)
 
 def test_church_handover_names_the_owners(self):
-    h = (REPO / "docs/handover-for-the-church.md").read_text()
+    h = (REPO / "docs/features/page-cms/page-cms-handover-for-the-church.md").read_text()
     for thing in ("registrar", "Cloudflare", "Azure", "GitHub", "guide for editors"):
         self.assertIn(thing, h)
 
 def test_subscriber_note(self):
-    n = (REPO / "docs/subscriber-note.md").read_text()
+    n = (REPO / "docs/features/page-cms/page-cms-subscriber-note.md").read_text()
     body = n.split("\n---\n", 2)[-1]
     self.assertLess(len(body.split()), 140)
     for feed in ("/blog/index.xml", "/calendar/index.xml", "/notices/index.xml"):
@@ -162,8 +162,8 @@ def test_subscriber_note(self):
     self.assertNotIn("@", body)
 
 def test_no_em_dash_in_handover_docs(self):
-    for f in ("runbook-maintainer.md", "handover-for-the-church.md", "subscriber-note.md"):
-        self.assertNotIn("\u2014", (REPO / "docs" / f).read_text(), f)
+    for f in ("page-cms-runbook-maintainer.md", "page-cms-handover-for-the-church.md", "page-cms-subscriber-note.md"):
+        self.assertNotIn("\u2014", (REPO / "docs/features/page-cms" / f).read_text(), f)
 ```
 
 - [ ] **Step 2: Run them and watch them fail**
@@ -204,6 +204,6 @@ git commit -m "Raise HSTS to a year now the old site is gone"
 ### Task 3: Repo tidy
 
 **Files:**
-- Modify: `CLAUDE.md`, `README.md`, `docs/discovery-way-forward.md`, `docs/specs/*.md` (status)
+- Modify: `CLAUDE.md`, `README.md`, `docs/features/page-cms/page-cms-discovery-way-forward.md`, `docs/features/page-cms/page-cms-spec-*.md` (status)
 
 - [ ] **Step 1: Make the edits listed under Repo tidy**, run the full suite, commit `Record phase 1 as done`, push, and tell the maintainer which manual steps remain.
