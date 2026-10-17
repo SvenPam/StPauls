@@ -102,6 +102,29 @@ class LayoutTests(unittest.TestCase):
         self.assertNotRegex(self.page, r"\sstyle=")
         self.assertNotRegex(self.page, r"\son[a-z]+=")
 
+    def test_footer_groups_match_live(self):
+        foot = self.page.split('<footer', 1)[1]
+        for title in ("Links", "Services", "Groups", "Community", "Gallery", "Forms", "Safeguarding"):
+            self.assertRegex(foot, rf"<h2[^>]*>\s*{title}\s*</h2>")
+        for href in ("/blog", "/calendar", "/notices", "/contact", "/sitemap",
+                     "/page/about/privacy-policy", "/page/gallery/website-pictures"):
+            self.assertIn(f'href="{href}"', foot)
+
+    def test_find_us(self):
+        foot = self.page.split('<footer', 1)[1]
+        self.assertIn("PR4 1BD", foot)
+        self.assertIn('href="https://www.facebook.com/stpaulswarton"', foot)
+        self.assertIn("<svg", foot)
+        self.assertNotIn("Site by", foot)
+
+    def test_map_is_a_responsive_picture(self):
+        pic = re.search(r"<picture>.*?</picture>", self.page, re.S).group(0)
+        self.assertRegex(pic, r'<source type="image/webp" srcset="/images/map_hu_\w+\.webp 480w, /images/map_hu_\w+\.webp 800w"')
+        self.assertIn('alt="Map showing St Paul&#39;s Church, Warton"', pic)
+        self.assertIn('width="800" height="712"', pic)
+        self.assertIn('loading="lazy"', pic)
+        self.assertIn('decoding="async"', pic)
+
     def test_not_found_page(self):
         self.assertIn("Page Not Found", self.page)
         self.assertNotIn("linkhelp.clients.google.com", self.page)

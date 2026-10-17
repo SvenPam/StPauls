@@ -92,3 +92,133 @@ weight = 100
 name = 'Safeguarding'
 url = '/page/safeguarding/safeguarding'
 weight = 110
+
+# Footer groups, matching live on 2026-10-17 without Register and Login. Each top-level entry is a group. Spec 04 replaces these.
+[[menus.footer]]
+name = 'Links'
+identifier = 'links-group'
+weight = 10
+[[menus.footer]]
+name = "Church Blog"
+identifier = 'links-group-1'
+url = '/blog'
+parent = 'links-group'
+weight = 1
+[[menus.footer]]
+name = "Church Calendar"
+identifier = 'links-group-2'
+url = '/calendar'
+parent = 'links-group'
+weight = 2
+[[menus.footer]]
+name = "Church Notices"
+identifier = 'links-group-3'
+url = '/notices'
+parent = 'links-group'
+weight = 3
+[[menus.footer]]
+name = "Contact Us"
+identifier = 'links-group-4'
+url = '/contact'
+parent = 'links-group'
+weight = 4
+[[menus.footer]]
+name = "Site Map"
+identifier = 'links-group-5'
+url = '/sitemap'
+parent = 'links-group'
+weight = 5
+[[menus.footer]]
+name = "Privacy Policy"
+identifier = 'links-group-6'
+url = '/page/about/privacy-policy'
+parent = 'links-group'
+weight = 6
+[[menus.footer]]
+name = "Cookie Policy"
+identifier = 'links-group-7'
+url = '/page/about/cookie-policy'
+parent = 'links-group'
+weight = 7
+[[menus.footer]]
+name = 'Services'
+identifier = 'services'
+weight = 20
+[[menus.footer]]
+name = "Regular Church Services"
+identifier = 'services-1'
+url = '/page/services/regular-church-services'
+parent = 'services'
+weight = 1
+[[menus.footer]]
+name = "Easter Services 2026"
+identifier = 'services-2'
+url = '/page/services/easter-services-2026'
+parent = 'services'
+weight = 2
+[[menus.footer]]
+name = 'Groups'
+identifier = 'groups'
+weight = 30
+[[menus.footer]]
+name = "Church Groups"
+identifier = 'groups-1'
+url = '/page/groups/church-groups'
+parent = 'groups'
+weight = 1
+[[menus.footer]]
+name = 'Community'
+identifier = 'community'
+weight = 40
+[[menus.footer]]
+name = "Community News"
+identifier = 'community-1'
+url = '/page/community/community-news'
+parent = 'community'
+weight = 1
+[[menus.footer]]
+name = 'Links'
+identifier = 'links'
+weight = 50
+[[menus.footer]]
+name = "Useful Links"
+identifier = 'links-1'
+url = '/page/links/useful-links'
+parent = 'links'
+weight = 1
+[[menus.footer]]
+name = 'Gallery'
+identifier = 'gallery'
+weight = 60
+[[menus.footer]]
+name = "Church Gallery"
+identifier = 'gallery-1'
+url = '/page/gallery/church-gallery'
+parent = 'gallery'
+weight = 1
+[[menus.footer]]
+name = "Website Pictures"
+identifier = 'gallery-2'
+url = '/page/gallery/website-pictures'
+parent = 'gallery'
+weight = 2
+[[menus.footer]]
+name = 'Forms'
+identifier = 'forms'
+weight = 70
+[[menus.footer]]
+name = "St. Paul's Forms"
+identifier = 'forms-1'
+url = '/page/forms/st-pauls-forms'
+parent = 'forms'
+weight = 1
+[[menus.footer]]
+name = 'Safeguarding'
+identifier = 'safeguarding'
+weight = 80
+[[menus.footer]]
+name = "Safeguarding"
+identifier = 'safeguarding-1'
+url = '/page/safeguarding/safeguarding'
+parent = 'safeguarding'
+weight = 1

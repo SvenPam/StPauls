@@ -1,0 +1,23 @@
+{{/* Responsive <picture> for a layout image in assets/. Takes dict "src" "alt" "sizes" "eager". */}}
+{{- $img := resources.Get .src -}}
+{{- if not $img }}{{ errorf "picture.html: asset %q not found" .src }}{{ end -}}
+{{- $sizes := .sizes | default "100vw" -}}
+{{- $widths := slice -}}
+{{- range slice 480 800 1200 1600 -}}
+  {{- if le . $img.Width }}{{ $widths = $widths | append . }}{{ end -}}
+{{- end -}}
+{{- if not $widths }}{{ $widths = slice $img.Width }}{{ end -}}
+{{- $webp := slice -}}
+{{- $orig := slice -}}
+{{- $fallback := $img -}}
+{{- range $widths -}}
+  {{- $w := (printf "%dx webp" .) | $img.Resize -}}
+  {{- $webp = $webp | append (printf "%s %dw" $w.RelPermalink .) -}}
+  {{- $o := $img.Resize (printf "%dx" .) -}}
+  {{- $orig = $orig | append (printf "%s %dw" $o.RelPermalink .) -}}
+  {{- if le . 800 }}{{ $fallback = $o }}{{ end -}}
+{{- end -}}
+<picture>
+<source type="image/webp" srcset="{{ delimit $webp ", " }}" sizes="{{ $sizes }}">
+<img src="{{ $fallback.RelPermalink }}" srcset="{{ delimit $orig ", " }}" sizes="{{ $sizes }}" width="{{ $fallback.Width }}" height="{{ $fallback.Height }}" alt="{{ .alt }}" decoding="async"{{ if not .eager }} loading="lazy"{{ end }}>
+</picture>

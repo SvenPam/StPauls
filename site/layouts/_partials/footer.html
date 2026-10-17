@@ -1,50 +1,29 @@
-<footer class="footer">
-    <div class="container">
-        <nav class="row">
-            <div class="col-md-6 col-xs-12">
-                <br>
-                <h4>Find Us</h4>
-                <hr>
-                <div class="col-xs-12 hidden-xs">
-                    <a href="https://www.google.co.uk/maps/place/Parish+Church+of+Saint+Paul+Warton/53.7513578,-2.8932638,16.25z/data=!4m2!3m1!1s0x487b6a5be3b39591:0x9e22ee85558d2d1d">
-                        <img src="{{ (resources.Get "images/map.png").RelPermalink }}" alt="Map showing St Paul's Church, Warton">
-                    </a>
-                    <br>
-                    <br>
-                </div>
-                <div class="col-sm-6 col-xs-12">
-                    <h4>Address</h4>
-                    <a href="http://maps.google.com/?saddr=Current+Location&daddr=53.7513578,-2.8932638">
-                        <address class="small">
-                            Church Road,
-                            <br>
-                            Warton,
-                            <br>
-                            Lancashire,
-                            <br>
-                            PR4 1BD
-                        </address>
-                    </a>
-                    <br>
-                </div>
-                <div class="col-sm-6 col-xs-12">
-                    <h4>Social</h4>
-                    <ul class="social large">
-                        <li>
-                            <a class="social-icon large follow facebook" href="https://www.facebook.com/stpaulswarton" target="_blank" title="Follow Us On Facebook">
-                                Like Us On Facebook
-                            </a>
-                        </li>
-                    </ul>
-                    <br>
-                </div>
-            </div>
-        </nav>
-        <hr>
-        <div class="row">
-            <div class="col-xs-12">
-                <p>&copy; {{ now.Year }} {{ site.Title }}</p>
-            </div>
-        </div>
-    </div>
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <nav class="footer-groups" aria-label="Footer">
+      {{- range partial "footer-groups.html" site }}
+      <div class="footer-group">
+        <h2 class="footer-group__title">{{ .title }}</h2>
+        <ul>
+          {{- range .links }}
+          <li><a href="{{ .url }}">{{ .name }}</a></li>
+          {{- end }}
+        </ul>
+      </div>
+      {{- end }}
+    </nav>
+    <section class="find-us" aria-labelledby="find-us">
+      <h2 id="find-us" class="footer-group__title">Find Us</h2>
+      <a class="find-us__map" href="https://www.google.co.uk/maps/place/Parish+Church+of+Saint+Paul+Warton/53.7513578,-2.8932638,16.25z/data=!4m2!3m1!1s0x487b6a5be3b39591:0x9e22ee85558d2d1d">
+        {{- partial "picture.html" (dict "src" "images/map.png" "alt" "Map showing St Paul's Church, Warton" "sizes" "(min-width: 768px) 24rem, 100vw") -}}
+      </a>
+      <a href="http://maps.google.com/?saddr=Current+Location&amp;daddr=53.7513578,-2.8932638">
+        <address>Church Road,<br>Warton,<br>Lancashire,<br>PR4 1BD</address>
+      </a>
+      <p><a class="find-us__social" href="https://www.facebook.com/stpaulswarton"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M24 12a12 12 0 1 0-13.9 11.9v-8.4h-3V12h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.4l-.5 3.5h-2.9v8.4A12 12 0 0 0 24 12z"/></svg>Like us on Facebook</a></p>
+    </section>
+  </div>
+  <div class="container site-footer__legal">
+    <p>&copy; {{ now.Year }} {{ site.Title }}</p>
+  </div>
 </footer>
