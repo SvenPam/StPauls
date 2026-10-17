@@ -12,21 +12,21 @@ _One session, mostly writing. Gets the domain's DNS onto Cloudflare early, still
 
 ## Goal
 
-The maintainer has a how-to and a ready-to-send message that, once followed, put `stpaulswarton.co.uk` on a Cloudflare Free zone with every existing record copied across, and nothing visitors or email users can notice.
+The maintainer has a how-to, with instructions for the login holder, that, once followed, put `stpaulswarton.co.uk` on a Cloudflare Free zone with every existing record copied across, and nothing visitors or email users can notice.
 
 ## Starting point
 
-- DNS is controlled by the church. Who holds the registrar login is not known yet.
+- DNS is controlled by the church. The registrar is 123 Reg (found 2026-10-17, see the how-to). A church contact holds the login. They are known to the maintainer and are not named in the repo.
 - The live site answers on `http://stpaulswarton.co.uk` (HTTP only, Azure App Service, `ARRAffinity` cookie, IIS headers).
-- `www.stpaulswarton.co.uk` appears in links inside live content, but did not resolve from the sandbox on 2026-10-17. Whether it exists is unknown.
-- The sandbox cannot run DNS lookups (no resolver for outside names, DNS-over-HTTPS blocked) or `whois`. Every lookup is a maintainer step.
+- `www.stpaulswarton.co.uk` appears in links inside live content. It exists (a `CNAME` to the bare domain), but the App Service answers it with `403`.
+- The sandbox's own resolver only answers `A` queries. With the environment on full network access, `dns.google` (DNS over HTTPS) and `rdap.nominet.uk` work, and steps 1 and 2 were done from there.
 
 ## In scope
 
 - `docs/features/page-cms/page-cms-how-to-move-dns-to-cloudflare.md`: record the current DNS, find the registrar, create the Cloudflare zone, copy and check records, change nameservers, verify, roll back.
-- A message the maintainer can send to whoever at the church can reach the registrar, inside the how-to.
+- Instructions in the how-to that the maintainer emails to the login holder, written for someone non-technical. The first approach to the church is the maintainer's own email and is not kept in the repo.
 - A table in the how-to for the maintainer to fill in with today's records, so spec 11 knows exactly what to change.
-- Doc tests in `tests/test_docs.py`.
+- `scripts/check-dns-cloudflare.sh`: a hand-run check for step 8 that reads the records table. Doc tests were written and run during the build, then dropped at the maintainer's request.
 
 ## Out of scope
 
@@ -42,11 +42,11 @@ Proxying (orange cloud), HTTPS settings, redirect rules, the Static Web App cust
 |---|---|---|---|
 | 1 | Maintainer | Record today's DNS with the commands below and fill in the records table | Table filled in, including MX, TXT and `asuid` records if any |
 | 2 | Maintainer | Find the registrar (`whois stpaulswarton.co.uk`, or the Nominet WHOIS web lookup) | Registrar name and renewal date written in the how-to |
-| 3 | Maintainer | Send the message to the church contact | Someone with registrar access is identified |
+| 3 | Maintainer | Contact the login holder (own email, not in the repo) | Login holder agrees to help |
 | 4 | Maintainer | Create a Cloudflare account and add the zone on the Free plan | Cloudflare shows the zone as pending, with two assigned nameservers |
 | 5 | Maintainer | Compare Cloudflare's imported records with the table and add anything missing. Every record is **DNS only** (grey cloud) | Records match the table one for one |
 | 6 | Maintainer | Turn off anything Cloudflare enables that changes traffic while DNS only: leave SSL/TLS, Always Use HTTPS and redirect rules untouched | Settings unchanged from defaults, zone still DNS only |
-| 7 | Church contact with maintainer | At the registrar, replace the nameservers with Cloudflare's two | Registrar shows the Cloudflare nameservers |
+| 7 | Login holder, by email | Send a screenshot of the current records, then replace the nameservers with Cloudflare's two, following the how-to's instructions | Registrar shows the Cloudflare nameservers |
 | 8 | Maintainer | Verify: Cloudflare shows the zone active, the site loads over HTTP as before, email still arrives at any church addresses on the domain | All three checks pass |
 | 9 | Maintainer | Record the outcome and date in the how-to and in `docs/features/page-cms/page-cms-discovery-way-forward.md` | Recorded |
 
@@ -68,12 +68,10 @@ Plus: the Azure portal's custom domains blade for the legacy App Service, which 
 
 The how-to has an empty table with columns `Type`, `Name`, `Value`, `TTL`, `Notes`, and one row per record found. The maintainer fills it in during step 1. Spec 11 reads it.
 
-### Message to the church
+### Instructions for the login holder
 
-- Written for a non-technical reader, humanised, no em dash, under 150 words.
-- Says what is needed (someone who can log in where the domain is registered, for about ten minutes, to change two settings), why (moving the website off an old paid server to a free one the church keeps control of), and that nothing visible changes at this stage.
-- Offers to do it together on a call.
-- Has placeholders `[name]` and `[your name]` only. No maintainer details.
+- Dropped from the first build: a message to the church inside the how-to. The maintainer writes that email and keeps it out of the repo, along with the names of church contacts.
+- Step 7 and the rollback are done by email, so the how-to has ready-to-send instructions: numbered, plain words, the button names to look for, a screenshot at the end of each part, and "stop and email me" if anything looks different. No names or contact details.
 
 ### Rollback
 
@@ -91,7 +89,7 @@ All of steps 1 to 9 above. This spec only writes the documents; nothing in it ca
 
 - [ ] `python3 -m unittest discover -s tests -v` passes.
 - [ ] The how-to exists, follows the docs conventions, and covers every row of the step table, the lookup table, the records table and the rollback.
-- [ ] The message to the church reads naturally, has no em dash and contains no personal details.
+- [ ] The login holder instructions read plainly, have no em dash and contain no names or contact details.
 - [ ] After the maintainer completes the steps: the zone is active on Cloudflare, all records are DNS only, the old site and email work as before, and the outcome is recorded.
 
 ---

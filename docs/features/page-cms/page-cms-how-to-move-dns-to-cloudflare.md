@@ -1,0 +1,256 @@
+---
+date: 2026-10-17
+tags: [how-to, stpauls, dns]
+status: in-progress
+---
+
+# How to move DNS to Cloudflare
+
+_The manual steps for [spec 01](page-cms-spec-01-dns-preparation.md): copy today's DNS for `stpaulswarton.co.uk` into a Cloudflare Free zone, every record DNS only, still pointing at the old site, so visitors and email users notice nothing. [Spec 11](page-cms-spec-11-cutover.md) reads the records table below on cutover day._
+
+---
+
+## Before you start
+
+| Step | Who | What | Section |
+|---|---|---|---|
+| 1 | Maintainer | Record today's DNS and fill in the records table | [Current records](#current-records) |
+| 2 | Maintainer | Find the registrar | [Find the registrar](#find-the-registrar) |
+| 3 | Maintainer | Contact the person who holds the registrar login. You write this email yourself; who they are is not recorded in the repo | |
+| 4 | Maintainer | Create a Cloudflare account and add the zone on the Free plan | [Create the Cloudflare zone](#create-the-cloudflare-zone) |
+| 5 | Maintainer | Compare the imported records with the table, add anything missing, set every record to DNS only | [Create the Cloudflare zone](#create-the-cloudflare-zone) |
+| 6 | Maintainer | Leave SSL/TLS, Always Use HTTPS and redirect rules untouched | [Create the Cloudflare zone](#create-the-cloudflare-zone) |
+| 7 | Login holder, by email | Send a screenshot of the current records, then replace the nameservers with Cloudflare's two | [Change the nameservers](#change-the-nameservers) |
+| 8 | Maintainer | Check the zone is active, the site loads, email arrives | [Check it worked](#check-it-worked) |
+| 9 | Maintainer | Record the outcome here and in the [way forward](page-cms-discovery-way-forward.md) | [Outcome](#outcome) |
+
+| | |
+|---|---|
+| Tools | A terminal with `dig` and `whois` (macOS, Linux), or `nslookup` (Windows). A browser |
+| Accounts | A new Cloudflare account (free). The 123 Reg login, held by a church contact, for step 7 |
+| Time | 30 minutes for steps 1 to 6. Two rounds of email for step 7, about ten minutes of the login holder's time. Up to 48 hours of waiting before step 8 |
+| Not in this how-to | Proxying, HTTPS, redirect rules, the Static Web App custom domain. All of that is spec 11 |
+
+Steps 1 and 2 were done from the build sandbox on 2026-10-17, through Google's DNS over HTTPS (`dns.google`) and Nominet's RDAP (`rdap.nominet.uk`). The tables below hold the results. Re-run the lookups before step 5 in case the church has changed anything, and treat the registrar's own record list in step 7 as the final word: lookups only find names someone thought to ask for.
+
+---
+
+## Current records
+
+**Step 1.** Run each lookup, then add one row to the table per answer. Leave nothing out: the `NS` row is how you roll back, and mail and `asuid` records are the ones most likely to be missed later.
+
+| Record | Names to query |
+|---|---|
+| `NS`, `SOA` | `stpaulswarton.co.uk` |
+| `A`, `AAAA`, `CNAME` | `stpaulswarton.co.uk`, `www.stpaulswarton.co.uk` |
+| `MX` | `stpaulswarton.co.uk` |
+| `TXT` | `stpaulswarton.co.uk`, `_dmarc.stpaulswarton.co.uk`, `asuid.stpaulswarton.co.uk`, `asuid.www.stpaulswarton.co.uk` |
+| `CNAME` | `autodiscover.stpaulswarton.co.uk`, `mail.stpaulswarton.co.uk` (only if email is on the domain) |
+| `DS` | `stpaulswarton.co.uk` (DNSSEC, see the note below) |
+
+macOS or Linux:
+
+```bash
+D=stpaulswarton.co.uk
+for t in NS SOA A AAAA CNAME MX TXT DS; do echo "== $t $D"; dig +noall +answer $t $D; done
+for t in A AAAA CNAME; do echo "== $t www.$D"; dig +noall +answer $t www.$D; done
+for n in _dmarc asuid asuid.www; do echo "== TXT $n.$D"; dig +noall +answer TXT $n.$D; done
+for n in autodiscover mail; do echo "== CNAME $n.$D"; dig +noall +answer CNAME $n.$D; done
+```
+
+Windows (one per line, change the type and name each time):
+
+```text
+nslookup -type=NS stpaulswarton.co.uk
+nslookup -type=MX stpaulswarton.co.uk
+nslookup -type=TXT _dmarc.stpaulswarton.co.uk
+nslookup -type=TXT asuid.www.stpaulswarton.co.uk
+```
+
+`dig` prints the TTL as the second column. `nslookup` does not; use `nslookup -debug` or write `auto`.
+
+Then check by hand what an import would miss:
+
+| Check | Where | Why |
+|---|---|---|
+| Host names the legacy App Service expects | Azure portal, the legacy App Service, **Custom domains** | Each bound name needs its `A` or `CNAME`, and usually an `asuid` TXT record. Lose those and Azure drops the binding |
+| `asuid.stpaulswarton.co.uk`, `asuid.www.stpaulswarton.co.uk` | The `TXT` lookups above | Cloudflare's import only finds common names, so these are added by hand in step 5 |
+| SPF | `TXT` on `stpaulswarton.co.uk` starting `v=spf1` | Without it, mail from church addresses lands in spam |
+| DKIM | `TXT` or `CNAME` at `<selector>._domainkey.stpaulswarton.co.uk`. Selectors are not discoverable by lookup. Ask whoever runs church email, or read the headers of a mail sent from a church address (`DKIM-Signature: ... s=<selector>`) | Signed mail fails checks without it |
+| DMARC | `TXT` on `_dmarc.stpaulswarton.co.uk` | Same as SPF |
+| MX | `MX` on `stpaulswarton.co.uk` | No MX means no incoming mail. If there is none, the domain has no email and step 8's email check is skipped |
+| DNSSEC | `DS` on `stpaulswarton.co.uk` | If a `DS` record exists, DNSSEC must be turned off at the registrar and the `DS` record gone before step 7, or the domain stops resolving. Turn it back on from Cloudflare later |
+
+Use `@` for the bare domain in the Name column.
+
+| Type | Name | Value | TTL | Notes |
+|---|---|---|---|---|
+| NS | @ | `ns47.domaincontrol.com.` | 3600 | GoDaddy DNS, which 123 Reg uses. Used to roll back |
+| NS | @ | `ns48.domaincontrol.com.` | 3600 | As above |
+| SOA | @ | `ns47.domaincontrol.com. dns.jomax.net. 2026021602 28800 7200 604800 600` | 3600 | Reference only. Serial says the zone last changed on 2026-02-16 |
+| A | @ | `51.140.210.97` | 3600 | Legacy App Service. Both addresses serve the same site over HTTP. HTTPS shows the `*.azurewebsites.net` certificate, so only HTTP works today |
+| A | @ | `51.141.12.112` | 3600 | As above. Check in the Azure portal which address the App Service lists, but copy both |
+| CNAME | www | `stpaulswarton.co.uk.` | 3600 | Resolves, but the App Service answers `403` because `www` is not bound to it. Copy as is. Spec 11 redirects `www` to the bare domain |
+| TXT | _dmarc | `v=DMARC1; p=quarantine; adkim=r; aspf=r; rua=mailto:dmarc_rua@onsecureserver.net;` | 3600 | GoDaddy's default. The domain sends no mail, so this only stops others faking it. Copy as is |
+| CNAME | _domainconnect | `_domainconnect.ss.domaincontrol.com.` | 3600 | GoDaddy's Domain Connect helper. Not needed on Cloudflare but harmless. Copy as is |
+| AAAA | @, www | | | none |
+| MX | @ | | | none. No email on the domain, so step 8's email check is skipped |
+| TXT | @ | | | none. No SPF, which fits having no email |
+| DS | @ | | | none. Not DNSSEC signed (RDAP: `delegationSigned: false`) |
+| TXT | asuid, asuid.www | | | none. Also no `awverify` or `awverify.www` CNAME |
+| CNAME | autodiscover, mail, webmail, ftp, smtp, pop, imap, email | | | none |
+| DKIM | `google`, `selector1`, `selector2`, `default` under `_domainkey` | | | none |
+| CAA, SRV, wildcard | @, `_sip._tls`, `*` | | | none |
+
+Add a row for anything new you find, including anything in the registrar's list at step 7. "none" in Notes means the lookup was run and returned nothing.
+
+---
+
+## Find the registrar
+
+**Step 2.** Run `whois stpaulswarton.co.uk`, or use the Nominet WHOIS lookup at `https://www.nominet.uk/whois/`. Copy these into the [Outcome](#outcome) table:
+
+| Field in the WHOIS output | Why |
+|---|---|
+| Registrar | Where the login holder logs in |
+| Renewal date (shown as `Expiry date`) | A lapsed domain takes the site and email down. Tell the church if it is within three months |
+| Name servers | Must match the `NS` rows in the records table |
+| DNSSEC | `Signed` means do the DNSSEC step before step 7 |
+| Status | `client update prohibited` is the registrar lock. It may need turning off at the registrar before the nameservers can change |
+
+Found on 2026-10-17: registrar **123 Reg** (`123-Reg Limited t/a 123-reg`), registered 2015-08-18, expires **2035-08-18**, unsigned, nameservers `ns47` and `ns48.domaincontrol.com`, status `client transfer, delete, renew and update prohibited` (the usual lock). Who holds the 123 Reg login is known to the maintainer and not recorded here.
+
+---
+
+## Create the Cloudflare zone
+
+**Step 4.** Sign up at `https://dash.cloudflare.com/sign-up`, then **Add a domain**, enter `stpaulswarton.co.uk`, pick **Free**. Let it scan for records. Cloudflare shows the zone as **Pending** and lists two nameservers ending `.ns.cloudflare.com`. Write both in the [Outcome](#outcome) table.
+
+Cloudflare removes a zone that stays pending too long (weeks, not months), taking any records you added with it. If the login holder takes a while to reply, do step 5 shortly before sending part 2 of step 7, or check the zone is still there first. If it has gone, add it again and redo step 5 from the table.
+
+**Step 5.** Open **DNS**, **Records**, and go through the records table one row at a time.
+
+| Do | Why |
+|---|---|
+| Add every row the scan missed, with the same type, name and value. `asuid` TXT records and DKIM will almost certainly be missing | Missing `asuid` drops the old site's Azure binding. Missing mail records break church email |
+| For anything the scan found that is not in the table, run `dig +short <type> <name> @<old nameserver>` with an old nameserver from the `NS` row. If it answers, add it to the table and keep it. Delete it only if it does not | The scan reads live DNS, so its extras are usually real records (`webmail`, `ftp`, Microsoft 365 `SRV` or `selector1._domainkey`) that your lookups did not guess |
+| Set every record to **DNS only** (grey cloud). The scan often marks `A` and `CNAME` records as Proxied; do not leave any record Proxied | The old site is HTTP only. With proxying on, Cloudflare would start answering for it and could redirect or fail TLS |
+| Leave TTL on **Auto** | Matches closely enough, and is easy to change on cutover day |
+| Do not add NS records for `@` | Cloudflare manages those itself |
+
+Done when the Cloudflare list matches the table one for one, and no record shows the orange cloud. Do not switch any record to the orange cloud until spec 11.
+
+**Step 6.** Change nothing else. In particular:
+
+| Setting | Leave it |
+|---|---|
+| SSL/TLS | As created |
+| **Always Use HTTPS** | Off |
+| Redirect rules, page rules | None |
+| Email Routing | Off. Turning it on replaces the MX records |
+| DNSSEC in Cloudflare | Off for now |
+
+With every record DNS only, none of these touch visitor traffic, but leaving them alone keeps spec 11 a clean start.
+
+---
+
+## Change the nameservers
+
+**Step 7.** Done by email with the login holder, in two parts. Send each part as it is written below, with the gaps filled in, and wait for their reply before the next one. The menu names come from 123 Reg's current help guides and may be worded slightly differently on screen, which is why each part ends with a screenshot.
+
+DNSSEC is off for this domain and it has no email, so there is nothing to do for either before the change.
+
+### Part 1: a picture of today's settings
+
+Send this first, and change nothing in Cloudflare until it comes back.
+
+> **Please don't change anything yet. This part is just to take a picture.**
+>
+> 1. Go to www.123-reg.co.uk and click **Log in** at the top of the page. Log in as usual.
+> 2. Find **stpaulswarton.co.uk** in your list of domains and click **Manage** next to it.
+> 3. Look for **Manage DNS**. It may be under a heading called **Advanced domain settings**. Click it.
+> 4. You'll see a list of entries with short names and numbers. Take a screenshot of the whole list (a photo of the screen is fine too) and email it back to me.
+> 5. Log out.
+
+When it comes back, compare every line with the records table and the Cloudflare zone. It is the only complete list of the zone. Add anything missing to both before sending part 2.
+
+### Part 2: the change
+
+Fill in the two Cloudflare nameservers from step 4 before sending.
+
+> **This is the change itself. It takes about five minutes and nothing on the website will look any different.**
+>
+> 1. Log in at www.123-reg.co.uk and click **Manage** next to **stpaulswarton.co.uk**, as last time.
+> 2. Look for **Change nameservers**, or a tab called **Nameservers**, and click it.
+> 3. Choose the option to use your own nameservers. It may be worded **I'll use my own nameservers** or **Custom nameservers**.
+> 4. Delete what is in the boxes now and type these two, exactly as written:
+>    - First box: [first Cloudflare nameserver]
+>    - Second box: [second Cloudflare nameserver]
+>
+>    Leave any other boxes empty.
+> 5. Click **Update** (or **Save**). You should see a message saying it worked.
+> 6. If it says the domain is locked, look for **Domain lock** on the same page, switch it off, go back to step 4, then switch the lock back on afterwards.
+> 7. Take a screenshot of the page showing the two new names and email it back to me.
+>
+> If anything looks different from this, or you're not sure, just stop and email me. Nothing breaks by stopping halfway.
+
+When the screenshot shows only the two Cloudflare nameservers, go to step 8. 123 Reg may clear its own DNS records once the nameservers move, which is why the records table matters for rolling back.
+
+---
+
+## Check it worked
+
+**Step 8.** The change can take up to 48 hours to reach everyone. Cloudflare emails when the zone is active. Then, from the repo root on macOS or Linux:
+
+```bash
+scripts/check-dns-cloudflare.sh
+```
+
+It checks the delegation and DNSSEC at the .uk registry, asks Cloudflare's nameservers for every filled-in row of the records table, and checks the old site still answers over HTTP without Cloudflare in the way. It prints PASS or FAIL per check and exits non-zero on any failure. The email check stays manual.
+
+| Check | How | Pass |
+|---|---|---|
+| Zone active | Cloudflare dashboard, the zone overview. Or `dig NS stpaulswarton.co.uk +short` | Status **Active**, and `dig` shows only the two Cloudflare nameservers |
+| Site loads as before | `curl -sI http://stpaulswarton.co.uk`, then open `http://stpaulswarton.co.uk` in a browser | `200`, IIS headers and the `ARRAffinity` cookie as before. No redirect to `https`, no Cloudflare page |
+| Email arrives | Send a test email from an outside address to a church address on the domain, and ask for a reply | Both arrive, not in spam. Skip if the domain has no `MX` |
+| Records match | The script, or re-run the step 1 lookups | Same values as the table |
+
+If any check fails and you cannot fix it by correcting a record in Cloudflare within an hour, roll back.
+
+---
+
+## Roll back
+
+To undo step 7, the login holder puts the old nameservers back. Send this:
+
+> **Please could you undo the change from last time? Same place, about five minutes.**
+>
+> 1. Log in at www.123-reg.co.uk and click **Manage** next to **stpaulswarton.co.uk**.
+> 2. Click **Change nameservers** (or the **Nameservers** tab).
+> 3. If there is an option to use 123 Reg's own (default) nameservers, choose it. If not, type these two in the boxes, exactly as written: `ns47.domaincontrol.com` and `ns48.domaincontrol.com`.
+> 4. Click **Update** (or **Save**), then take a screenshot and email it back to me.
+> 5. Then click **Manage DNS** and send me a screenshot of that list too.
+
+Compare the **Manage DNS** screenshot with the records table. 123 Reg often empties the list when nameservers move away, so if lines are missing, send the login holder the missing ones one at a time (type, name, value) to add with **Add new entry**. There are only five today. Then wait up to 48 hours and check `dig NS stpaulswarton.co.uk +short` shows the old nameservers again.
+
+Once the old nameservers answer with the records in the table, the old DNS works as it did. Cloudflare marks the zone as moved and removes it later, so a second attempt starts again at step 4.
+
+---
+
+## Outcome
+
+**Step 9.** Fill this in, set `status: stable` in the front matter, remove the blocked note from spec 11, and add the date and result to the Decisions table in the [way forward](page-cms-discovery-way-forward.md).
+
+| | |
+|---|---|
+| Date nameservers changed | |
+| Registrar | 123 Reg |
+| Renewal date | 2035-08-18 |
+| Who holds the registrar login | Known to the maintainer, not recorded in the repo |
+| Old nameservers | `ns47.domaincontrol.com`, `ns48.domaincontrol.com` |
+| Cloudflare nameservers | |
+| DNSSEC before | Off (unsigned) |
+| Zone active on | |
+| Site check | |
+| Email check | Not needed, no MX |
+| Notes | |

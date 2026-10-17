@@ -119,7 +119,7 @@ Made by the maintainer in the design conversation on 2026-10-17, unless marked _
 | Contact form | Posts to `/Contact/Contact`. Believed not to deliver |
 | Feeds | None |
 | Policies | The cookie policy mentions Google Analytics, Disqus and accounts, none of which will exist. The privacy policy mentions registering, and stays because the contact form collects personal data |
-| `www` | `www.stpaulswarton.co.uk` is used in links and by the maintainer, but did not resolve from the sandbox. Spec 01 records its current DNS |
+| `www` | `www.stpaulswarton.co.uk` is used in links and by the maintainer. It is a `CNAME` to the bare domain, but the old App Service answers it with `403` (spec 01) |
 
 ---
 
@@ -208,7 +208,7 @@ One spec per session, written with `writing-plans`, each built on a branch and m
 
 | # | Spec | Delivers | Maintainer and church steps |
 |---|---|---|---|
-| 01 | [DNS preparation](page-cms-spec-01-dns-preparation.md) | How-to and message for the church to move the domain's DNS to Cloudflare, with records still pointing at the old site. Record of current DNS, including `www` | Find registrar access, create the Cloudflare zone, change nameservers |
+| 01 | [DNS preparation](page-cms-spec-01-dns-preparation.md) | How-to, with instructions for the registrar login holder, to move the domain's DNS to Cloudflare, with records still pointing at the old site. Record of current DNS, including `www` | Find registrar access, create the Cloudflare zone, change nameservers |
 | 02 | [Layout and stylesheet](page-cms-spec-02-layout-and-stylesheet.md) | New shell: header with a labelled menu button and dropdowns that need no script, footer, cards, typography, contrast-checked tokens. Bootstrap 3 removed. Applied to Notices | Sign off side-by-side screenshots |
 | 03 | [Blog, events and notices](page-cms-spec-03-blog-events-notices.md) | The three dated sections at live URL patterns, topics, aside, event status, RSS, nightly build with a browser-side safeguard, Pages CMS collections | Check the collections in Pages CMS |
 | 04 | [Pages, home and menus](page-cms-spec-04-pages-home-and-menus.md) | Standing pages under `/page/{type}/{slug}`, home page with hero, contact placeholder, menus built from page settings, Pages CMS entries | Check the Pages group in Pages CMS |

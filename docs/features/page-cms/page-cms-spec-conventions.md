@@ -82,7 +82,8 @@ Install outside the repo, for example in the scratchpad.
 |---|---|
 | Live site `http://stpaulswarton.co.uk` (bare domain, not `www`) | `az`, Azure portal, `learn.microsoft.com` |
 | Test site `https://brave-coast-006318103.5.azurestaticapps.net` | `pagescms.org`, `app.pagescms.org` |
-| GitHub release downloads, `git ls-remote` on public repos | `web3forms.com`, DNS-over-HTTPS resolvers |
+| GitHub release downloads, `git ls-remote` on public repos | `web3forms.com`, DNS-over-HTTPS resolvers (both work on full network access) |
+| With full network access: `dns.google` (DNS over HTTPS), `rdap.nominet.uk` | Raw DNS (port 53, only `A` answers come back) and `whois` (port 43), whatever the network setting |
 | `raw.githubusercontent.com`: docs sources in `MicrosoftDocs/azure-docs`, `pages-cms/website` (`docs/`), `gohugoio/hugo` (`docs/`), `surjithctly/web3forms-docs` | The GitHub web UI and API |
 
 Say plainly in the hand-off what could not be run locally.
