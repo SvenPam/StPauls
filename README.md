@@ -22,7 +22,7 @@ _The current state of `stpaulswarton.co.uk` and of the Umbraco port held in this
 | Port deployed | No. `/umbraco` returns 404 on the live site |
 | Port history | 32 commits, all 13 to 14 July 2019, single author |
 | Content in repo | None. Document types, data types and grid layouts lived in a 2019 local test database that is not committed |
-| DNS | Not controlled by the site maintainer |
+| DNS | Controlled by the church. Finding someone with access takes time |
 
 ---
 
@@ -67,9 +67,11 @@ Topics shared across blog, calendar and notices: `website`, `church-services`, `
 
 ### Features on the live site
 
+Usage as reported by the site maintainer. The contact form is believed not to be connected to an email service (unverified). All other features are reported in use.
+
 | Feature | Detail |
 |---|---|
-| Contact form | Posts to `/Contact/Contact`. Fields: Name, Enquiry Type, Message, Email, Phone. Enquiry types: General Enquiry, Website Enquiry, Weddings and Baptisms, MU, WI |
+| Contact form | Posts to `/Contact/Contact`. Fields: Name, Enquiry Type, Message, Email, Phone. Enquiry types: General Enquiry, Website Enquiry, Weddings and Baptisms, MU, WI. Likely not delivering email |
 | User accounts | Login, register, manage. Used for contributors and email subscriptions |
 | Email notifications | Emails sent when content is published (see legacy `Views/Email`) |
 | Comments | Disqus, shortname `stpaulswarton` |
@@ -261,7 +263,14 @@ These reference types and helpers that do not exist in this repo (`sites.*`, `Si
 
 ---
 
-## Open questions
+## Constraints and preferences
 
-- Which live features are still used (accounts, email notifications, comments, contact form groups, topic listings)?
-- Who controls DNS for `stpaulswarton.co.uk`, and how is a change requested?
+Stated by the site maintainer, for discovery.
+
+| | |
+|---|---|
+| Maintainer time | Volunteer, minimal ongoing involvement wanted |
+| Editor | Church contact must be able to edit content without the maintainer |
+| Hosting cost | Removing the App Service plan, database and storage account is preferred |
+| Contact form | Working email delivery is a nice to have |
+| DNS | Preference to move the zone to Cloudflare ahead of cutover. Church-side changes go in a handover user guide |
