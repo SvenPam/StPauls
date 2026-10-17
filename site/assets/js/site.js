@@ -38,4 +38,8 @@
   document.addEventListener('click', (e) => {
     groups().forEach((d) => { if (!d.contains(e.target)) d.open = false; });
   });
+  // An open dropdown would cover the content that focus moves on to.
+  document.addEventListener('focusout', (e) => {
+    groups().forEach((d) => { if (d.contains(e.target) && !d.contains(e.relatedTarget)) d.open = false; });
+  });
 })();

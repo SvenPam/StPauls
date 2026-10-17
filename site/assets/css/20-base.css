@@ -38,7 +38,7 @@ address { font-style: normal; }
 a { color: var(--gold-text); text-decoration: underline; text-underline-offset: 0.15em; }
 a:hover { color: var(--navy); }
 
-:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--navy); outline-offset: 2px; }
 
 img, svg { max-width: 100%; height: auto; }
 

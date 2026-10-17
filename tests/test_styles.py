@@ -52,7 +52,7 @@ class TokenTests(unittest.TestCase):
         t = tokens()
         pairs = [("--text", "--page", 4.5), ("--text", "--surface", 4.5),
                  ("--gold-text", "--page", 4.5), ("--gold-text", "--surface", 4.5),
-                 ("--muted", "--surface", 4.5), ("--date", "--surface", 4.5),
+                 ("--muted", "--surface", 4.5), ("--muted", "--page", 4.5), ("--date", "--surface", 4.5),
                  ("--date", "--page", 4.5), ("--nav-text", "--navy", 4.5),
                  ("--gold", "--navy", 4.5), ("--footer-text", "--footer-bg", 4.5),
                  ("--gold", "--footer-bg", 4.5), ("--navy", "--page", 4.5)]
@@ -67,6 +67,28 @@ class TokenTests(unittest.TestCase):
     def test_date_is_as_close_to_live_as_allowed(self):
         t = tokens()
         self.assertLess(contrast(lighten(t["--date"], 2), t["--surface"]), 4.5)
+
+
+class FocusTests(unittest.TestCase):
+    def test_main_focus_outline_is_visible(self):
+        # WCAG 1.4.11: the default outline needs 3:1 on the page and on cards.
+        base = (REPO / "site/assets/css/20-base.css").read_text()
+        colour = re.search(r":focus-visible\s*\{[^}]*outline:[^;}]*var\((--[\w-]+)\)", base).group(1)
+        t = tokens()
+        for bg in ("--page", "--surface", "--panel"):
+            self.assertGreaterEqual(contrast(t[colour], t[bg]), 3, f"{colour} on {bg}")
+
+    def test_card_hover_keeps_text_contrast(self):
+        # Dates and links on a card are checked on --surface, so hover must not change the background.
+        css = (REPO / "site/assets/css/50-components.css").read_text()
+        rule = re.search(r"\.card:hover[^{]*\{([^}]*)\}", css).group(1)
+        self.assertNotIn("background", rule)
+
+    def test_dropdown_closes_when_focus_leaves(self):
+        # An open desktop dropdown would cover the content focus moves to.
+        js = (REPO / "site/assets/js/site.js").read_text()
+        self.assertIn("focusout", js)
+        self.assertIn("relatedTarget", js)
 
 
 if __name__ == "__main__":
