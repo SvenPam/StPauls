@@ -1,0 +1,45 @@
+@font-face {
+  font-family: 'Muli';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Muli'), url(/fonts/muli.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--page);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--navy);
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 1.5em 0 0.5em;
+}
+h1 { font-size: 2rem; margin-top: 1em; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+h4, h5, h6 { font-size: 1.0625rem; }
+
+p, ul, ol, dl, address, blockquote, figure, pre, table { margin: 0 0 1rem; }
+li > ul, li > ol, li > p { margin-bottom: 0; }
+address { font-style: normal; }
+
+a { color: var(--gold-text); text-decoration: underline; text-underline-offset: 0.15em; }
+a:hover { color: var(--navy); }
+
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+img, svg { max-width: 100%; height: auto; }
+
+hr { border: 0; border-top: 1px solid var(--border); margin: 1.5rem 0; }

@@ -1,4 +1,5 @@
 import json
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -22,12 +23,29 @@ class LayoutTests(unittest.TestCase):
     def tearDownClass(cls):
         cls._tmp.cleanup()
 
-    def test_page_uses_legacy_css(self):
-        self.assertIn('href="/Content/bootstrap.css"', self.page)
-        self.assertIn('href="/Content/Site.css"', self.page)
-        for f in ["Content/bootstrap.css", "Content/Site.css", "Content/Image/map.png",
-                  "Content/Image/social-sprites.png", "fonts/muli.woff2"]:
-            self.assertTrue((self.out / f).is_file(), f)
+    def test_single_bundled_stylesheet(self):
+        links = re.findall(r'<link rel="stylesheet" href="([^"]+)" integrity="sha256-[^"]+"', self.page)
+        self.assertEqual(len(links), 1)
+        self.assertRegex(links[0], r"^/css/site\.min\.[0-9a-f]{64}\.css$")
+        self.assertNotIn("/Content/", self.page)
+        self.assertFalse((self.out / "Content").exists())
+        self.assertTrue((self.out / "favicon.ico").is_file())
+
+    def test_css_budget(self):
+        css = next((self.out / "css").glob("site.min.*.css"))
+        self.assertLess(css.stat().st_size, 25_000)
+
+    def test_content_cannot_overflow(self):
+        css = next((self.out / "css").glob("site.min.*.css")).read_text()
+        for sel in (".prose img", ".prose iframe", ".prose video", ".prose table"):
+            self.assertIn(sel, css)
+        self.assertRegex(css, r"\.prose img[^{]*\{[^}]*max-width:100%")
+        self.assertRegex(css, r"\.prose img[^{]*\{[^}]*height:auto")
+
+    def test_focus_is_never_hidden(self):
+        css = next((self.out / "css").glob("site.min.*.css")).read_text()
+        self.assertNotRegex(css, r":focus[^{]*\{[^}]*outline:(none|0)[;}]")
+        self.assertIn(":focus-visible", css)
 
     def test_header_and_footer(self):
         self.assertIn('class="navbar-brand"', self.page)

@@ -1,0 +1,27 @@
+/* Design tokens. Live palette read from stpaulswarton.co.uk on 2026-10-17.
+   Changes from live, for WCAG AA (4.5:1) on both --page and --surface:
+   --gold-text: live #c8a85a, 2.23:1 on --page and 2.28:1 on --surface.
+                Now #896f2e (HSL lightness down 21 points), 4.70:1 and 4.80:1.
+   --muted:     live #777777, 4.48:1 on --surface. Now #767676, 4.54:1.
+   --date:      live #be6700, 4.01:1 on --surface and 4.09:1 on --page.
+                Now #af5f00 (HSL lightness down 3 points), 4.61:1 and 4.71:1. */
+:root {
+  --navy: #002060;
+  --gold: #c8a85a;
+  --gold-text: #896f2e;
+  --text: #222222;
+  --muted: #767676;
+  --date: #af5f00;
+  --page: #fdfdf7;
+  --surface: #ffffff;
+  --panel: #f5f5f5;
+  --highlight: #ffdf89;
+  --border: #dddddd;
+  --nav-text: #efefef;
+  --footer-bg: #0c0c0e;
+  --footer-text: #ffffff;
+  --font: 'Century Gothic', CenturyGothic, AppleGothic, 'Muli', sans-serif;
+  --measure: 70ch;
+  --space: 1rem;
+  --radius: 4px;
+}

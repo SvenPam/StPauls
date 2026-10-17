@@ -1,0 +1,9 @@
+/* Legacy and rich text bodies. Content may carry width attributes and inline styles,
+   so the size limits here use !important to win over them. */
+.prose { max-width: var(--measure); overflow-wrap: anywhere; }
+.prose img, .prose video { max-width: 100% !important; height: auto !important; }
+.prose iframe { max-width: 100% !important; }
+.prose table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+.prose th, .prose td { border: 1px solid var(--border); padding: 0.4rem 0.6rem; }
+.prose pre { max-width: 100%; overflow-x: auto; }
+.prose blockquote { border-left: 4px solid var(--gold); margin-left: 0; padding-left: 1rem; }

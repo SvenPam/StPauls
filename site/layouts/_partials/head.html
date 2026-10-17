@@ -1,0 +1,10 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} | {{ site.Title }}{{ end }}</title>
+{{- with .Params.summary }}
+<meta name="description" content="{{ . }}">
+{{- end }}
+<meta name="theme-color" content="#002060">
+<link rel="icon" href="/favicon.ico">
+{{- $css := resources.Match "css/*.css" | resources.Concat "css/site.css" | minify | fingerprint "sha256" }}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
