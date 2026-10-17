@@ -1,0 +1,24 @@
+{{ define "main" }}
+<div class="container">
+    <h1>{{ .Title }}</h1>
+    {{- range .Pages.ByDate.Reverse }}
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+        <div class="panel panel-default">
+            <a href="{{ .RelPermalink }}">
+                <div class="panel-heading panel-heading-link">
+                    <h3>{{ .Title }}</h3>
+                    <span class="date-time notice-date">{{ .Date.Format "02-Jan-06" }}</span>
+                </div>
+                {{- with .Params.summary }}
+                <div class="panel-body">
+                    <p class="notice-summary">{{ . }}</p>
+                </div>
+                {{- end }}
+            </a>
+        </div>
+    </div>
+    {{- else }}
+    <p>Could not find any notices.</p>
+    {{- end }}
+</div>
+{{ end }}
