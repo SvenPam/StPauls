@@ -49,7 +49,7 @@ az ad sp create --id $APP_ID
 az ad app federated-credential create --id $APP_ID --parameters '{
   "name": "github-main",
   "issuer": "https://token.actions.githubusercontent.com",
-  "subject": "repo:SvenPam/StPauls:ref:refs/heads/main",
+  "subject": "repo:SvenPam@3789646/StPauls@1423163125:ref:refs/heads/main",
   "audiences": ["api://AzureADTokenExchange"]
 }'
 
@@ -57,7 +57,18 @@ az role assignment create --assignee $APP_ID --role Contributor \
   --scope /subscriptions/$SUB/resourceGroups/$RG
 ```
 
-The subject is case-sensitive and must be exactly `repo:SvenPam/StPauls:ref:refs/heads/main`. It only trusts runs on `main`.
+The subject must be exactly `repo:SvenPam@3789646/StPauls@1423163125:ref:refs/heads/main`. GitHub sends this repo's subject with the numeric owner and repo IDs, not the plain `owner/repo` form most guides show. The IDs stay the same if the repo is renamed. If sign in ever fails, copy the `subject claim` line from the azure/login step's log. It only trusts runs on `main`.
+
+Already created the credential with the plain form? Fix it in place:
+
+```bash
+az ad app federated-credential update --id $APP_ID --federated-credential-id github-main --parameters '{
+  "name": "github-main",
+  "issuer": "https://token.actions.githubusercontent.com",
+  "subject": "repo:SvenPam@3789646/StPauls@1423163125:ref:refs/heads/main",
+  "audiences": ["api://AzureADTokenExchange"]
+}'
+```
 
 ## 3. Add the GitHub secrets and variable
 
@@ -108,7 +119,7 @@ Record go or no-go as a new row in the Decisions table of [way forward](discover
 
 | Symptom | Likely cause |
 |---|---|
-| `AADSTS70021` at Azure sign in | The federated credential subject does not match. Check case and branch |
+| `AADSTS700213` or `AADSTS70021` at Azure sign in | The federated credential subject does not match. Check case and branch |
 | Deploy infrastructure step fails with an authorisation error | The role assignment is missing or on the wrong resource group |
 | Pages CMS save fails | A branch rule blocks direct pushes to `main` |
 | Pages CMS shows a config error | It names the key to fix in `.pages.yml` |

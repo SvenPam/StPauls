@@ -96,7 +96,7 @@ Files live at `site/content/notices/`. Pages CMS names new files `{yyyy}-{mm}-{d
 
 1. ~~GitHub: set the default branch to `main`. Optionally delete `master`.~~ Done.
 2. Azure: create a resource group (e.g. `rg-stpauls-web`, West Europe).
-3. Entra ID: create an app registration with a federated credential for `repo:SvenPam/StPauls:ref:refs/heads/main` (case matters). Grant it Contributor on the resource group.
+3. Entra ID: create an app registration with a federated credential for `repo:SvenPam@3789646/StPauls@1423163125:ref:refs/heads/main` (case matters). Grant it Contributor on the resource group.
 4. GitHub: add the three `AZURE_*` secrets and the `AZURE_RESOURCE_GROUP` variable. Check no branch rule stops the Pages CMS app pushing to `main`.
 5. Run the workflow. Note the `*.azurestaticapps.net` URL from the run summary.
 6. Sign in at `app.pagescms.org` with GitHub and install the Pages CMS GitHub App on this repo.
@@ -140,7 +140,7 @@ The how-to written in Task 6 gives the commands for each step.
 - Tests never assert on files in `site/content/`. Paul edits and deletes those; a test that depends on them would block his publishes. Tests build `tests/fixtures/` instead.
 - No maintainer name, `ste-pam.com`, LinkedIn, analytics, Disqus or social share links anywhere in `site/`.
 - Static Web App: `Microsoft.Web/staticSites@2025-03-01`, SKU `Free`, `location` default `westeurope`, name `swa-stpauls-web`.
-- Azure sign in by OIDC only. Secrets `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, variable `AZURE_RESOURCE_GROUP`. No client secret, no stored SWA token, no `environment:` on the job (it changes the OIDC subject away from `repo:SvenPam/StPauls:ref:refs/heads/main`).
+- Azure sign in by OIDC only. Secrets `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, variable `AZURE_RESOURCE_GROUP`. No client secret, no stored SWA token, no `environment:` on the job (it changes the OIDC subject away from `repo:SvenPam@3789646/StPauls@1423163125:ref:refs/heads/main`).
 - Legacy files are copied byte for byte: `git fetch origin archive/umbraco-2019`, then `git show origin/archive/umbraco-2019:StPauls.Web/<path> > <dest>`. They keep their legacy paths under `site/static/` so the relative `url(...)` references in `Site.css` still resolve.
 - Local tools. The sandbox has none; github.com downloads are blocked, PyPI and NuGet work. Install outside the repo (e.g. the scratchpad):
   - Hugo and actionlint: `python3 -m venv <dir> && <dir>/bin/pip install hugo==0.167.0 actionlint-py`, then put `<dir>/bin` on `PATH`.
@@ -219,13 +219,13 @@ baseURL = '/'
 title = "St Paul's Warton"
 timeZone = 'Europe/London'
 buildFuture = true
-disableKinds = ['home', 'rss', 'sitemap', 'taxonomy', 'term']
+disableKinds = ['rss', 'sitemap', 'taxonomy', 'term']
 
 [markup.goldmark.renderer]
 unsafe = true
 ```
 
-`buildFuture` is Review Focus 1. `unsafe` lets the HTML body through. `home` is off until spec 03; the root redirect stands in.
+`buildFuture` is Review Focus 1. `unsafe` lets the HTML body through. `home` stays on with a stub `site/layouts/home.html`: the Static Web Apps deploy action refuses a folder with no root `index.html`. The root redirect still sends visitors to `/notices/` until spec 03.
 
 - [ ] **Step 4: Write the layouts and copy the legacy files**
 
@@ -630,7 +630,7 @@ git commit -m "Add deploy workflow with OIDC sign in"
 - Modify: `CLAUDE.md` (Repo layout, Environment notes, Open items)
 
 **Interfaces:**
-- Consumes: secret and variable names (Task 5), media folder (Task 3), resource group `rg-stpauls-web`, OIDC subject `repo:SvenPam/StPauls:ref:refs/heads/main`.
+- Consumes: secret and variable names (Task 5), media folder (Task 3), resource group `rg-stpauls-web`, OIDC subject `repo:SvenPam@3789646/StPauls@1423163125:ref:refs/heads/main`.
 
 - [ ] **Step 1: Write the failing tests in `tests/test_docs.py`**
 
@@ -640,7 +640,7 @@ def test_mentions_every_secret_and_variable(self):
         self.assertIn(name, DOC)
 
 def test_federated_subject_is_exact(self):
-    self.assertIn("repo:SvenPam/StPauls:ref:refs/heads/main", DOC)
+    self.assertIn("repo:SvenPam@3789646/StPauls@1423163125:ref:refs/heads/main", DOC)
 
 def test_no_em_dash(self):
     self.assertNotIn("\u2014", DOC)  # em dash

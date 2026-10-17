@@ -13,7 +13,9 @@ class SetupHowToTests(unittest.TestCase):
             self.assertIn(name, DOC)
 
     def test_federated_subject_is_exact(self):
-        self.assertIn("repo:SvenPam/StPauls:ref:refs/heads/main", DOC)
+        # GitHub sends owner and repo with their numeric IDs (seen in the first deploy run).
+        self.assertIn("repo:SvenPam@3789646/StPauls@1423163125:ref:refs/heads/main", DOC)
+        self.assertNotIn("repo:SvenPam/StPauls:", DOC)
 
     def test_no_em_dash(self):
         self.assertNotIn("—", DOC)
