@@ -1,0 +1,22 @@
+{{- /* RSS 2.0 for a section: 20 items, events upcoming only. */ -}}
+{{- $pages := .Pages.ByDate.Reverse -}}
+{{- if eq .Section "calendar" }}{{ $pages = partial "upcoming.html" .Pages }}{{ end -}}
+{{- printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
+<rss version="2.0">
+  <channel>
+    <title>{{ .Title }} | {{ site.Title }}</title>
+    <link>{{ partial "href.html" .Permalink }}</link>
+    <description>{{ .Title }} from {{ site.Title }}</description>
+    <language>en-gb</language>
+    {{- range first 20 $pages }}
+    <item>
+      <title>{{ .Title }}</title>
+      <link>{{ partial "href.html" .Permalink }}</link>
+      <guid>{{ partial "href.html" .Permalink }}</guid>
+      <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
+      {{- $desc := .Params.summary | default (.RawContent | plainify | htmlUnescape | strings.TrimSpace | truncate 300) }}
+      <description>{{ $desc | transform.XMLEscape | safeHTML }}</description>
+    </item>
+    {{- end }}
+  </channel>
+</rss>

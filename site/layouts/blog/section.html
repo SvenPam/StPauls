@@ -1,0 +1,17 @@
+{{ define "main" }}
+<div class="with-aside">
+<div>
+<h1>{{ .Title }}</h1>
+{{- with .Pages.ByDate.Reverse }}
+<div class="card-list">
+  {{- range . }}
+  {{ partial "card.html" . }}
+  {{- end }}
+</div>
+{{- else }}
+<p>Could not find any articles.</p>
+{{- end }}
+</div>
+{{ partial "blog-aside.html" site }}
+</div>
+{{ end }}

@@ -25,3 +25,18 @@
 .meta { margin: 0 0 1.5rem; color: var(--muted); }
 .meta address { margin: 0.25rem 0 0; }
 .lead { font-size: 1.25rem; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Blog list and article with the topics and latest aside. */
+.with-aside > * { min-width: 0; }
+@media (min-width: 768px) {
+  .with-aside { display: grid; grid-template-columns: minmax(0, 1fr) 16rem; gap: 2rem; }
+}
