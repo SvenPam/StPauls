@@ -1,0 +1,8 @@
+{{/* An item's image. Assets go through picture.html; anything else (uploads, until spec 06) is a plain img. */}}
+{{- with .Params.image -}}
+  {{- if resources.Get . -}}
+{{ partial "picture.html" (dict "src" . "alt" ($.Params.image_alt | default "") "sizes" "(min-width: 48rem) 48rem, 100vw") }}
+  {{- else -}}
+<img src="{{ . }}" alt="{{ $.Params.image_alt | default "" }}" loading="lazy" decoding="async">
+  {{- end -}}
+{{- end -}}

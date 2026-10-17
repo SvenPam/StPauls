@@ -2,7 +2,33 @@ baseURL = '/'
 title = "St Paul's Warton"
 timeZone = 'Europe/London'
 buildFuture = true
-disableKinds = ['rss', 'sitemap', 'taxonomy', 'term']
+disableKinds = ['sitemap']
+
+[taxonomies]
+blogtopic = 'blogtopics'
+eventtopic = 'eventtopics'
+noticetopic = 'noticetopics'
+
+# Live URL patterns. Migrated items keep their live URL through a hidden url field.
+[permalinks.page]
+blog = '/blog/article/:slugorcontentbasename/'
+calendar = '/calendar/event/:slugorcontentbasename/'
+notices = '/notices/notice/:slugorcontentbasename/'
+[permalinks.term]
+blogtopics = '/blog/topic/:slug/'
+eventtopics = '/calendar/topic/:slug/'
+noticetopics = '/notices/topic/:slug/'
+[permalinks.taxonomy]
+blogtopics = '/blog/topic/'
+eventtopics = '/calendar/topic/'
+noticetopics = '/notices/topic/'
+
+[outputs]
+home = ['html']
+section = ['html', 'rss']
+taxonomy = ['html']
+term = ['html']
+page = ['html']
 
 [markup.goldmark.renderer]
 unsafe = true

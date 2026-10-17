@@ -1,0 +1,25 @@
+{{/* One item in a list or topic page. */}}
+{{- $event := eq .Section "calendar" -}}
+<article class="card"{{ if $event }} data-end="{{ (partial "event-end.html" .).Format "2006-01-02T15:04:05Z07:00" }}"{{ end }}>
+  <h2 class="card__title"><a href="{{ partial "href.html" .RelPermalink }}">{{ .Title }}</a></h2>
+  {{- if $event }}
+  <p class="meta-line"><span class="status">{{ partial "event-status.html" . }}</span> <span class="date-time">{{ partial "date.html" .Date }} {{ .Date.Format "3:04 PM" }}</span></p>
+  {{- else if eq .Section "blog" }}
+  <p class="meta-line"><span class="date-time">Published {{ partial "date.html" .Date }}</span></p>
+  {{- else }}
+  <span class="date-time notice-date">{{ partial "date.html" .Date }}</span>
+  {{- end }}
+  {{- with .Params.location }}
+  <p class="card__location">{{ . }}</p>
+  {{- end }}
+  {{- if eq .Section "blog" }}{{ partial "image.html" . }}{{ end }}
+  {{- with .Params.summary }}
+  <p class="{{ if eq $.Section "notices" }}notice-summary{{ else }}card__summary{{ end }}">{{ . }}</p>
+  {{- end }}
+  {{- with partial "topic-link.html" . }}
+  <p class="card__topic">{{ . }}</p>
+  {{- end }}
+  {{- if eq .Section "blog" }}
+  <p><a href="{{ partial "href.html" .RelPermalink }}">Read more<span class="visually-hidden"> about {{ .Title }}</span></a></p>
+  {{- end }}
+</article>

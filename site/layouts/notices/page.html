@@ -2,13 +2,16 @@
 <article>
   <h1>{{ .Title }}</h1>
   <div class="meta">
-    <span class="date-time notice-date">{{ .Date.Format "02-Jan-06" }}</span>
+    <span class="date-time notice-date">{{ partial "date.html" .Date }}</span>
     {{- with .Params.location }}
     <address class="notice-location">{{ . }}</address>
     {{- end }}
+    {{- with partial "topic-link.html" . }}
+    <p class="topic-line">Topic: {{ . }}</p>
+    {{- end }}
   </div>
   <div class="prose">
-    {{ .Content }}
+    {{ partial "body.html" . }}
   </div>
   <p><a href="/notices">Back to notices</a></p>
 </article>

@@ -1,0 +1,7 @@
+{{/* An event's end. Missing, or before the start, falls back to the start. */}}
+{{- $end := .Date -}}
+{{- with .Params.end -}}
+  {{- $e := time.AsTime . -}}
+  {{- if $e.After $end }}{{ $end = $e }}{{ end -}}
+{{- end -}}
+{{- return $end -}}
