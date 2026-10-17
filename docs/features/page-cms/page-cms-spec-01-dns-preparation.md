@@ -26,7 +26,7 @@ The maintainer has a how-to and a ready-to-send message that, once followed, put
 - `docs/features/page-cms/page-cms-how-to-move-dns-to-cloudflare.md`: record the current DNS, find the registrar, create the Cloudflare zone, copy and check records, change nameservers, verify, roll back.
 - A message the maintainer can send to whoever at the church can reach the registrar, inside the how-to.
 - A table in the how-to for the maintainer to fill in with today's records, so spec 11 knows exactly what to change.
-- Doc tests in `tests/test_docs.py`.
+- `scripts/check-dns-cloudflare.sh`: a hand-run check for step 8 that reads the records table. Doc tests were written and run during the build, then dropped at the maintainer's request.
 
 ## Out of scope
 

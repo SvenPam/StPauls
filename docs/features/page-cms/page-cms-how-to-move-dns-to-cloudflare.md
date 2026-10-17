@@ -172,14 +172,20 @@ Leave the registrar's own DNS records in place if it lets you. Many registrars c
 
 ## Check it worked
 
-**Step 8.** The change can take up to 48 hours to reach everyone. Cloudflare emails when the zone is active.
+**Step 8.** The change can take up to 48 hours to reach everyone. Cloudflare emails when the zone is active. Then, from the repo root on macOS or Linux:
+
+```bash
+scripts/check-dns-cloudflare.sh
+```
+
+It checks the delegation and DNSSEC at the .uk registry, asks Cloudflare's nameservers for every filled-in row of the records table, and checks the old site still answers over HTTP without Cloudflare in the way. It prints PASS or FAIL per check and exits non-zero on any failure. The email check stays manual.
 
 | Check | How | Pass |
 |---|---|---|
 | Zone active | Cloudflare dashboard, the zone overview. Or `dig NS stpaulswarton.co.uk +short` | Status **Active**, and `dig` shows only the two Cloudflare nameservers |
 | Site loads as before | `curl -sI http://stpaulswarton.co.uk`, then open `http://stpaulswarton.co.uk` in a browser | `200`, IIS headers and the `ARRAffinity` cookie as before. No redirect to `https`, no Cloudflare page |
 | Email arrives | Send a test email from an outside address to a church address on the domain, and ask for a reply | Both arrive, not in spam. Skip if the domain has no `MX` |
-| Records match | Re-run the step 1 lookups | Same values as the table |
+| Records match | The script, or re-run the step 1 lookups | Same values as the table |
 
 If any check fails and you cannot fix it by correcting a record in Cloudflare within an hour, roll back.
 
