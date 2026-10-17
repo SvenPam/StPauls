@@ -21,5 +21,51 @@ class SetupHowToTests(unittest.TestCase):
         self.assertNotIn("—", DOC)
 
 
+DNS = REPO / "docs/features/page-cms/page-cms-how-to-move-dns-to-cloudflare.md"
+
+
+class DnsHowToTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.doc = DNS.read_text(encoding="utf-8")
+
+    def test_front_matter_and_title(self):
+        self.assertTrue(self.doc.startswith("---\n"))
+        self.assertIn("tags: [how-to, stpauls, dns]", self.doc)
+        self.assertEqual(len(re.findall(r"(?m)^# ", self.doc)), 1)
+
+    def test_no_em_dash(self):
+        self.assertNotIn("—", self.doc)
+
+    def test_records_table(self):
+        self.assertIn("## Current records", self.doc)
+        self.assertIn("| Type | Name | Value | TTL | Notes |", self.doc)
+
+    def test_mail_records_are_checked(self):
+        for name in ("MX", "_dmarc.stpaulswarton.co.uk", "SPF", "DKIM"):
+            self.assertIn(name, self.doc)
+
+    def test_asuid_records_are_checked(self):
+        self.assertIn("asuid.stpaulswarton.co.uk", self.doc)
+        self.assertIn("asuid.www.stpaulswarton.co.uk", self.doc)
+
+    def test_rollback_uses_recorded_nameservers(self):
+        self.assertIn("## Roll back", self.doc)
+        self.assertRegex(self.doc, r"(?s)## Roll back.*old nameservers")
+
+    def test_records_stay_dns_only(self):
+        self.assertIn("DNS only", self.doc)
+        for line in self.doc.splitlines():
+            if "Proxied" in line or "orange cloud" in line:
+                self.assertRegex(line, r"(?i)\b(not|don't|do not)\b", line)
+
+    def test_message_has_no_personal_details(self):
+        msg = self.doc.split("## Message to the church", 1)[1].split("\n## ", 1)[0]
+        self.assertLess(len(msg.split()), 170)
+        for term in ("pammenter", "ste-pam", "linkedin", "@"):
+            self.assertNotIn(term, msg.lower())
+        self.assertIn("[name]", msg)
+
+
 if __name__ == "__main__":
     unittest.main()
