@@ -44,9 +44,11 @@ Do not reopen these without being asked.
 | `docs/discovery-way-forward.md` | Options, decisions, work outline |
 | `docs/specs/` | One spec per working session |
 | `.claude/skills/` | Imported obra/superpowers skills, see `.claude/skills/SUPERPOWERS.md` |
-| `site/` | Hugo site (to be created in spec 00) |
-| `infra/` | Bicep (to be created in spec 00) |
-| `.pages.yml` | Pages CMS config (to be created in spec 00) |
+| `site/` | Hugo site |
+| `infra/` | Bicep for the Static Web App |
+| `.pages.yml` | Pages CMS config |
+| `tests/` | Python standard library tests, run with `python3 -m unittest discover -s tests -v` |
+| `.github/workflows/deploy.yml` | Test, deploy Bicep, build and deploy the site |
 
 The legacy CSS, images and views needed for reference are on `archive/umbraco-2019` under `StPauls.Web/` (`Content/`, `Views/`). Read them with `git show archive/umbraco-2019:StPauls.Web/Content/Site.less` or check the branch out into a worktree.
 
@@ -54,7 +56,8 @@ The legacy CSS, images and views needed for reference are on `archive/umbraco-20
 
 - `hugo`, `az` and `bicep` were not installed. `node` was.
 - Downloads from `github.com/.../releases` returned 403 through the sandbox proxy, and `pagescms.org` did not resolve. PyPI and the npm registry were reachable.
-- So: check whether Hugo and Bicep can be installed before relying on a local build. If not, write the files carefully, rely on the GitHub Actions run for the real build, and say plainly what was not run locally.
+- Install tools outside the repo. Hugo and actionlint from PyPI: `python3 -m venv <dir> && <dir>/bin/pip install hugo==0.167.0 actionlint-py`. Bicep 0.48.1 from NuGet: `https://api.nuget.org/v3-flatcontainer/azure.bicep.commandline.linux-x64/0.48.1/azure.bicep.commandline.linux-x64.0.48.1.nupkg`, extract `tools/bicep` with `python3 -m zipfile -e`, `chmod +x`.
+- `az`, Azure and Pages CMS cannot be reached from the sandbox. Say plainly what was not run locally.
 - The live site `http://stpaulswarton.co.uk` was reachable with `curl`.
 
 ## Next steps
@@ -66,7 +69,6 @@ The legacy CSS, images and views needed for reference are on `archive/umbraco-20
 
 ## Open items
 
-- Maintainer to switch the GitHub default branch from `master` to `main`, then delete `master`.
 - The maintainer reports all live features are used except the contact form (believed not to send email). The static site has no user accounts or site logins, and topic listings are rebuilt with Hugo taxonomies. Confirm with the maintainer before spec 03 that this is acceptable.
 - The contact form on live is believed not to deliver email. A working form is a nice to have (spec 08).
 - Easter 2026 and other seasonal pages are still being edited in the legacy back office by the church. Re-extract content from live just before cutover.
