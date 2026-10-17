@@ -1,0 +1,8 @@
+{
+  "routes": [
+    { "route": "/", "redirect": "/notices/", "statusCode": 302 }
+  ],
+  "responseOverrides": {
+    "404": { "rewrite": "/404.html", "statusCode": 404 }
+  }
+}

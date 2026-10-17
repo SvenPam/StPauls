@@ -1,0 +1,38 @@
+media:
+  input: site/static/uploads
+  output: /uploads
+
+content:
+  - name: notices
+    label: Notices
+    type: collection
+    path: site/content/notices
+    filename: "{year}-{month}-{day}-{primary}.md"
+    exclude: [_index.md]
+    view:
+      fields: [title, date]
+      primary: title
+      sort: [date, title]
+      default:
+        sort: date
+        order: desc
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+      - name: date
+        label: Date
+        type: date
+        required: true
+      - name: summary
+        label: Summary
+        description: Short text shown on the list of notices
+        type: string
+      - name: location
+        label: Location
+        type: string
+      - name: body
+        label: Notice
+        type: rich-text
+        required: true
