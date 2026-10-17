@@ -1,27 +1,29 @@
-.card-grid {
+/* Noticeboard list: one column, a navy bar down the left as on the live home page.
+   Summaries are cut to two lines; the full text is on the item's own page. */
+.card-list {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
-  align-items: start;
+  max-width: 48rem;
   margin: 0 0 1.5rem;
-}
-@media (min-width: 768px) {
-  .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 .card {
   min-width: 0;
-  background: var(--surface);
-  border: 1px solid var(--border);
   border-left: 5px solid var(--navy);
-  border-radius: var(--radius);
-  padding: 1rem 1.25rem;
+  padding: 0.75rem 1rem;
 }
-.card:hover, .card:focus-within { border-left-color: var(--gold); }
+.card:hover, .card:focus-within { border-left-color: var(--gold); background: var(--surface); }
 .card__title { margin: 0 0 0.25rem; font-size: 1.25rem; overflow-wrap: anywhere; }
 .card__title a { color: var(--navy); text-decoration: none; }
 .card__title a:hover { text-decoration: underline; }
 .card p { margin: 0.5rem 0 0; overflow-wrap: anywhere; }
+.card .notice-summary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
 
 .date-time { color: var(--date); font-size: 0.9375rem; }
 

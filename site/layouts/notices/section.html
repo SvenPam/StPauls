@@ -1,7 +1,7 @@
 {{ define "main" }}
 <h1>{{ .Title }}</h1>
 {{- with .Pages.ByDate.Reverse }}
-<div class="card-grid">
+<div class="card-list">
   {{- range . }}
   <article class="card">
     <h2 class="card__title"><a href="{{ partial "href.html" .RelPermalink }}">{{ .Title }}</a></h2>
