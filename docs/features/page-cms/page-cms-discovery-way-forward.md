@@ -151,7 +151,7 @@ Sized for single sessions. Specs live in [this folder](./).
 | 4 | Disqus comments | Remove |
 | 5 | Hosting | Azure Static Web Apps (Free). Cloudflare Free for DNS and caching only |
 | 6 | Editor trial result | **Go** (2026-10-17). A notice was created, published and deleted through Pages CMS on the test URL. Phase 1 plan in [design: replace the live site](page-cms-feature.md) |
-| 7 | DNS move to Cloudflare | **In progress** (2026-10-17). DNS only, still pointing at the old site. Steps and records in [how to move DNS to Cloudflare](page-cms-how-to-move-dns-to-cloudflare.md) |
+| 7 | DNS move to Cloudflare | **In progress** (2026-10-17). DNS only, still pointing at the old site. Steps and records in [how to move DNS to Cloudflare](page-cms-how-to-move-dns-to-cloudflare.md). Blocks spec 11 |
 
 ---
 

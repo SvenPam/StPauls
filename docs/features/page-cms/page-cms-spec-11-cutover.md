@@ -16,6 +16,8 @@ _One session to prepare, then cutover day itself with the maintainer and Paul. P
 
 ## Starting point
 
+> **Blocked by spec 01.** The DNS move is in progress (`status: in-progress` in [how to move DNS to Cloudflare](page-cms-how-to-move-dns-to-cloudflare.md)). Do not start this spec until that how-to's Outcome is filled in and its status is `stable`.
+
 - Specs 01 to 10 done. DNS is on Cloudflare, DNS only, pointing at the old App Service; today's records are in `docs/features/page-cms/page-cms-how-to-move-dns-to-cloudflare.md`.
 - Static Web App `swa-stpauls-web`, default host `brave-coast-006318103.5.azurestaticapps.net`, no custom domain.
 - `baseURL` is already `https://stpaulswarton.co.uk/`. HSTS is `max-age=300` (spec 09).

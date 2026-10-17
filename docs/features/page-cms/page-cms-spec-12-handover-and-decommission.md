@@ -70,7 +70,7 @@ The legacy CMS is multi-tenant (`/Areas/St_Pauls/`). Step 1 matters: other sites
 | Mistakes | Restoring a deleted or broken page from Git history |
 | If Pages CMS is down or goes away | Edit through the GitHub web editor in the meantime; swap the editor without touching content (way forward doc) |
 | Contact form | Changing the inbox (new Web3Forms key in Site settings), turning on hCaptcha |
-| Domain | Registrar, who holds the login, renewal date (from spec 01), Cloudflare account owner |
+| Domain | Registrar, who holds the login (as a role, never a name), renewal date (from spec 01), Cloudflare account owner |
 | Checks | `scripts/check_urls.py --base https://stpaulswarton.co.uk` any time something seems off |
 
 ### `docs/features/page-cms/page-cms-handover-for-the-church.md`

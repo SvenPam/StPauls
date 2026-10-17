@@ -1,7 +1,7 @@
 ---
 date: 2026-10-17
 tags: [how-to, stpauls, dns]
-status: draft
+status: in-progress
 ---
 
 # How to move DNS to Cloudflare
@@ -16,19 +16,19 @@ _The manual steps for [spec 01](page-cms-spec-01-dns-preparation.md): copy today
 |---|---|---|---|
 | 1 | Maintainer | Record today's DNS and fill in the records table | [Current records](#current-records) |
 | 2 | Maintainer | Find the registrar | [Find the registrar](#find-the-registrar) |
-| 3 | Maintainer | Send the message to the church contact | [Message to the church](#message-to-the-church) |
+| 3 | Maintainer | Contact the person who holds the registrar login. You write this email yourself; who they are is not recorded in the repo | |
 | 4 | Maintainer | Create a Cloudflare account and add the zone on the Free plan | [Create the Cloudflare zone](#create-the-cloudflare-zone) |
 | 5 | Maintainer | Compare the imported records with the table, add anything missing, set every record to DNS only | [Create the Cloudflare zone](#create-the-cloudflare-zone) |
 | 6 | Maintainer | Leave SSL/TLS, Always Use HTTPS and redirect rules untouched | [Create the Cloudflare zone](#create-the-cloudflare-zone) |
-| 7 | Church contact with maintainer | Replace the nameservers at the registrar with Cloudflare's two | [Change the nameservers](#change-the-nameservers) |
+| 7 | Login holder, by email | Send a screenshot of the current records, then replace the nameservers with Cloudflare's two | [Change the nameservers](#change-the-nameservers) |
 | 8 | Maintainer | Check the zone is active, the site loads, email arrives | [Check it worked](#check-it-worked) |
 | 9 | Maintainer | Record the outcome here and in the [way forward](page-cms-discovery-way-forward.md) | [Outcome](#outcome) |
 
 | | |
 |---|---|
 | Tools | A terminal with `dig` and `whois` (macOS, Linux), or `nslookup` (Windows). A browser |
-| Accounts | A new Cloudflare account (free). The church contact's registrar login for step 7 |
-| Time | 30 minutes for steps 1 to 6. 10 minutes on a call for step 7. Up to 48 hours of waiting before step 8 |
+| Accounts | A new Cloudflare account (free). The 123 Reg login, held by a church contact, for step 7 |
+| Time | 30 minutes for steps 1 to 6. Two rounds of email for step 7, about ten minutes of the login holder's time. Up to 48 hours of waiting before step 8 |
 | Not in this how-to | Proxying, HTTPS, redirect rules, the Static Web App custom domain. All of that is spec 11 |
 
 Steps 1 and 2 were done from the build sandbox on 2026-10-17, through Google's DNS over HTTPS (`dns.google`) and Nominet's RDAP (`rdap.nominet.uk`). The tables below hold the results. Re-run the lookups before step 5 in case the church has changed anything, and treat the registrar's own record list in step 7 as the final word: lookups only find names someone thought to ask for.
@@ -112,30 +112,13 @@ Add a row for anything new you find, including anything in the registrar's list 
 
 | Field in the WHOIS output | Why |
 |---|---|
-| Registrar | Where the church contact logs in |
+| Registrar | Where the login holder logs in |
 | Renewal date (shown as `Expiry date`) | A lapsed domain takes the site and email down. Tell the church if it is within three months |
 | Name servers | Must match the `NS` rows in the records table |
 | DNSSEC | `Signed` means do the DNSSEC step before step 7 |
 | Status | `client update prohibited` is the registrar lock. It may need turning off at the registrar before the nameservers can change |
 
-Found on 2026-10-17: registrar **123 Reg** (`123-Reg Limited t/a 123-reg`), registered 2015-08-18, expires **2035-08-18**, unsigned, nameservers `ns47` and `ns48.domaincontrol.com`, status `client transfer, delete, renew and update prohibited` (the usual lock). Who holds the 123 Reg login is still unknown.
-
----
-
-## Message to the church
-
-**Step 3.** Send this to whoever at the church is most likely to know.
-
-> Hi [name],
->
-> I'm helping move the St Paul's website off an old paid server onto a free one that the church stays in control of. To get it ready I need a hand from whoever looks after the church's web address, stpaulswarton.co.uk. It's registered with a company called 123 Reg, probably on an account set up back in 2015.
->
-> Do you know who that might be, or where the login is kept? Once we find it, the job takes about ten minutes and means changing two settings. I'm happy to do it with them over a phone or video call.
->
-> Nothing on the website or church email changes at this stage. Doing it now means the switch later is a five-minute job rather than a hunt for passwords.
->
-> Thanks,
-> [your name]
+Found on 2026-10-17: registrar **123 Reg** (`123-Reg Limited t/a 123-reg`), registered 2015-08-18, expires **2035-08-18**, unsigned, nameservers `ns47` and `ns48.domaincontrol.com`, status `client transfer, delete, renew and update prohibited` (the usual lock). Who holds the 123 Reg login is known to the maintainer and not recorded here.
 
 ---
 
@@ -143,7 +126,7 @@ Found on 2026-10-17: registrar **123 Reg** (`123-Reg Limited t/a 123-reg`), regi
 
 **Step 4.** Sign up at `https://dash.cloudflare.com/sign-up`, then **Add a domain**, enter `stpaulswarton.co.uk`, pick **Free**. Let it scan for records. Cloudflare shows the zone as **Pending** and lists two nameservers ending `.ns.cloudflare.com`. Write both in the [Outcome](#outcome) table.
 
-Cloudflare removes a zone that stays pending too long (weeks, not months), taking any records you added with it. If the church takes a while to reply, do step 5 shortly before the step 7 call, or check the zone is still there first. If it has gone, add it again and redo step 5 from the table.
+Cloudflare removes a zone that stays pending too long (weeks, not months), taking any records you added with it. If the login holder takes a while to reply, do step 5 shortly before sending part 2 of step 7, or check the zone is still there first. If it has gone, add it again and redo step 5 from the table.
 
 **Step 5.** Open **DNS**, **Records**, and go through the records table one row at a time.
 
@@ -173,16 +156,45 @@ With every record DNS only, none of these touch visitor traffic, but leaving the
 
 ## Change the nameservers
 
-**Step 7.** On a call with the church contact, logged in at the registrar:
+**Step 7.** Done by email with the login holder, in two parts. Send each part as it is written below, with the gaps filled in, and wait for their reply before the next one. The menu names come from 123 Reg's current help guides and may be worded slightly differently on screen, which is why each part ends with a screenshot.
 
-1. Open the registrar's DNS settings and compare the registrar's own record list with the Cloudflare zone. It is the only complete list of the zone (use its export if it has one). Add anything missing to the table and to Cloudflare first. Ask whether church email is a forward provided by the registrar: if so, it may stop when the nameservers move, so set it up in Cloudflare's records (the registrar's help pages give the `MX` values) or stop and ask before going on.
-2. If WHOIS showed DNSSEC as signed: turn DNSSEC off (or delete the `DS` record) first, then wait until `dig DS stpaulswarton.co.uk` returns nothing.
-3. Find the domain's nameserver settings (often **Manage DNS**, **Nameservers**, or **Use custom nameservers**).
-4. 123 Reg shows a domain lock (`client update prohibited` in WHOIS). If it refuses the change, turn the lock off, make the change, then turn it back on.
-5. Replace the existing nameservers with the two Cloudflare ones from step 4. Remove any others.
-6. Save. Check the registrar now lists only the two Cloudflare nameservers.
+DNSSEC is off for this domain and it has no email, so there is nothing to do for either before the change.
 
-Leave the registrar's own DNS records in place if it lets you. Many registrars clear them when custom nameservers are set, which is why the records table matters for rolling back.
+### Part 1: a picture of today's settings
+
+Send this first, and change nothing in Cloudflare until it comes back.
+
+> **Please don't change anything yet. This part is just to take a picture.**
+>
+> 1. Go to www.123-reg.co.uk and click **Log in** at the top of the page. Log in as usual.
+> 2. Find **stpaulswarton.co.uk** in your list of domains and click **Manage** next to it.
+> 3. Look for **Manage DNS**. It may be under a heading called **Advanced domain settings**. Click it.
+> 4. You'll see a list of entries with short names and numbers. Take a screenshot of the whole list (a photo of the screen is fine too) and email it back to me.
+> 5. Log out.
+
+When it comes back, compare every line with the records table and the Cloudflare zone. It is the only complete list of the zone. Add anything missing to both before sending part 2.
+
+### Part 2: the change
+
+Fill in the two Cloudflare nameservers from step 4 before sending.
+
+> **This is the change itself. It takes about five minutes and nothing on the website will look any different.**
+>
+> 1. Log in at www.123-reg.co.uk and click **Manage** next to **stpaulswarton.co.uk**, as last time.
+> 2. Look for **Change nameservers**, or a tab called **Nameservers**, and click it.
+> 3. Choose the option to use your own nameservers. It may be worded **I'll use my own nameservers** or **Custom nameservers**.
+> 4. Delete what is in the boxes now and type these two, exactly as written:
+>    - First box: [first Cloudflare nameserver]
+>    - Second box: [second Cloudflare nameserver]
+>
+>    Leave any other boxes empty.
+> 5. Click **Update** (or **Save**). You should see a message saying it worked.
+> 6. If it says the domain is locked, look for **Domain lock** on the same page, switch it off, go back to step 4, then switch the lock back on afterwards.
+> 7. Take a screenshot of the page showing the two new names and email it back to me.
+>
+> If anything looks different from this, or you're not sure, just stop and email me. Nothing breaks by stopping halfway.
+
+When the screenshot shows only the two Cloudflare nameservers, go to step 8. 123 Reg may clear its own DNS records once the nameservers move, which is why the records table matters for rolling back.
 
 ---
 
@@ -209,13 +221,17 @@ If any check fails and you cannot fix it by correcting a record in Cloudflare wi
 
 ## Roll back
 
-To undo step 7, put the old nameservers back at the registrar:
+To undo step 7, the login holder puts the old nameservers back. Send this:
 
-1. Log in at the registrar with the church contact.
-2. Replace the Cloudflare nameservers with the old nameservers from the `NS` rows of the records table, exactly as recorded.
-3. If the old nameservers are the registrar's own, open its DNS editor and re-enter every record from the records table that is missing. Registrars often empty the zone when nameservers move away.
-4. If DNSSEC was on before, turn it back on at the registrar.
-5. Wait up to 48 hours, then check `dig NS stpaulswarton.co.uk +short` shows the old nameservers again.
+> **Please could you undo the change from last time? Same place, about five minutes.**
+>
+> 1. Log in at www.123-reg.co.uk and click **Manage** next to **stpaulswarton.co.uk**.
+> 2. Click **Change nameservers** (or the **Nameservers** tab).
+> 3. If there is an option to use 123 Reg's own (default) nameservers, choose it. If not, type these two in the boxes, exactly as written: `ns47.domaincontrol.com` and `ns48.domaincontrol.com`.
+> 4. Click **Update** (or **Save**), then take a screenshot and email it back to me.
+> 5. Then click **Manage DNS** and send me a screenshot of that list too.
+
+Compare the **Manage DNS** screenshot with the records table. 123 Reg often empties the list when nameservers move away, so if lines are missing, send the login holder the missing ones one at a time (type, name, value) to add with **Add new entry**. There are only five today. Then wait up to 48 hours and check `dig NS stpaulswarton.co.uk +short` shows the old nameservers again.
 
 Once the old nameservers answer with the records in the table, the old DNS works as it did. Cloudflare marks the zone as moved and removes it later, so a second attempt starts again at step 4.
 
@@ -223,14 +239,14 @@ Once the old nameservers answer with the records in the table, the old DNS works
 
 ## Outcome
 
-**Step 9.** Fill this in, set `status: stable` in the front matter, and add the date and result to the Decisions table in the [way forward](page-cms-discovery-way-forward.md).
+**Step 9.** Fill this in, set `status: stable` in the front matter, remove the blocked note from spec 11, and add the date and result to the Decisions table in the [way forward](page-cms-discovery-way-forward.md).
 
 | | |
 |---|---|
 | Date nameservers changed | |
 | Registrar | 123 Reg |
 | Renewal date | 2035-08-18 |
-| Who holds the registrar login | |
+| Who holds the registrar login | Known to the maintainer, not recorded in the repo |
 | Old nameservers | `ns47.domaincontrol.com`, `ns48.domaincontrol.com` |
 | Cloudflare nameservers | |
 | DNSSEC before | Off (unsigned) |
