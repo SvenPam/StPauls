@@ -48,10 +48,59 @@ class LayoutTests(unittest.TestCase):
         self.assertIn(":focus-visible", css)
 
     def test_header_and_footer(self):
-        self.assertIn('class="navbar-brand"', self.page)
-        self.assertIn('href="/notices/"', self.page)
+        self.assertIn('class="site-brand"', self.page)
         self.assertIn("PR4 1BD", self.page)
         self.assertIn("https://www.facebook.com/stpaulswarton", self.page)
+
+    def test_skip_link_comes_first(self):
+        body = self.page.split("<body", 1)[1]
+        first_link = re.search(r"<a [^>]*>", body).group(0)
+        self.assertIn('class="skip-link"', first_link)
+        self.assertIn('href="#main"', first_link)
+        self.assertIn('id="main"', self.page)
+
+    def test_menu_works_without_script(self):
+        self.assertRegex(self.page, r'<a class="menu-toggle" href="#site-nav">.*Menu</a>')
+        self.assertIn('<nav id="site-nav" class="site-nav" aria-label="Main">', self.page)
+        css = next((self.out / "css").glob("site.min.*.css")).read_text()
+        self.assertIn(".site-nav:target", css)
+
+    def test_menu_matches_live(self):
+        for name in ("Home", "Blog", "Calendar", "About", "Services", "Groups",
+                     "Community", "Links", "Gallery", "Forms", "Safeguarding"):
+            self.assertRegex(self.page, rf">\s*{name}\s*<")
+        self.assertNotIn("Register", self.page)
+        self.assertNotIn("Login", self.page)
+
+    def test_dropdowns_are_details(self):
+        groups = re.findall(r'<details class="site-nav__group" name="site-nav"><summary>([^<]+)</summary>', self.page)
+        self.assertEqual(groups, ["About", "Services", "Gallery"])
+        self.assertIn('href="/page/about/about-us"', self.page)
+
+    def test_links_have_no_trailing_slash(self):
+        hrefs = re.findall(r'href="(/[^"#]*)"', self.page)
+        self.assertTrue(hrefs)
+        self.assertEqual([h for h in hrefs if h != "/" and h.endswith("/")], [])
+
+    def test_toggle_is_big_enough(self):
+        css = next((self.out / "css").glob("site.min.*.css")).read_text()
+        rule = re.search(r"\.menu-toggle\{([^}]*)\}", css).group(1)
+        self.assertRegex(rule, r"min-height:(2\.75rem|44px)")
+        self.assertRegex(rule, r"min-width:(2\.75rem|44px)")
+
+    def test_single_small_deferred_script(self):
+        tags = re.findall(r"<script[^>]*>", self.page)
+        self.assertEqual(len(tags), 1)
+        self.assertRegex(tags[0], r'src="/js/site\.min\.[0-9a-f]{64}\.js"')
+        self.assertIn("defer", tags[0])
+        self.assertIn('integrity="sha256-', tags[0])
+        js = next((self.out / "js").glob("site.min.*.js"))
+        self.assertLess(js.stat().st_size, 2048)
+
+    def test_no_inline_script_style_or_handlers(self):
+        self.assertNotRegex(self.page, r"<script(?![^>]*\bsrc=)[^>]*>")
+        self.assertNotRegex(self.page, r"\sstyle=")
+        self.assertNotRegex(self.page, r"\son[a-z]+=")
 
     def test_not_found_page(self):
         self.assertIn("Page Not Found", self.page)

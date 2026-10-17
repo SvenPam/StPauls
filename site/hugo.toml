@@ -6,3 +6,89 @@ disableKinds = ['rss', 'sitemap', 'taxonomy', 'term']
 
 [markup.goldmark.renderer]
 unsafe = true
+
+# Header menu, matching live on 2026-10-17 without Register and Login. Spec 04 replaces these with menus computed from content.
+[[menus.main]]
+name = 'Home'
+url = '/'
+weight = 10
+[[menus.main]]
+name = 'Blog'
+url = '/blog'
+weight = 20
+[[menus.main]]
+name = 'Calendar'
+url = '/calendar'
+weight = 30
+[[menus.main]]
+name = 'About'
+identifier = 'about'
+weight = 40
+[[menus.main]]
+name = 'About Us'
+url = '/page/about/about-us'
+parent = 'about'
+weight = 1
+[[menus.main]]
+name = 'Contact Us'
+url = '/contact'
+parent = 'about'
+weight = 2
+[[menus.main]]
+name = 'Privacy Policy'
+url = '/page/about/privacy-policy'
+parent = 'about'
+weight = 3
+[[menus.main]]
+name = 'Cookie Policy'
+url = '/page/about/cookie-policy'
+parent = 'about'
+weight = 4
+[[menus.main]]
+name = 'Services'
+identifier = 'services'
+weight = 50
+[[menus.main]]
+name = 'Regular Church Services'
+url = '/page/services/regular-church-services'
+parent = 'services'
+weight = 1
+[[menus.main]]
+name = 'Easter Services 2026'
+url = '/page/services/easter-services-2026'
+parent = 'services'
+weight = 2
+[[menus.main]]
+name = 'Groups'
+url = '/page/groups/church-groups'
+weight = 60
+[[menus.main]]
+name = 'Community'
+url = '/page/community/community-news'
+weight = 70
+[[menus.main]]
+name = 'Links'
+url = '/page/links/useful-links'
+weight = 80
+[[menus.main]]
+name = 'Gallery'
+identifier = 'gallery'
+weight = 90
+[[menus.main]]
+name = 'Church Gallery'
+url = '/page/gallery/church-gallery'
+parent = 'gallery'
+weight = 1
+[[menus.main]]
+name = 'Website Pictures'
+url = '/page/gallery/website-pictures'
+parent = 'gallery'
+weight = 2
+[[menus.main]]
+name = 'Forms'
+url = '/page/forms/st-pauls-forms'
+weight = 100
+[[menus.main]]
+name = 'Safeguarding'
+url = '/page/safeguarding/safeguarding'
+weight = 110

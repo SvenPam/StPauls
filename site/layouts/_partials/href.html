@@ -1,0 +1,6 @@
+{{/* Internal links are written without a trailing slash, except "/". */}}
+{{- $url := . -}}
+{{- if and (ne $url "/") (strings.HasSuffix $url "/") -}}
+  {{- $url = strings.TrimSuffix "/" $url -}}
+{{- end -}}
+{{- return $url -}}
