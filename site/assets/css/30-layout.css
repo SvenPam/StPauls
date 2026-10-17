@@ -1,0 +1,27 @@
+.skip-link {
+  position: absolute;
+  left: 0.5rem;
+  top: -10rem;
+  z-index: 10;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  color: var(--navy);
+  font-weight: 600;
+}
+.skip-link:focus { top: 0.5rem; }
+
+.container {
+  width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.site-main { display: block; padding-bottom: 3rem; }
+.site-main h1:first-child { margin-top: 1.5rem; }
+
+.muted { color: var(--muted); }
+
+.meta { margin: 0 0 1.5rem; color: var(--muted); }
+.meta address { margin: 0.25rem 0 0; }
+.lead { font-size: 1.25rem; }

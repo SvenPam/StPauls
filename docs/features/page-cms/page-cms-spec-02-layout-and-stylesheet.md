@@ -155,7 +155,7 @@ Then `&copy; {year} St Paul's Warton`. No "Site by" text.
 
 ### Notices and 404
 
-Same content and CSS hooks as spec 00 (`notice-date`, `notice-summary`, `notice-location`), on the new shell. List: cards in a responsive grid (one column on phones, two from 768 px). Single: title, date, location, then the body in `.prose`. Links go through `href.html`, so the list links to `/notices/newer`, not `/notices/newer/`. Static Web Apps serves both today.
+Same content and CSS hooks as spec 00 (`notice-date`, `notice-summary`, `notice-location`), on the new shell. List: a single-column noticeboard (`.card-list`, at most 48rem wide). Each card has no box, a navy bar down the left (gold on hover or focus, as the live home page notices), the title, the date and the summary cut to two lines. Chosen by the maintainer on 2026-10-17 over a two-column grid, which left uneven gaps or half-empty cards. Single: title, date, location, then the body in `.prose`. Links go through `href.html`, so the list links to `/notices/newer`, not `/notices/newer/`. Static Web Apps serves both today.
 
 ### Menus in `hugo.toml`
 
@@ -199,7 +199,7 @@ Same content and CSS hooks as spec 00 (`notice-date`, `notice-summary`, `notice-
 - Everything in [conventions: global constraints](page-cms-spec-conventions.md#global-constraints).
 - CSS custom property names exactly as in the Tokens table. Class names exactly as in the header markup block.
 - No CSS framework, no preprocessor, no `@import`. Plain CSS that Hugo's minifier accepts.
-- Breakpoint 768 px for the menu and card grid. Any further breakpoints are the builder's call.
+- Breakpoint 768 px for the menu. Any further breakpoints are the builder's call.
 - No `!important` except inside `60-content.css` where it is needed to beat inline `width` attributes or `style` in content.
 
 ### Review Focus
@@ -208,7 +208,7 @@ Same content and CSS hooks as spec 00 (`notice-date`, `notice-summary`, `notice-
 2. Legacy body HTML with `width="1024"` images, an 800 px iframe or a wide table pushes the page wider than the screen. Pinned by `test_content_cannot_overflow` and the 390 px screenshot.
 3. Darkened gold or date colours still fail contrast on the off-white page background, not just on white. Pinned by `test_token_contrast` checking both surfaces.
 4. A keyboard user tabs into an open dropdown and cannot get out, or loses focus visibility. Pinned by `test_focus_is_never_hidden` and a manual Tab run in the screenshot session.
-5. A notice title or summary much longer than the fixtures breaks the card grid. Pinned by the long-text fixture in `test_long_text_wraps`.
+5. A notice title or summary much longer than the fixtures breaks the card list. Pinned by the long-text fixture in `test_long_text_wraps`.
 
 ---
 
@@ -492,7 +492,7 @@ In `tests/test_notices.py`:
 
 - `test_list_links_and_dates`: expect `href="/notices/newer"` (no trailing slash).
 - `test_long_text_wraps`: the built CSS has `overflow-wrap:anywhere` on `.card__title` and on `.prose`.
-- `test_list_is_a_card_grid`: list page has one `<article class="card">` per fixture notice and a container with class `card-grid`.
+- `test_list_is_a_card_grid`: list page has one `<article class="card">` per fixture notice and a container with class `card-list`.
 - `test_single_body_in_prose`: `notices/newer/index.html` wraps the body in `<div class="prose">`.
 
 Existing CSS hook tests stay as they are.

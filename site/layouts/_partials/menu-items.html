@@ -1,0 +1,10 @@
+{{/* Header menu as a slice of { name, url, children }. Spec 04 computes it from content instead. */}}
+{{- $items := slice -}}
+{{- range .Menus.main.ByWeight -}}
+  {{- $children := slice -}}
+  {{- range .Children.ByWeight -}}
+    {{- $children = $children | append (dict "name" .Name "url" (partial "href.html" .URL)) -}}
+  {{- end -}}
+  {{- $items = $items | append (dict "name" .Name "url" (partial "href.html" .URL) "children" $children) -}}
+{{- end -}}
+{{- return $items -}}

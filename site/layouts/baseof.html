@@ -1,33 +1,12 @@
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>{{ .Title }} | {{ site.Title }}</title>
-    {{- with .Params.summary }}
-    <meta name="description" content="{{ . }}">
-    {{- end }}
-    <style>
-        @font-face {
-            font-family: 'Muli';
-            font-style: normal;
-            font-weight: 400;
-            src: local('Muli'), url(/fonts/muli.woff2) format('woff2');
-            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
-        }
-    </style>
-    <link href="/Content/bootstrap.css" rel="stylesheet">
-    <link href="/Content/Site.css" rel="stylesheet">
+{{ partial "head.html" . }}
 </head>
 <body>
-    {{ partial "header.html" . }}
-    <main class="body">
-        <div class="container pageWrap bg-default">
-            {{ block "main" . }}{{ end }}
-        </div>
-    </main>
-    <br>
-    <br>
-    {{ partial "footer.html" . }}
+<a class="skip-link" href="#main">Skip to content</a>
+{{ partial "header.html" . }}
+<main id="main" class="site-main"><div class="container">{{ block "main" . }}{{ end }}</div></main>
+{{ partial "footer.html" . }}
 </body>
 </html>
