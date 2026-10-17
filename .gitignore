@@ -1,0 +1,11 @@
+# Hugo
+site/public/
+site/resources/_gen/
+.hugo_build.lock
+
+# OS and editors
+.DS_Store
+Thumbs.db
+.vs/
+.vscode/
+.idea/
