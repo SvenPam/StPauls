@@ -42,6 +42,11 @@ class LayoutTests(unittest.TestCase):
     def test_no_personal_details_or_trackers(self):
         self.assertEqual(find_banned(self.out), [])
 
+    def test_root_has_index_page(self):
+        # Azure/static-web-apps-deploy refuses a folder with no index.html at its root.
+        self.assertTrue((self.out / "index.html").is_file())
+        self.assertIn('href="/notices/"', (self.out / "index.html").read_text(encoding="utf-8"))
+
     def test_swa_config(self):
         cfg = json.loads((self.out / "staticwebapp.config.json").read_text())
         self.assertEqual(cfg["responseOverrides"]["404"], {"rewrite": "/404.html", "statusCode": 404})

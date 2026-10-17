@@ -2,7 +2,7 @@ baseURL = '/'
 title = "St Paul's Warton"
 timeZone = 'Europe/London'
 buildFuture = true
-disableKinds = ['home', 'rss', 'sitemap', 'taxonomy', 'term']
+disableKinds = ['rss', 'sitemap', 'taxonomy', 'term']
 
 [markup.goldmark.renderer]
 unsafe = true

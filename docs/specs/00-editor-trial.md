@@ -219,13 +219,13 @@ baseURL = '/'
 title = "St Paul's Warton"
 timeZone = 'Europe/London'
 buildFuture = true
-disableKinds = ['home', 'rss', 'sitemap', 'taxonomy', 'term']
+disableKinds = ['rss', 'sitemap', 'taxonomy', 'term']
 
 [markup.goldmark.renderer]
 unsafe = true
 ```
 
-`buildFuture` is Review Focus 1. `unsafe` lets the HTML body through. `home` is off until spec 03; the root redirect stands in.
+`buildFuture` is Review Focus 1. `unsafe` lets the HTML body through. `home` stays on with a stub `site/layouts/home.html`: the Static Web Apps deploy action refuses a folder with no root `index.html`. The root redirect still sends visitors to `/notices/` until spec 03.
 
 - [ ] **Step 4: Write the layouts and copy the legacy files**
 
