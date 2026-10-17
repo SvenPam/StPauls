@@ -128,12 +128,14 @@ Add a row for every other answer, including `www`, `MX`, every `TXT` (SPF, DKIM,
 
 **Step 4.** Sign up at `https://dash.cloudflare.com/sign-up`, then **Add a domain**, enter `stpaulswarton.co.uk`, pick **Free**. Let it scan for records. Cloudflare shows the zone as **Pending** and lists two nameservers ending `.ns.cloudflare.com`. Write both in the [Outcome](#outcome) table.
 
+Cloudflare removes a zone that stays pending too long (weeks, not months), taking any records you added with it. If the church takes a while to reply, do step 5 shortly before the step 7 call, or check the zone is still there first. If it has gone, add it again and redo step 5 from the table.
+
 **Step 5.** Open **DNS**, **Records**, and go through the records table one row at a time.
 
 | Do | Why |
 |---|---|
 | Add every row the scan missed, with the same type, name and value. `asuid` TXT records and DKIM will almost certainly be missing | Missing `asuid` drops the old site's Azure binding. Missing mail records break church email |
-| Delete anything the scan added that is not in the table | The zone should say exactly what the old DNS says |
+| For anything the scan found that is not in the table, run `dig +short <type> <name> @<old nameserver>` with an old nameserver from the `NS` row. If it answers, add it to the table and keep it. Delete it only if it does not | The scan reads live DNS, so its extras are usually real records (`webmail`, `ftp`, Microsoft 365 `SRV` or `selector1._domainkey`) that your lookups did not guess |
 | Set every record to **DNS only** (grey cloud). The scan often marks `A` and `CNAME` records as Proxied; do not leave any record Proxied | The old site is HTTP only. With proxying on, Cloudflare would start answering for it and could redirect or fail TLS |
 | Leave TTL on **Auto** | Matches closely enough, and is easy to change on cutover day |
 | Do not add NS records for `@` | Cloudflare manages those itself |
@@ -158,12 +160,13 @@ With every record DNS only, none of these touch visitor traffic, but leaving the
 
 **Step 7.** On a call with the church contact, logged in at the registrar:
 
-1. If WHOIS showed DNSSEC as signed: turn DNSSEC off (or delete the `DS` record) first, then wait until `dig DS stpaulswarton.co.uk` returns nothing.
-2. Find the domain's nameserver settings (often **Manage DNS**, **Nameservers**, or **Use custom nameservers**).
-3. Replace the existing nameservers with the two Cloudflare ones from step 4. Remove any others.
-4. Save. Check the registrar now lists only the two Cloudflare nameservers.
+1. Open the registrar's DNS settings and compare the registrar's own record list with the Cloudflare zone. It is the only complete list of the zone (use its export if it has one). Add anything missing to the table and to Cloudflare first. Ask whether church email is a forward provided by the registrar: if so, it may stop when the nameservers move, so set it up in Cloudflare's records (the registrar's help pages give the `MX` values) or stop and ask before going on.
+2. If WHOIS showed DNSSEC as signed: turn DNSSEC off (or delete the `DS` record) first, then wait until `dig DS stpaulswarton.co.uk` returns nothing.
+3. Find the domain's nameserver settings (often **Manage DNS**, **Nameservers**, or **Use custom nameservers**).
+4. Replace the existing nameservers with the two Cloudflare ones from step 4. Remove any others.
+5. Save. Check the registrar now lists only the two Cloudflare nameservers.
 
-Leave the registrar's own DNS records in place for now. They do nothing once the nameservers point at Cloudflare, and they make rolling back simpler.
+Leave the registrar's own DNS records in place if it lets you. Many registrars clear them when custom nameservers are set, which is why the records table matters for rolling back.
 
 ---
 
@@ -188,10 +191,11 @@ To undo step 7, put the old nameservers back at the registrar:
 
 1. Log in at the registrar with the church contact.
 2. Replace the Cloudflare nameservers with the old nameservers from the `NS` rows of the records table, exactly as recorded.
-3. If DNSSEC was on before, turn it back on at the registrar.
-4. Wait up to 48 hours, then check `dig NS stpaulswarton.co.uk +short` shows the old nameservers again.
+3. If the old nameservers are the registrar's own, open its DNS editor and re-enter every record from the records table that is missing. Registrars often empty the zone when nameservers move away.
+4. If DNSSEC was on before, turn it back on at the registrar.
+5. Wait up to 48 hours, then check `dig NS stpaulswarton.co.uk +short` shows the old nameservers again.
 
-The registrar's records were left in place in step 7, so the old DNS answers as it did. The Cloudflare zone can stay pending until you try again.
+Once the old nameservers answer with the records in the table, the old DNS works as it did. Cloudflare marks the zone as moved and removes it later, so a second attempt starts again at step 4.
 
 ---
 

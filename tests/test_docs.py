@@ -53,6 +53,25 @@ class DnsHowToTests(unittest.TestCase):
         self.assertIn("## Roll back", self.doc)
         self.assertRegex(self.doc, r"(?s)## Roll back.*old nameservers")
 
+    def section(self, heading):
+        return self.doc.split(f"\n## {heading}\n", 1)[1].split("\n## ", 1)[0]
+
+    def test_rollback_restores_missing_registrar_records(self):
+        # Many registrars clear their zone when custom nameservers are set.
+        rb = self.section("Roll back")
+        self.assertIn("re-enter", rb)
+        self.assertIn("records table", rb)
+
+    def test_scan_extras_are_checked_not_deleted(self):
+        zone = self.section("Create the Cloudflare zone")
+        self.assertNotIn("Delete anything the scan added", zone)
+        self.assertIn("@<old nameserver>", zone)
+        self.assertIn("registrar's own record list", self.section("Change the nameservers"))
+
+    def test_pending_zone_can_be_removed(self):
+        self.assertIn("pending too long", self.section("Create the Cloudflare zone"))
+        self.assertNotIn("stay pending until you try again", self.doc)
+
     def test_records_stay_dns_only(self):
         self.assertIn("DNS only", self.doc)
         for line in self.doc.splitlines():
