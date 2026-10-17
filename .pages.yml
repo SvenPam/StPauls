@@ -7,7 +7,7 @@ content:
     label: Notices
     type: collection
     path: site/content/notices
-    filename: "{primary}.md"
+    filename: "{year}-{month}-{day}-{primary}.md"
     exclude: [_index.md]
     view:
       fields: [title, date]

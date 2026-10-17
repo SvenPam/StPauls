@@ -16,7 +16,12 @@ class PagesCmsConfigTests(unittest.TestCase):
 
     def test_notices_collection(self):
         self.assertRegex(CFG, r"(?m)^\s+path: site/content/notices$")
-        self.assertRegex(CFG, r'(?m)^\s+filename: "\{primary\}\.md"$')
+
+    def test_filename_cannot_collide(self):
+        # A bare "{primary}.md" turns a notice titled "Index" into index.md, which makes
+        # Hugo treat the folder as a leaf bundle and empties the list. Same-title notices
+        # (weekly pew sheets) would also overwrite each other.
+        self.assertRegex(CFG, r'(?m)^\s+filename: "\{year\}-\{month\}-\{day\}-\{primary\}\.md"$')
 
     def test_index_file_excluded(self):
         self.assertRegex(CFG, r"(?m)^\s+exclude: \[_index\.md\]$")

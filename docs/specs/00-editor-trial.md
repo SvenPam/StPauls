@@ -47,7 +47,7 @@ Other sections, home page, URL parity with live, DNS and custom domain, style mo
 | `location` | string | No | Shown on the single page. Nothing is shown when empty |
 | body | rich text (HTML) | Yes | Stored as the file body. Hugo must render raw HTML |
 
-Files live at `site/content/notices/{slug}.md`. Uploaded images go to `site/static/uploads/`.
+Files live at `site/content/notices/`. Pages CMS names new files `{yyyy}-{mm}-{dd}-{slug}.md`, so a notice titled "Index" cannot become `index.md` (which empties the section in Hugo) and same-title notices do not overwrite each other. The seed notices keep plain `{slug}.md` names. Uploaded images go to `site/static/uploads/`.
 
 ### Site
 
@@ -401,7 +401,7 @@ def test_media_maps_to_hugo_static(self):
 
 def test_notices_collection(self):
     self.assertRegex(CFG, r"(?m)^\s+path: site/content/notices$")
-    self.assertRegex(CFG, r'(?m)^\s+filename: "\{primary\}\.md"$')
+    self.assertRegex(CFG, r'(?m)^\s+filename: "\{year\}-\{month\}-\{day\}-\{primary\}\.md"$')
 
 def test_index_file_excluded(self):
     self.assertRegex(CFG, r"(?m)^\s+exclude: \[_index\.md\]$")
@@ -428,7 +428,7 @@ content:
     label: Notices
     type: collection
     path: site/content/notices
-    filename: "{primary}.md"
+    filename: "{year}-{month}-{day}-{primary}.md"
     exclude: [_index.md]
     view:
       fields: [title, date]
@@ -459,7 +459,7 @@ content:
         required: true
 ```
 
-`body` is Pages CMS's name for the file body. `{primary}` is the slugified title, so "News / Pew Sheets" saves as `news-pew-sheets.md`.
+`body` is Pages CMS's name for the file body. `{primary}` is the slugified title, so "News / Pew Sheets" saved on 17 October 2026 becomes `2026-10-17-news-pew-sheets.md`.
 
 - [ ] **Step 4: Run the tests and watch them pass**
 
