@@ -16,11 +16,13 @@ _The current state of `stpaulswarton.co.uk` and of the Umbraco port held in this
 |---|---|
 | Live site | `http://stpaulswarton.co.uk` (HTTP only) |
 | Live platform | Legacy custom ASP.NET MVC 5.2 CMS, multi-tenant (`/Areas/St_Pauls/`). Source in ADO/TFS, not in this repo |
+| Live editing | Church contact edits content through the legacy CMS back office |
 | Live hosting | Azure App Service (IIS 10, `ARRAffinity` cookie), with a database |
 | This repo | Unfinished port to Umbraco 8.1.0 on .NET Framework 4.7.2 |
 | Port deployed | No. `/umbraco` returns 404 on the live site |
 | Port history | 32 commits, all 13 to 14 July 2019, single author |
-| Content in repo | None. Umbraco content, document types, data types and media live in a database that is not committed |
+| Content in repo | None. Document types, data types and grid layouts lived in a 2019 local test database that is not committed |
+| DNS | Not controlled by the site maintainer |
 
 ---
 
@@ -200,7 +202,7 @@ These reference types and helpers that do not exist in this repo (`sites.*`, `Si
 | Report a problem form | Not present (legacy view only) |
 | Error and 404 pages | `error404` set to node id `1` in `umbracoSettings.config`. No Umbraco template |
 | Uploaded PDFs and gallery images | Not migrated. `Media/` is empty |
-| Content (articles, events, notices, pages) | Not in repo. Unknown whether any was entered into an Umbraco DB |
+| Content (articles, events, notices, pages) | Not migrated. Source of truth is the live site; content is mostly HTML blocks |
 | URL scheme | Port URLs come from the content tree, so differ from live (`/page/{type}/{slug}`, `/{section}/{kind}/{id}/{slug}`) |
 | HTTPS | Neither |
 
@@ -247,9 +249,19 @@ These reference types and helpers that do not exist in this repo (`sites.*`, `Si
 
 ---
 
+## Content migration source
+
+| | |
+|---|---|
+| Source | Live site pages (HTML), extracted manually |
+| Volume | Small: 7 articles, 69 events, 5 notices, 13 pages, plus uploads under `/Areas/st_pauls/Uploads/` |
+| Shape | Mostly HTML blocks per item |
+| Content types | Pages, events, notices, news (blog articles) |
+| 2019 Umbraco database | Local test only. Not available as a source |
+
+---
+
 ## Open questions
 
-- Where is the Umbraco database from 2019, and does it hold any migrated content?
-- Can content be exported from the legacy CMS database (articles, events, notices, pages, uploads)?
-- Which live features are still used (accounts, email notifications, comments, contact form groups)?
-- Who controls DNS for `stpaulswarton.co.uk`?
+- Which live features are still used (accounts, email notifications, comments, contact form groups, topic listings)?
+- Who controls DNS for `stpaulswarton.co.uk`, and how is a change requested?
