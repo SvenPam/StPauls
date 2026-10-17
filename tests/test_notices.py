@@ -25,12 +25,13 @@ class NoticesTests(unittest.TestCase):
         self.assertEqual(i, sorted(i))
 
     def test_list_links_and_dates(self):
-        self.assertIn('href="/notices/newer/"', self.list)
+        self.assertIn('href="/notices/newer"', self.list)
         self.assertIn("01-Feb-26", self.list)
 
     def test_summary_only_when_set(self):
-        self.assertEqual(self.list.count('class="notice-summary"'), 1)
+        self.assertEqual(self.list.count('class="notice-summary"'), 2)
         self.assertIn("Newer summary", self.list)
+        self.assertNotIn("Older body", self.list)
 
     def test_location_only_when_set(self):
         self.assertIn('class="notice-location">Church Hall<', self.newer)
@@ -46,6 +47,19 @@ class NoticesTests(unittest.TestCase):
         self.assertIn("*stars*", self.newer)
         self.assertNotIn("&lt;p&gt;", self.newer)
         self.assertNotIn("<pre>", self.newer)
+
+    def test_long_text_wraps(self):
+        css = next((self.out / "css").glob("site.min.*.css")).read_text()
+        self.assertRegex(css, r"\.card__title[^{]*\{[^}]*overflow-wrap:anywhere")
+        self.assertRegex(css, r"\.prose[^{]*\{[^}]*overflow-wrap:anywhere")
+
+    def test_list_is_a_card_grid(self):
+        notices = len(list((FIXTURES / "content/notices").glob("[!_]*.md")))
+        self.assertEqual(self.list.count('<article class="card">'), notices)
+        self.assertRegex(self.list, r'class="[^"]*\bcard-grid\b')
+
+    def test_single_body_in_prose(self):
+        self.assertRegex(self.newer, r'<div class="prose">\s*<p>First block</p>')
 
     def test_future_dated_notice_is_published(self):
         self.assertTrue((self.out / "notices/future/index.html").is_file())

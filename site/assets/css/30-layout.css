@@ -21,3 +21,7 @@
 .site-main h1:first-child { margin-top: 1.5rem; }
 
 .muted { color: var(--muted); }
+
+.meta { margin: 0 0 1.5rem; color: var(--muted); }
+.meta address { margin: 0.25rem 0 0; }
+.lead { font-size: 1.25rem; }
