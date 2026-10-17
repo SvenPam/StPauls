@@ -4,8 +4,8 @@
   border-top: 4px solid var(--gold);
   padding-top: 1.5rem;
 }
-.site-footer a { color: var(--footer-text); }
-.site-footer a:hover { color: var(--gold); }
+.site-footer a { color: var(--gold); }
+.site-footer a:hover { color: var(--footer-text); }
 .site-footer :focus-visible { outline-color: var(--gold); }
 .site-footer__inner { display: grid; gap: 1.5rem; }
 .footer-groups {
@@ -16,7 +16,7 @@
 }
 .footer-group__title {
   margin: 0 0 0.5rem;
-  color: var(--gold);
+  color: var(--footer-text);
   font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
