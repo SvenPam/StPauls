@@ -6,7 +6,7 @@ status: agreed
 
 # Spec 00: editor trial
 
-_One session. Sets up the static site foundations and proves that a non-technical editor can publish through Pages CMS. See [way forward](../discovery-way-forward.md). The spec comes first; the [implementation plan](#implementation-plan) follows it._
+_One session. Sets up the static site foundations and proves that a non-technical editor can publish through Pages CMS. See [way forward](page-cms-discovery-way-forward.md). The spec comes first; the [implementation plan](#implementation-plan) follows it._
 
 ---
 
@@ -129,7 +129,7 @@ The how-to written in Task 6 gives the commands for each step.
 
 **Tech Stack:** Hugo extended 0.167.0, Bicep, GitHub Actions, Azure Static Web Apps Free, Pages CMS (hosted), Python 3 `unittest`.
 
-**Spec:** the sections above in this file, from Goal to Acceptance. Background in [way forward](../discovery-way-forward.md).
+**Spec:** the sections above in this file, from Goal to Acceptance. Background in [way forward](page-cms-discovery-way-forward.md).
 
 ### Global Constraints
 
@@ -146,7 +146,7 @@ The how-to written in Task 6 gives the commands for each step.
   - Hugo and actionlint: `python3 -m venv <dir> && <dir>/bin/pip install hugo==0.167.0 actionlint-py`, then put `<dir>/bin` on `PATH`.
   - Bicep 0.48.1: download `https://api.nuget.org/v3-flatcontainer/azure.bicep.commandline.linux-x64/0.48.1/azure.bicep.commandline.linux-x64.0.48.1.nupkg`, extract with `python3 -m zipfile -e <nupkg> <dir>`, `chmod +x <dir>/tools/bicep`, put `<dir>/tools` on `PATH`.
   - `az`, Azure and Pages CMS cannot be reached from the sandbox (`pagescms.org` does not resolve). Say so in the hand-off rather than guessing.
-- Docs follow `docs/discovery-*.md`: YAML front matter (`date`, `tags`, `status`), one H1, italic one-line summary, tables over prose, no em dashes. Markdown file names never contain `:`, `/`, `#` or `^`.
+- Docs follow `docs/features/page-cms/page-cms-discovery-*.md`: YAML front matter (`date`, `tags`, `status`), one H1, italic one-line summary, tables over prose, no em dashes. Markdown file names never contain `:`, `/`, `#` or `^`.
 - Commit messages are a short imperative sentence, as in `git log` (no `feat:` prefix), ending with the session's attribution lines.
 
 ### Review Focus
@@ -625,7 +625,7 @@ git commit -m "Add deploy workflow with OIDC sign in"
 ### Task 6: Setup how-to and hand-off
 
 **Files:**
-- Create: `docs/how-to-set-up-azure-and-pages-cms.md`
+- Create: `docs/features/page-cms/page-cms-how-to-set-up-azure-and-pages-cms.md`
 - Create: `tests/test_docs.py`
 - Modify: `CLAUDE.md` (Repo layout, Environment notes, Open items)
 
@@ -662,7 +662,7 @@ Front matter `tags: [how-to, stpauls]`, `status: draft`. H1 "How to set up Azure
 | GitHub | Table of the four names, where each value comes from, and secret or variable. Plus: no ruleset or branch protection may require pull requests on `main`, or Pages CMS saves fail |
 | First run | Actions, Deploy, Run workflow on `main`; site URL is in the run summary |
 | Pages CMS | Install the app on `SvenPam/StPauls` only; Notices shows the three seed notices and no `_index.md`; invite the editor by email under Collaborators |
-| Trial | Checklist matching the Acceptance section: add a notice with an image, edit it, delete it, add one dated next month. Allow 5 minutes per change. Record go or no-go as a new row in the Decisions table of `docs/discovery-way-forward.md` |
+| Trial | Checklist matching the Acceptance section: add a notice with an image, edit it, delete it, add one dated next month. Allow 5 minutes per change. Record go or no-go as a new row in the Decisions table of `docs/features/page-cms/page-cms-discovery-way-forward.md` |
 | Troubleshooting | `AADSTS70021` at sign in means the subject does not match; a failed Pages CMS save usually means a branch rule; a Pages CMS config error names the key to fix in `.pages.yml` |
 
 - [ ] **Step 4: Update `CLAUDE.md`**
@@ -677,7 +677,7 @@ Expected: all tests OK with none skipped (Bicep on `PATH`), actionlint silent, H
 - [ ] **Step 6: Commit and push the branch**
 
 ```bash
-git add docs/how-to-set-up-azure-and-pages-cms.md tests/test_docs.py CLAUDE.md
+git add docs/features/page-cms/page-cms-how-to-set-up-azure-and-pages-cms.md tests/test_docs.py CLAUDE.md
 git commit -m "Add Azure and Pages CMS setup how-to"
 git push -u origin <session branch>
 ```

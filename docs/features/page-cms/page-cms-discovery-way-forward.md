@@ -6,7 +6,7 @@ status: agreed
 
 # Discovery: way forward for stpaulswarton.co.uk
 
-_Compares finishing the move to Umbraco with replacing the site with a static site, and recommends one. Facts about the current state are in [current state](discovery-current-state.md)._
+_Compares finishing the move to Umbraco with replacing the site with a static site, and recommends one. Facts about the current state are in [current state](page-cms-discovery-current-state.md)._
 
 ---
 
@@ -122,7 +122,10 @@ The 2019 port is Umbraco 8.1 on .NET Framework. Current LTS is **Umbraco 17** (.
 
 ## Work outline (static)
 
-Sized for single sessions. Specs live in [specs](specs/).
+Sized for single sessions. Specs live in [this folder](./).
+
+> [!note]
+> Superseded after the trial by the work outline in [design: replace the live site](page-cms-feature.md). Kept here as the original pencil sketch.
 
 - **Repo reset (done).** Umbraco code archived on `archive/umbraco-2019`. `main` started from nothing.
 0. **Editor trial.** Hugo scaffold, Bicep for the Static Web App, GitHub Actions build and deploy, Notices only, Pages CMS. Invite Paul by email, ask him to add a notice. Go or no-go for static.
@@ -147,6 +150,7 @@ Sized for single sessions. Specs live in [specs](specs/).
 | 3 | Email subscribers | Maintainer exports from legacy DB. Likely none. If none, publish emails are dropped |
 | 4 | Disqus comments | Remove |
 | 5 | Hosting | Azure Static Web Apps (Free). Cloudflare Free for DNS and caching only |
+| 6 | Editor trial result | **Go** (2026-10-17). A notice was created, published and deleted through Pages CMS on the test URL. Phase 1 plan in [design: replace the live site](page-cms-feature.md) |
 
 ---
 

@@ -6,7 +6,7 @@ status: draft
 
 # How to set up Azure and Pages CMS for the editor trial
 
-_The manual steps for [spec 00](specs/00-editor-trial.md): Azure, Entra ID, GitHub and Pages CMS, then the trial with Paul._
+_The manual steps for [spec 00](page-cms-spec-00-editor-trial.md): Azure, Entra ID, GitHub and Pages CMS, then the trial with Paul._
 
 ---
 
@@ -111,7 +111,7 @@ Allow up to 5 minutes for each change to appear on the site. Progress is visible
 | 3 | Adds a notice dated next month | Listed, not hidden |
 | 4 | Deletes the notice from step 1 | Gone from the list, its page returns "Page Not Found" |
 
-Record go or no-go as a new row in the Decisions table of [way forward](discovery-way-forward.md), with a line on what Paul found hard.
+Record go or no-go as a new row in the Decisions table of [way forward](page-cms-discovery-way-forward.md), with a line on what Paul found hard.
 
 ---
 
