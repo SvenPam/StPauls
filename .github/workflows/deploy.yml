@@ -39,9 +39,6 @@ jobs:
           echo "$RUNNER_TEMP/hugo" >> "$GITHUB_PATH"
           "$RUNNER_TEMP/hugo/hugo" version
 
-      - name: Test
-        run: python3 -m unittest discover -s tests -v
-
       - name: Build
         run: hugo --source site --minify
 

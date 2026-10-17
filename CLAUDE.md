@@ -58,7 +58,6 @@ Do not reopen these without being asked.
 | `site/` | Hugo site |
 | `infra/` | Bicep for the Static Web App |
 | `.pages.yml` | Pages CMS config |
-| `tests/` | Python standard library tests, run with `python3 -m unittest discover -s tests -v` |
 | `scripts/` | Hand-run tools (screenshots, URL check, migration). Never run in CI |
 | `.github/workflows/deploy.yml` | Test, deploy Bicep, build and deploy the site |
 
