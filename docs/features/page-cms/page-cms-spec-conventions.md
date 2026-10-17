@@ -126,7 +126,7 @@ Behaviour the specs rely on, checked on 2026-10-17. Re-check if a version change
 | `rich-text` takes `format: html` or `markdown` |
 | `type: file` edits one data file. `type: group` with `items` groups entries in the sidebar |
 | `select` takes `values` as strings or `{ name, label }`, optionally with `multiple` |
-| `date` takes `time: true` and a date-fns `format`, for example `yyyy-MM-dd'T'HH:mm` |
+| `date` takes `time: true` and a date-fns `format`, for example `yyyy-MM-dd'T'HH:mm:ss`. Hugo rejects a date with no seconds |
 | `operations` can turn off `create`, `rename` or `delete` per entry |
 | `filename` tokens include `{year}`, `{month}`, `{day}`, `{primary}` and `{fields.<name>}` |
 

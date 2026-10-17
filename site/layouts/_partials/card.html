@@ -1,6 +1,6 @@
 {{/* One item in a list or topic page. */}}
 {{- $event := eq .Section "calendar" -}}
-<article class="card"{{ if $event }} data-end="{{ (partial "event-end.html" .).Format "2006-01-02T15:04:05Z07:00" }}"{{ end }}>
+<article class="card"{{ if $event }} {{ printf "data-end=%q" ((partial "event-end.html" .).Format "2006-01-02T15:04:05Z07:00") | safeHTMLAttr }}{{ end }}>
   <h2 class="card__title"><a href="{{ partial "href.html" .RelPermalink }}">{{ .Title }}</a></h2>
   {{- if $event }}
   <p class="meta-line"><span class="status">{{ partial "event-status.html" . }}</span> <span class="date-time">{{ partial "date.html" .Date }} {{ .Date.Format "3:04 PM" }}</span></p>

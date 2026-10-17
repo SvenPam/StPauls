@@ -8,6 +8,9 @@ on:
       - 'infra/**'
       - '.pages.yml'
       - '.github/workflows/deploy.yml'
+  # Nightly rebuild so past events drop off the calendar.
+  schedule:
+    - cron: '17 3 * * *'
   workflow_dispatch:
 
 permissions:

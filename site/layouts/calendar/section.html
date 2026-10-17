@@ -1,0 +1,14 @@
+{{ define "main" }}
+<h1>{{ .Title }}</h1>
+{{- with partial "upcoming.html" .Pages }}
+<div class="event-list">
+  {{- range . }}
+  {{ partial "card.html" . }}
+  {{- end }}
+</div>
+{{/* site.js shows this if every card has ended since the last build. */}}
+<p class="event-empty" hidden>Could not find any events.</p>
+{{- else }}
+<p>Could not find any events.</p>
+{{- end }}
+{{ end }}

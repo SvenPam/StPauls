@@ -1,0 +1,31 @@
+{{ define "main" }}
+{{- $end := partial "event-end.html" . -}}
+<article>
+  <h1>{{ .Title }}</h1>
+  <div class="meta">
+    <span class="status">{{ partial "event-status.html" . }}</span>
+    {{- with partial "topic-link.html" . }}
+    <p class="topic-line">Topic: {{ . }}</p>
+    {{- end }}
+  </div>
+  <dl class="event-when">
+    {{- range slice (dict "label" "Start" "t" .Date) (dict "label" "End" "t" $end) }}
+    <div>
+      <dt>{{ .label }}</dt>
+      <dd><time datetime="{{ .t.Format "2006-01-02T15:04:05Z07:00" }}"><span class="event-time">{{ .t.Format "3:04 PM" }}</span> <span class="event-month">{{ .t.Format "January" }}</span> <span class="event-day">{{ .t.Day }}</span></time></dd>
+    </div>
+    {{- end }}
+  </dl>
+  {{- with .Params.location }}
+  <address class="event-location">{{ . }}</address>
+  {{- end }}
+  {{- with .Params.summary }}
+  <p class="lead">{{ . }}</p>
+  {{- end }}
+  {{ partial "image.html" . }}
+  <div class="prose">
+    {{ partial "body.html" . }}
+  </div>
+  <p><a href="/calendar">Back to the calendar</a></p>
+</article>
+{{ end }}

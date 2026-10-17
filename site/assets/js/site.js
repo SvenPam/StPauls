@@ -42,4 +42,11 @@
   document.addEventListener('focusout', (e) => {
     groups().forEach((d) => { if (d.contains(e.target) && !d.contains(e.relatedTarget)) d.open = false; });
   });
+
+  // Events that ended since the last build. The nightly build drops them for good.
+  const cards = document.querySelectorAll('.event-list .card[data-end]');
+  let left = cards.length;
+  cards.forEach((c) => { if (Date.parse(c.dataset.end) < Date.now()) { c.hidden = true; left--; } });
+  const empty = document.querySelector('.event-empty');
+  if (empty && cards.length && !left) empty.hidden = false;
 })();
