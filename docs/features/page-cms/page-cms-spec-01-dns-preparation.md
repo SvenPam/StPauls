@@ -16,10 +16,10 @@ The maintainer has a how-to and a ready-to-send message that, once followed, put
 
 ## Starting point
 
-- DNS is controlled by the church. Who holds the registrar login is not known yet.
+- DNS is controlled by the church. The registrar is 123 Reg (found 2026-10-17, see the how-to). Who holds the login is not known yet.
 - The live site answers on `http://stpaulswarton.co.uk` (HTTP only, Azure App Service, `ARRAffinity` cookie, IIS headers).
-- `www.stpaulswarton.co.uk` appears in links inside live content, but did not resolve from the sandbox on 2026-10-17. Whether it exists is unknown.
-- The sandbox cannot run DNS lookups (no resolver for outside names, DNS-over-HTTPS blocked) or `whois`. Every lookup is a maintainer step.
+- `www.stpaulswarton.co.uk` appears in links inside live content. It exists (a `CNAME` to the bare domain), but the App Service answers it with `403`.
+- The sandbox's own resolver only answers `A` queries. With the environment on full network access, `dns.google` (DNS over HTTPS) and `rdap.nominet.uk` work, and steps 1 and 2 were done from there.
 
 ## In scope
 

@@ -89,7 +89,9 @@ if grep -qi '^set-cookie: arraffinity' <<<"$headers"; then pass "legacy App Serv
 else warn "no ARRAffinity cookie, check the page in a browser"; fi
 
 echo
-echo "Still to do by hand: send a test email to a church address and get a reply."
+if grep -q "^MX	" <<<"$rows"; then
+  echo "Still to do by hand: send a test email to a church address and get a reply."
+fi
 if [ "$fails" -gt 0 ]; then
   echo "$fails check(s) failed. See Roll back in the how-to if you cannot fix them within an hour."
   exit 1

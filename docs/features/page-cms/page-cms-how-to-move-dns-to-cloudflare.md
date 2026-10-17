@@ -31,7 +31,7 @@ _The manual steps for [spec 01](page-cms-spec-01-dns-preparation.md): copy today
 | Time | 30 minutes for steps 1 to 6. 10 minutes on a call for step 7. Up to 48 hours of waiting before step 8 |
 | Not in this how-to | Proxying, HTTPS, redirect rules, the Static Web App custom domain. All of that is spec 11 |
 
-Nothing here was looked up from the build sandbox, which cannot run DNS lookups or `whois`. Every value below comes from you.
+Steps 1 and 2 were done from the build sandbox on 2026-10-17, through Google's DNS over HTTPS (`dns.google`) and Nominet's RDAP (`rdap.nominet.uk`). The tables below hold the results. Re-run the lookups before step 5 in case the church has changed anything, and treat the registrar's own record list in step 7 as the final word: lookups only find names someone thought to ask for.
 
 ---
 
@@ -85,12 +85,24 @@ Use `@` for the bare domain in the Name column.
 
 | Type | Name | Value | TTL | Notes |
 |---|---|---|---|---|
-| NS | @ | | | Mandatory. Every nameserver, one row each. Used to roll back |
-| SOA | @ | | | Primary nameserver and contact, for reference only |
-| A | @ | | | Legacy App Service |
-| | | | | |
+| NS | @ | `ns47.domaincontrol.com.` | 3600 | GoDaddy DNS, which 123 Reg uses. Used to roll back |
+| NS | @ | `ns48.domaincontrol.com.` | 3600 | As above |
+| SOA | @ | `ns47.domaincontrol.com. dns.jomax.net. 2026021602 28800 7200 604800 600` | 3600 | Reference only. Serial says the zone last changed on 2026-02-16 |
+| A | @ | `51.140.210.97` | 3600 | Legacy App Service. Both addresses serve the same site over HTTP. HTTPS shows the `*.azurewebsites.net` certificate, so only HTTP works today |
+| A | @ | `51.141.12.112` | 3600 | As above. Check in the Azure portal which address the App Service lists, but copy both |
+| CNAME | www | `stpaulswarton.co.uk.` | 3600 | Resolves, but the App Service answers `403` because `www` is not bound to it. Copy as is. Spec 11 redirects `www` to the bare domain |
+| TXT | _dmarc | `v=DMARC1; p=quarantine; adkim=r; aspf=r; rua=mailto:dmarc_rua@onsecureserver.net;` | 3600 | GoDaddy's default. The domain sends no mail, so this only stops others faking it. Copy as is |
+| CNAME | _domainconnect | `_domainconnect.ss.domaincontrol.com.` | 3600 | GoDaddy's Domain Connect helper. Not needed on Cloudflare but harmless. Copy as is |
+| AAAA | @, www | | | none |
+| MX | @ | | | none. No email on the domain, so step 8's email check is skipped |
+| TXT | @ | | | none. No SPF, which fits having no email |
+| DS | @ | | | none. Not DNSSEC signed (RDAP: `delegationSigned: false`) |
+| TXT | asuid, asuid.www | | | none. Also no `awverify` or `awverify.www` CNAME |
+| CNAME | autodiscover, mail, webmail, ftp, smtp, pop, imap, email | | | none |
+| DKIM | `google`, `selector1`, `selector2`, `default` under `_domainkey` | | | none |
+| CAA, SRV, wildcard | @, `_sip._tls`, `*` | | | none |
 
-Add a row for every other answer, including `www`, `MX`, every `TXT` (SPF, DKIM, DMARC, `asuid`), `autodiscover`, `mail` and `DS`. Write "none" in Notes for a lookup that returned nothing, so spec 11 knows it was checked.
+Add a row for anything new you find, including anything in the registrar's list at step 7. "none" in Notes means the lookup was run and returned nothing.
 
 ---
 
@@ -104,6 +116,9 @@ Add a row for every other answer, including `www`, `MX`, every `TXT` (SPF, DKIM,
 | Renewal date (shown as `Expiry date`) | A lapsed domain takes the site and email down. Tell the church if it is within three months |
 | Name servers | Must match the `NS` rows in the records table |
 | DNSSEC | `Signed` means do the DNSSEC step before step 7 |
+| Status | `client update prohibited` is the registrar lock. It may need turning off at the registrar before the nameservers can change |
+
+Found on 2026-10-17: registrar **123 Reg** (`123-Reg Limited t/a 123-reg`), registered 2015-08-18, expires **2035-08-18**, unsigned, nameservers `ns47` and `ns48.domaincontrol.com`, status `client transfer, delete, renew and update prohibited` (the usual lock). Who holds the 123 Reg login is still unknown.
 
 ---
 
@@ -113,7 +128,7 @@ Add a row for every other answer, including `www`, `MX`, every `TXT` (SPF, DKIM,
 
 > Hi [name],
 >
-> I'm helping move the St Paul's website off an old paid server onto a free one that the church stays in control of. To get it ready I need a hand from whoever looks after the church's web address, stpaulswarton.co.uk. That's usually a login with a company like 123 Reg, GoDaddy or Fasthosts, often set up years ago.
+> I'm helping move the St Paul's website off an old paid server onto a free one that the church stays in control of. To get it ready I need a hand from whoever looks after the church's web address, stpaulswarton.co.uk. It's registered with a company called 123 Reg, probably on an account set up back in 2015.
 >
 > Do you know who that might be, or where the login is kept? Once we find it, the job takes about ten minutes and means changing two settings. I'm happy to do it with them over a phone or video call.
 >
@@ -163,8 +178,9 @@ With every record DNS only, none of these touch visitor traffic, but leaving the
 1. Open the registrar's DNS settings and compare the registrar's own record list with the Cloudflare zone. It is the only complete list of the zone (use its export if it has one). Add anything missing to the table and to Cloudflare first. Ask whether church email is a forward provided by the registrar: if so, it may stop when the nameservers move, so set it up in Cloudflare's records (the registrar's help pages give the `MX` values) or stop and ask before going on.
 2. If WHOIS showed DNSSEC as signed: turn DNSSEC off (or delete the `DS` record) first, then wait until `dig DS stpaulswarton.co.uk` returns nothing.
 3. Find the domain's nameserver settings (often **Manage DNS**, **Nameservers**, or **Use custom nameservers**).
-4. Replace the existing nameservers with the two Cloudflare ones from step 4. Remove any others.
-5. Save. Check the registrar now lists only the two Cloudflare nameservers.
+4. 123 Reg shows a domain lock (`client update prohibited` in WHOIS). If it refuses the change, turn the lock off, make the change, then turn it back on.
+5. Replace the existing nameservers with the two Cloudflare ones from step 4. Remove any others.
+6. Save. Check the registrar now lists only the two Cloudflare nameservers.
 
 Leave the registrar's own DNS records in place if it lets you. Many registrars clear them when custom nameservers are set, which is why the records table matters for rolling back.
 
@@ -212,13 +228,13 @@ Once the old nameservers answer with the records in the table, the old DNS works
 | | |
 |---|---|
 | Date nameservers changed | |
-| Registrar | |
-| Renewal date | |
+| Registrar | 123 Reg |
+| Renewal date | 2035-08-18 |
 | Who holds the registrar login | |
-| Old nameservers | |
+| Old nameservers | `ns47.domaincontrol.com`, `ns48.domaincontrol.com` |
 | Cloudflare nameservers | |
-| DNSSEC before | |
+| DNSSEC before | Off (unsigned) |
 | Zone active on | |
 | Site check | |
-| Email check | |
+| Email check | Not needed, no MX |
 | Notes | |
