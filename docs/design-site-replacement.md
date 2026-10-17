@@ -1,7 +1,7 @@
 ---
 date: 2026-10-17
 tags: [design, stpauls, plan]
-status: draft
+status: agreed
 ---
 
 # Design: replace the live site
@@ -82,7 +82,8 @@ Made by the maintainer in the design conversation on 2026-10-17, unless marked _
 | Social share links | _Builder's call:_ not carried over, as in spec 00. Google+ is gone and the links add clutter. Easy to add back |
 | Colour contrast | _Builder's call:_ keep the palette. Where a text and background pair fails WCAG AA contrast, darken that shade as little as needed and list each change in the spec |
 | Look sign-off | _Builder's call:_ the maintainer compares side-by-side screenshots of live and new at phone and desktop widths before spec 02 is merged |
-| Main domain | _Builder's call:_ whichever of `www` or the bare domain the old site treats as primary stays primary, and the other redirects to it. Spec 01 finds out which |
+| Main domain | The bare domain `stpaulswarton.co.uk` is primary. A Cloudflare redirect rule sends `www.stpaulswarton.co.uk` to it with a 301, keeping the path and query. Only the bare domain is attached to the Static Web App |
+| Cookie policy | Dropped if the site sets no cookies. The site itself sets none. Spec 08 checks in a headless browser whether the Google Calendar or EmbedSocial embeds set any. If none, the page goes and `/page/about/cookie-policy` redirects to the privacy policy. If they do, spec 08 lists them and the maintainer decides between a short cookie note and loading those embeds only when clicked |
 | Trial URLs | `/notices/{slug}/` from spec 00 is not kept. Nothing outside the trial links to it |
 | Decommission | _Builder's call:_ legacy Azure resources are removed four weeks after cutover if nothing has needed them |
 
@@ -111,8 +112,8 @@ Made by the maintainer in the design conversation on 2026-10-17, unless marked _
 | Forms page | Links out to A Church Near You form pages |
 | Contact form | Posts to `/Contact/Contact`. Believed not to deliver |
 | Feeds | None |
-| Policies | The cookie policy mentions Google Analytics, Disqus and accounts, none of which will exist. The privacy policy mentions registering |
-| `www` | `www.stpaulswarton.co.uk` is used in links and by the maintainer, but did not resolve from the sandbox. Check in spec 01 |
+| Policies | The cookie policy mentions Google Analytics, Disqus and accounts, none of which will exist. The privacy policy mentions registering, and stays because the contact form collects personal data |
+| `www` | `www.stpaulswarton.co.uk` is used in links and by the maintainer, but did not resolve from the sandbox. Spec 01 records its current DNS |
 
 ---
 
@@ -208,9 +209,9 @@ One spec per session, written with `writing-plans`, each built on a branch and m
 | 05 | Images | Upload pipeline, `<picture>` and WebP for fields and body images, hero image, CSS fit for anything else, responsive embeds | None |
 | 06 | Content migration | Re-runnable extraction from live into Markdown, images and uploads copied in, links rewritten, list of stale policy text | Review the migrated content |
 | 07 | Contact form and site settings | Web3Forms form, Site settings file, footer driven by settings | Create a Web3Forms key when the inbox is known |
-| 08 | Security and delivery hardening | Headers and CSP, cache rules, pinned actions, Hugo checksum, Dependabot, size budget tests | None |
-| 09 | Editor rollout | Pages CMS config for every section and Settings, user guide for Paul with screenshots | Invite Paul. Paul practises on the test URL. Church updates the policy pages |
-| 10 | Cutover | Custom domain in Bicep, cutover runbook (freeze, re-extract, diff review, DNS flip, URL check, rollback), clean-up of practice content | Run the cutover with Paul |
+| 08 | Security and delivery hardening | Headers and CSP, cache rules, pinned actions, Hugo checksum, Dependabot, size budget tests, cookie check and cookie policy outcome | Decide on a cookie note only if the embeds set cookies |
+| 09 | Editor rollout | Pages CMS config for every section and Settings, user guide for Paul with screenshots | Invite Paul. Paul practises on the test URL. Church updates the privacy policy |
+| 10 | Cutover | Bare domain on the Static Web App in Bicep, Cloudflare `www` redirect rule, cutover runbook (freeze, re-extract, diff review, DNS flip, URL check, rollback), clean-up of practice content | Run the cutover with Paul |
 | 11 | Handover and decommission | Maintainer runbook, one-off note to old subscribers, export deleted, legacy Azure resources removed four weeks after cutover, CLAUDE.md updated | Send the note, delete the export, remove legacy resources |
 
 Spec 01 is first because finding the registrar login is the slowest step and it changes nothing visitors see. The rest is in build order: layout before content, URLs before migration, images before migration so migrated images land in the right place, the form and settings before the editor config, hardening once the embeds and form are known.
@@ -227,7 +228,7 @@ Spec 01 is first because finding the registrar login is the slowest step and it 
 | Church DNS access takes weeks | Spec 01 starts it before the build |
 | Pages CMS hosted service goes away | Content is plain files in Git. Swap the editor without changing content |
 | Web3Forms changes its free plan | The form is one template and one settings field. Swap provider without touching content |
-| `www` and the bare domain behave differently today | Spec 01 records both. Spec 10 serves both, with one redirecting to the other |
+| `www` links break at cutover | The Cloudflare redirect rule is in place before the DNS flip, and the URL check runs against both hosts |
 
 ---
 
