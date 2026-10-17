@@ -83,9 +83,15 @@ Made by the maintainer in the design conversation on 2026-10-17, unless marked _
 | Colour contrast | _Builder's call:_ keep the palette. Where a text and background pair fails WCAG AA contrast, darken that shade as little as needed and list each change in the spec |
 | Look sign-off | _Builder's call:_ the maintainer compares side-by-side screenshots of live and new at phone and desktop widths before spec 02 is merged |
 | Main domain | The bare domain `stpaulswarton.co.uk` is primary. A Cloudflare redirect rule sends `www.stpaulswarton.co.uk` to it with a 301, keeping the path and query. Only the bare domain is attached to the Static Web App |
-| Cookie policy | Dropped if the site sets no cookies. The site itself sets none. Spec 08 checks in a headless browser whether the Google Calendar or EmbedSocial embeds set any. If none, the page goes and `/page/about/cookie-policy` redirects to the privacy policy. If they do, spec 08 lists them and the maintainer decides between a short cookie note and loading those embeds only when clicked |
+| Cookie policy | Dropped if the site sets no cookies. The site itself sets none. Spec 09 has the maintainer check in a browser (the sandbox cannot reach the embed hosts) whether the Google Calendar or EmbedSocial embeds set any. If none, the page goes and `/page/about/cookie-policy` redirects to the privacy policy. If they do, spec 09 lists them and the maintainer decides between a short cookie note and loading those embeds only when clicked |
 | Trial URLs | `/notices/{slug}/` from spec 00 is not kept. Nothing outside the trial links to it |
 | Decommission | _Builder's call:_ legacy Azure resources are removed four weeks after cutover if nothing has needed them |
+| Blog list | _Builder's call:_ shows summaries with a link rather than every full article, since pages now carry real images |
+| Author names | _Builder's call:_ "by Paul Barfoot" lines are not migrated. There are no accounts, and it keeps personal details to a minimum |
+| Notices menu | _Builder's call:_ not in the top menu, as on live. Reached from the home page and the footer |
+| Spam protection | _Builder's call:_ honeypot only at first. hCaptcha needs a third-party script, so it is switched on only if spam arrives |
+| HSTS | _Builder's call:_ five minutes from cutover so a rollback to the old HTTP-only site stays possible, then one year when the old site is removed |
+| Event and notice dates | _Builder's call:_ the live site shows no year for events and no date for notices, so spec 07 asks the maintainer for a date export from the legacy database and flags anything inferred |
 
 ---
 
@@ -162,7 +168,7 @@ Made by the maintainer in the design conversation on 2026-10-17, unless marked _
 
 | Area | Baseline |
 |---|---|
-| Transport | HTTPS only once on the custom domain. HSTS (one year, no preload) from cutover |
+| Transport | HTTPS only once on the custom domain. HSTS at five minutes from cutover, so a rollback stays possible, raised to one year (no preload) when the old site is removed |
 | Headers | Set in `staticwebapp.config.json`: Content Security Policy, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, `frame-ancestors 'none'` |
 | CSP | Self by default. Frames limited to Google Calendar and EmbedSocial. Form posts limited to self and Web3Forms. Images allow any `https:` source so hot-linked images still show. No inline script |
 | Third parties | Only the two embeds and Web3Forms. No analytics, fonts or scripts from other domains |
@@ -198,23 +204,24 @@ Made by the maintainer in the design conversation on 2026-10-17, unless marked _
 
 ## Work outline
 
-One spec per session, written with `writing-plans`, each built on a branch and merged to `main` when the maintainer says so. `main` deploys to the test URL until cutover.
+One spec per session, written with `writing-plans`, each built on a branch and merged to `main` when the maintainer says so. `main` deploys to the test URL until cutover. Shared rules and the names specs pass between each other are in [spec conventions](specs/conventions.md). The original item 03 (content types) was split in two (03 and 04) to keep each session a sensible size, so there are 12 specs. Each content spec adds its own Pages CMS fields, so the editor never strips a field the site relies on; spec 10 polishes them.
 
 | # | Spec | Delivers | Maintainer and church steps |
 |---|---|---|---|
-| 01 | DNS preparation | How-to and message for the church to move the domain's DNS to Cloudflare, with records still pointing at the old site. Record of current DNS, including `www` | Find registrar access, create the Cloudflare zone, change nameservers |
-| 02 | Layout and stylesheet | New header (labelled menu button, dropdowns without jQuery), hero, footer, cards, typography. Bootstrap 3 removed. Applied to Notices | None |
-| 03 | Content types and listings | Pages, blog, events, notices, home, topics, latest articles aside, event status, RSS feeds, nightly build | None |
-| 04 | URL parity | Live URL scheme for existing and new items, `sitemap.xml`, HTML `/sitemap`, 404, account and legacy upload redirects, URL check script | None |
-| 05 | Images | Upload pipeline, `<picture>` and WebP for fields and body images, hero image, CSS fit for anything else, responsive embeds | None |
-| 06 | Content migration | Re-runnable extraction from live into Markdown, images and uploads copied in, links rewritten, list of stale policy text | Review the migrated content |
-| 07 | Contact form and site settings | Web3Forms form, Site settings file, footer driven by settings | Create a Web3Forms key when the inbox is known |
-| 08 | Security and delivery hardening | Headers and CSP, cache rules, pinned actions, Hugo checksum, Dependabot, size budget tests, cookie check and cookie policy outcome | Decide on a cookie note only if the embeds set cookies |
-| 09 | Editor rollout | Pages CMS config for every section and Settings, user guide for Paul with screenshots | Invite Paul. Paul practises on the test URL. Church updates the privacy policy |
-| 10 | Cutover | Bare domain on the Static Web App in Bicep, Cloudflare `www` redirect rule, cutover runbook (freeze, re-extract, diff review, DNS flip, URL check, rollback), clean-up of practice content | Run the cutover with Paul |
-| 11 | Handover and decommission | Maintainer runbook, one-off note to old subscribers, export deleted, legacy Azure resources removed four weeks after cutover, CLAUDE.md updated | Send the note, delete the export, remove legacy resources |
+| 01 | [DNS preparation](specs/01-dns-preparation.md) | How-to and message for the church to move the domain's DNS to Cloudflare, with records still pointing at the old site. Record of current DNS, including `www` | Find registrar access, create the Cloudflare zone, change nameservers |
+| 02 | [Layout and stylesheet](specs/02-layout-and-stylesheet.md) | New shell: header with a labelled menu button and dropdowns that need no script, footer, cards, typography, contrast-checked tokens. Bootstrap 3 removed. Applied to Notices | Sign off side-by-side screenshots |
+| 03 | [Blog, events and notices](specs/03-blog-events-notices.md) | The three dated sections at live URL patterns, topics, aside, event status, RSS, nightly build with a browser-side safeguard, Pages CMS collections | Check the collections in Pages CMS |
+| 04 | [Pages, home and menus](specs/04-pages-home-and-menus.md) | Standing pages under `/page/{type}/{slug}`, home page with hero, contact placeholder, menus built from page settings, Pages CMS entries | Check the Pages group in Pages CMS |
+| 05 | [URL parity](specs/05-url-parity.md) | No trailing slashes, generated Static Web Apps routes, legacy variants, `sitemap.xml`, HTML `/sitemap`, live URL snapshot and check script | Run the URL check after merge |
+| 06 | [Images and embeds](specs/06-images-and-embeds.md) | Uploads as WebP `<picture>` in fields and bodies, safe fallbacks, embeds as validated page fields, image cache in CI | Try a large upload on a phone |
+| 07 | [Content migration](specs/07-content-migration.md) | Re-runnable extraction from live, images and uploads copied in, links rewritten, upload routes, migration report | Export event and notice dates from the legacy database. Review the migrated content |
+| 08 | [Contact form and site settings](specs/08-contact-form-and-settings.md) | Site settings file, footer from settings, Web3Forms form behind a key, thanks page | Create a Web3Forms key when the inbox is known |
+| 09 | [Security and delivery hardening](specs/09-security-and-delivery.md) | Headers and CSP, cache rules, pinned actions, Hugo checksum, Dependabot, budget tests, cookie policy outcome | Check headers and embeds after merge. Check cookies in a browser |
+| 10 | [Editor rollout](specs/10-editor-rollout.md) | Pages CMS labels and help text, round-trip check on migrated content, guide for Paul, policy wording suggestions | Round-trip saves, screenshots for the guide, invite Paul, practice, church agrees policy wording |
+| 11 | [Cutover](specs/11-cutover.md) | Bare domain on the Static Web App in Bicep, cutover runbook (freeze, re-extract, diff review, DNS flip, URL check, rollback), practice content clean-up | Validate the domain a week ahead, Cloudflare settings, run the day with Paul |
+| 12 | [Handover and decommission](specs/12-handover-and-decommission.md) | HSTS to a year, maintainer runbook, church handover, subscriber note, CLAUDE.md updated | Send the note, delete the export, remove legacy resources |
 
-Spec 01 is first because finding the registrar login is the slowest step and it changes nothing visitors see. The rest is in build order: layout before content, URLs before migration, images before migration so migrated images land in the right place, the form and settings before the editor config, hardening once the embeds and form are known.
+Spec 01 is first because finding the registrar login is the slowest step and it changes nothing visitors see. The rest is in build order: layout before content, URLs before migration, images before migration so migrated images land in the right place, the form and settings before hardening, hardening once the embeds and form are known, and the editor rollout last so Paul practises on the finished site.
 
 ---
 
@@ -222,9 +229,10 @@ Spec 01 is first because finding the registrar login is the slowest step and it 
 
 | Risk | Mitigation |
 |---|---|
-| The rich text editor changes migrated HTML when Paul saves | Embeds moved out of the body. In spec 09, open and save one item of each type in Pages CMS and check the diff before Paul starts |
+| The rich text editor changes migrated HTML when Paul saves | Embeds moved out of the body. In spec 10, open and save one item of each type in Pages CMS and check the diff before Paul starts |
 | Practice edits on the test URL are mistaken for real ones | The user guide says practice content is thrown away. Re-extraction on cutover day overwrites migrated items. The cutover runbook lists and removes anything else |
-| GitHub pauses the nightly schedule after 60 days without repo activity (public repos) | Spec 03 checks whether this applies and, if so, adds a safeguard so past events still drop off |
+| GitHub pauses the nightly schedule after 60 days without repo activity (public repos) | Spec 03 also hides expired events in the browser, so the calendar stays right without a rebuild |
+| The live site shows no year for events and no date for notices | Spec 07 takes dates from a legacy database export, and infers and flags any it cannot find |
 | Church DNS access takes weeks | Spec 01 starts it before the build |
 | Pages CMS hosted service goes away | Content is plain files in Git. Swap the editor without changing content |
 | Web3Forms changes its free plan | The form is one template and one settings field. Swap provider without touching content |
