@@ -1,0 +1,10 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% if page.url == '/' %}{{ site.title }}{% else %}{{ title }} | {{ site.title }}{% endif %}</title>
+{%- if summary %}
+<meta name="description" content="{{ summary }}">
+{%- endif %}
+<meta name="theme-color" content="#002060">
+<link rel="icon" href="/favicon.ico">
+<link rel="stylesheet" href="{{ assets.css.url }}" integrity="{{ assets.css.integrity }}">
+<script src="{{ assets.js.url }}" integrity="{{ assets.js.integrity }}" defer></script>

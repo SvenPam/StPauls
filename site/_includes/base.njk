@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% if title %}{{ title }} | {% endif %}St Paul's Warton</title>
+{% include "partials/head.njk" %}
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
+{% include "partials/header.njk" %}
 <main id="main" class="site-main"><div class="container">{{ content | safe }}</div></main>
+{% include "partials/footer.njk" %}
 </body>
 </html>
