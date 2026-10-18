@@ -258,6 +258,7 @@ New items from Pages CMS are named `{year}-{month}-{day}-{primary}.md` for blog,
 | `url` | article, event, notice, page | `string`, `hidden` | Migrated items only |
 | `lead`, `hero_image`, `hero_alt` | home | `string`, `image`, `string` | |
 | `layout` | contact, sitemap | `string`, `hidden` on page collections | A file in `site/_includes/` |
+| `sitemap` | sitemap, thanks page, topic indexes | not in Pages CMS | `false` leaves the page out of `sitemap.xml` (05) |
 
 Computed by `config/content.js` for every `.md` input, never written in front matter:
 
@@ -299,7 +300,7 @@ Each file is a global named after it (`topics.yaml` is `topics`).
 | `topics.yaml` | Maintainer | Topic slug to label | 03 |
 | `menus.yaml` | Maintainer | `main` (`{ name, url }` or `{ name, children }`) and `footer` (`{ title, links }`). Replaced by menus computed from content | 02, removed 04 |
 | `embeds.yaml` | Maintainer | Embed type to allowed host, title and aspect ratio | 06 |
-| `legacy.yaml` | Maintainer | `rewrites` and `redirects` lists of `{ from, to }` for `staticwebapp.config.json` | 05, 07 |
+| `legacy.yaml` | Maintainer | `rewrites` and `redirects` lists of `{ from, to }` for `staticwebapp.config.json`, and `upload_prefixes`, the legacy upload folders in every spelling seen on live. Each file under `uploads/legacy/` in the build gets a 301 from every prefix | 05, 07 |
 | `settings.yaml` | Paul, through Pages CMS | Contact form key and footer details | 08 |
 
 ### Includes in `site/_includes/`
@@ -347,7 +348,9 @@ Filters unless marked. Named exports are importable by `tests/unit/`.
 | `picture` (async shortcode) | `images.js` | `{ src, alt, sizes, eager }`, `src` under `site/assets/` | `<picture>` with WebP and the original format at 480, 800, 1200, 1600 (up to the source width), `width`, `height`, lazy unless `eager` | 02, `fill` 04, uploads 06 |
 | `menuItems` | `menus.js` | `collections` | `menus.main` shape: Home, Blog, Calendar, then per page type in weight order its `header: true` pages, a plain `{ name, url }` for one, `{ name, children }` for several, none skipped | 04 |
 | `footerGroups` | `menus.js` | `collections` | `menus.footer` shape: `Links` (blog, calendar, notices, site map, `about` pages with `footer: true`), then a group per other type with `footer: true` pages | 04 |
-| `buildSwaConfig` | `swa.js`, export only | Output folder | Writes and returns `staticwebapp.config.json` | 00, routes 05, headers 09 |
+| `buildSwaConfig` | `swa.js`, export only | Output folder, data (`readData()` by default: `legacy` from 05, `site` and `embeds` from 09) | Writes and returns `staticwebapp.config.json` | 00, routes 05, headers 09 |
+| `readData` | `data.js`, export only | | Every `site/data/*.yaml` as `{ name: parsed }`, with the `DATA` folder layered over it from spec 08 | 05, 08 |
+| `pagesByType` | `menus.js` | `collections` | `[{ title, pages: [{ name, url }] }]`: every page type in weight order with all its pages, menu flags ignored. `menuItems` and `footerGroups` build on it | 05 |
 | `buildAssets` | `assets.js`, export only | Output folder | `{ css, js }`, each `{ url, integrity }` | 02 |
 
 Globals: `site`, `topics` and every other data file (`menus` until spec 04); `assets` (`assets.css.url`, `assets.css.integrity`, same for `js`); `build.year`; `topicPages`, `topicSections`. Collections: `blog`, `calendar`, `notices`, items only, oldest first. From spec 04: `pageTypes` (`page/*/_index.md`) and `pages` (`page/*/*.md`, no `_index.md`), in Eleventy's default order; `config/menus.js` sorts them.
@@ -380,7 +383,8 @@ Asset names change only when the bytes do, so spec 09 can cache them `immutable`
 | `tests/fixtures/content/` | One fixture tree for every section | 00 onwards |
 | `tests/fixtures/empty/` | Every section with no items | 00 onwards |
 | `tests/fixtures/live/` | Trimmed snapshots of live pages for the migration tests | 07 |
-| `scripts/check-urls.mjs` | Compares a built or deployed site with `tests/fixtures/live-urls.txt`. Run by hand, never in the workflow | 05 |
+| `scripts/check-urls.mjs` | Compares a built (`--built _site`) or deployed (`--base https://<host>`, routes from `--config`, default `_site/staticwebapp.config.json`) site with `tests/fixtures/live-urls.txt`. Exports `loadList`, `matchRoute`, `checkBuilt`, `checkHost`, `main`. Run by hand, never in the workflow | 05 |
+| `tests/fixtures/live-urls.txt` | Live sitemap paths plus the known variants, with the fetch date | 05 |
 | `scripts/screenshots.mjs` | Side-by-side screenshots with Playwright. Hand-run | 02 |
 | `scripts/compare-hugo.mjs` | Hugo against Eleventy, page by page. Used once for the switch | Switch |
 | `scripts/migrate.mjs` | Re-runnable migration from the live site | 07 |
@@ -392,4 +396,5 @@ Values in `site/data/site.yaml`, read as `site.<key>` in templates and by `confi
 | Key | What | Spec |
 |---|---|---|
 | `title` | `St Paul's Warton`. Page titles, brand, feeds, copyright | 02 |
+| `url` | `https://stpaulswarton.co.uk`. Canonical links, feed and site map addresses, the contact form `redirect` | 05 |
 | `hsts_max_age` | Seconds for `Strict-Transport-Security`. `300` until the old site is gone, then `31536000` | 09, 12 |
