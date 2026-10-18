@@ -4,6 +4,9 @@
 {%- if summary %}
 <meta name="description" content="{{ summary }}">
 {%- endif %}
+{%- if page.url != "/404.html" %}
+<link rel="canonical" href="{{ site.url }}{{ page.url | href }}">
+{%- endif %}
 <meta name="theme-color" content="#002060">
 <link rel="icon" href="/favicon.ico">
 <link rel="stylesheet" href="{{ assets.css.url }}" integrity="{{ assets.css.integrity }}">

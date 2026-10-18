@@ -106,6 +106,10 @@ Then('{string} does not exist', async ({ request, baseURL }, path) => {
   expect((await request.get(new URL(path, baseURL).href)).status()).toBe(404);
 });
 
+Then('the canonical address is {string}', async ({ ui }, href) => {
+  await expect(ui.page.locator('link[rel=canonical]')).toHaveAttribute('href', href);
+});
+
 Then('no link in the page ends with a slash', async ({ ui }) => {
   const hrefs = await ui.page.locator('a[href^="/"]').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
   expect(hrefs.filter((h) => h !== '/' && h.endsWith('/') && !h.startsWith('/#'))).toEqual([]);
