@@ -32,9 +32,9 @@ export function londonOffset(wall) {
   return `${minutes < 0 ? '-' : '+'}${pad(Math.floor(abs / 60))}:${pad(abs % 60)}`;
 }
 
-// Hugo's "02-Jan-06".
+// Day-Mon-YY, as 01-Feb-26.
 export const date = (d) => `${pad(d.getUTCDate())}-${MONTHS[d.getUTCMonth()].slice(0, 3)}-${pad(d.getUTCFullYear() % 100)}`;
-// Hugo's "3:04 PM".
+// 12-hour time, as 7:30 PM.
 export const time = (d) => `${d.getUTCHours() % 12 || 12}:${pad(d.getUTCMinutes())} ${d.getUTCHours() < 12 ? 'AM' : 'PM'}`;
 export const month = (d) => MONTHS[d.getUTCMonth()];
 export const day = (d) => String(d.getUTCDate());
@@ -42,7 +42,7 @@ export const day = (d) => String(d.getUTCDate());
 const wallClock = (d) =>
   `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}T${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
 
-// RFC 3339 with London's offset, and Z for GMT, as Hugo's 2006-01-02T15:04:05Z07:00 wrote it.
+// RFC 3339 with London's offset, and Z for GMT.
 export const isoLondon = (d) => {
   const offset = londonOffset(d);
   return `${wallClock(d)}${offset === '+00:00' ? 'Z' : offset}`;

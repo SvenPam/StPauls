@@ -13,14 +13,14 @@ const ITEM_PATHS = {
   notices: '/notices/notice',
 };
 
-// The front matter field that holds each section's topic, as Hugo's taxonomies named them.
+// The front matter field that holds each section's topic.
 export const TOPIC_FIELDS = {
   blog: 'blogtopics',
   calendar: 'eventtopics',
   notices: 'noticetopics',
 };
 
-// An item's topic slug: the first value of its section's topic field, lowercased as Hugo did, or ''.
+// An item's topic slug: the first value of its section's topic field, lowercased, or ''.
 export function topicOf(section, data) {
   const value = data[TOPIC_FIELDS[section]];
   const first = Array.isArray(value) ? value[0] : value;
@@ -39,7 +39,7 @@ export function isIndex(inputPath) {
   return path.basename(inputPath, '.md') === '_index';
 }
 
-// The file name keeps its date prefix, as Hugo did. Eleventy's fileSlug drops it, so it is not used.
+// The file name keeps its date prefix (2026-01-05-dated stays whole). Eleventy's fileSlug drops it, so it is not used.
 export function itemPermalink(inputPath, data) {
   const section = sectionOf(inputPath);
   if (!SECTIONS.includes(section)) return false;

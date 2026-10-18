@@ -63,7 +63,7 @@ export async function pictureHtml({ src, alt = '', sizes = '100vw', eager = fals
 }
 
 // A front matter image path as a source for `picture`, or '' when it is not a file under site/assets
-// (an /uploads path, until spec 06). A leading slash is ignored, as Hugo's resources.Get did.
+// (an /uploads path, until spec 06). A leading slash is ignored.
 export function assetPath(src, { assets = ASSETS } = {}) {
   if (typeof src !== 'string' || !src.trim()) return '';
   const rel = src.trim().replace(/^\/+/, '');

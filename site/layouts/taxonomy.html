@@ -1,8 +1,0 @@
-{{ define "main" }}
-<h1>Topics</h1>
-<ul class="topic-list">
-  {{- range $slug, $label := hugo.Data.topics }}
-  <li><a href="{{ partial "href.html" (printf "%s%s" $.RelPermalink $slug) }}">{{ $label }}</a></li>
-  {{- end }}
-</ul>
-{{ end }}

@@ -18,7 +18,7 @@ Feature: Pages CMS
   Scenario: Bodies are saved as HTML
     Then every rich text field saves HTML
 
-  Scenario: Event times are saved in a form Hugo reads
+  Scenario: Event times are saved in a form the site reads
     Then the "events" collection saves "date" as date and time "yyyy-MM-dd'T'HH:mm:ss"
     And the "events" collection saves "end" as date and time "yyyy-MM-dd'T'HH:mm:ss"
 

@@ -9,8 +9,8 @@ export function href(url) {
 // A copy of a collection, newest first. Nunjucks' own reverse filter reverses in place.
 export const newestFirst = (items) => [...(items ?? [])].reverse();
 
-// Visible text of an HTML body: tags removed, entities decoded once (every named entity, as Hugo's
-// htmlUnescape did), whitespace collapsed. A tag becomes a space so words in neighbouring blocks stay apart.
+// Visible text of an HTML body: tags removed, entities decoded once (every named entity),
+// whitespace collapsed. A tag becomes a space so words in neighbouring blocks stay apart.
 export function plainText(html) {
   const text = decodeHTML(String(html ?? '').replace(/<[^>]*>/g, ' '));
   return text.replace(/\s+/g, ' ').trim();

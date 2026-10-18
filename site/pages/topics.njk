@@ -8,7 +8,7 @@ permalink: "/{{ t.section }}/topic/{{ t.slug }}/index.html"
 eleventyComputed:
   title: "{{ t.label }}"
 ---
-{#- One section filtered to one topic. The heading is the section's own title, as on Hugo's term pages. -#}
+{#- One section filtered to one topic. The heading is the section's own title. -#}
 {%- set all = collections[t.section] | withTopic(t.slug) %}
 {%- if t.section == 'calendar' %}{% set items = all | upcoming %}{% else %}{% set items = all | newestFirst %}{% endif %}
 <div{% if t.section == 'blog' %} class="with-aside"{% endif %}>
