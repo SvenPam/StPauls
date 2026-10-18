@@ -129,6 +129,12 @@ test('CSV dates win', () => {
   assert.equal(got.get(16).reason, '');
 });
 
+test('the export can carry a location, quoted when it has a comma', () => {
+  const known = m.loadDates('tests/fixtures/live/dates.csv');
+  assert.equal(known.get('event:16').location, "St Michael's, Kirkham");
+  assert.equal(known.get('event:99999').location, '');
+});
+
 test('notice dates count back one day per id step, CSV first', () => {
   const got = m.inferNoticeDates([46, 44, 43], m.loadDates('tests/fixtures/live/dates.csv'));
   assert.deepEqual(got.get(46), { date: '2024-03-10', reason: '' });

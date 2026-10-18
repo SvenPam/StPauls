@@ -70,7 +70,9 @@ before(async () => {
   mkdirSync(join(site, 'static/uploads'), { recursive: true });
   mkdirSync(join(site, 'data'), { recursive: true });
   cpSync('site/data/legacy.yaml', join(site, 'data/legacy.yaml'));
-  argv = ['--live', LIVE, '--site', site, '--report', report];
+  const dates = join(site, 'dates.csv');
+  writeFileSync(dates, 'kind,id,start,end,location\nevent,16,2015-12-01T19:30,2015-12-01T21:00,"St Michael\'s, Kirkham"\n');
+  argv = ['--live', LIVE, '--site', site, '--report', report, '--dates', dates];
   assert.equal(await m.main(argv, { fetch, log: () => {} }), 0);
 });
 
@@ -81,6 +83,10 @@ test('writes the expected files', () => {
     assert.ok(existsSync(join(site, f)), f);
   assert.ok(statSync(join(site, 'static/uploads/acny')).isDirectory());
   assert.ok(existsSync(join(site, 'static/uploads/content/generic-2.jpg')));
+});
+
+test('an event location from the export is written', () => {
+  assert.match(readFileSync(join(site, 'content/calendar/16-mu-advent-carol-service.md'), 'utf8'), /^location: St Michael's, Kirkham$/m);
 });
 
 test('migrated items keep their live URL', () => {
@@ -132,7 +138,8 @@ test('the report lists policy text, inferred dates, unknown topics and files it 
   const rep = readFileSync(report, 'utf8');
   for (const h of ['## Policy text that no longer applies', '## Inferred dates', '## Unknown topics', '## Files the script did not write']) assert.ok(rep.includes(h), h);
   assert.match(rep, /notices\/practice\.md/);
-  assert.match(rep, /mu-advent-carol-service/);
+  assert.match(rep, /news-pew-sheets \| 2026-10-01 \| inferred/);
+  assert.doesNotMatch(rep, /mu-advent-carol-service/);
   assert.match(rep, /\| uploads\/acny\/gone\.jpg \| https:\/\/media\.acny\.uk\/media\/venues\/gone\.jpg \| HTTP 403 \|/);
 });
 

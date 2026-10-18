@@ -176,15 +176,40 @@ function wallClock(s) {
   return match ? `${match[1]}T${match[2] ?? '00'}:${match[3] ?? '00'}:${match[4] ?? '00'}` : null;
 }
 
-// Map of 'event:16' to { start, end } from the maintainer's export. A missing file gives an empty map.
+// CSV rows as arrays of cells. Quoted cells may hold commas, newlines and doubled quotes.
+function csvRows(text) {
+  const rows = [];
+  let row = [];
+  let cell = '';
+  let quoted = false;
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i];
+    if (quoted) {
+      if (ch === '"' && text[i + 1] === '"') { cell += '"'; i += 1; }
+      else if (ch === '"') quoted = false;
+      else cell += ch;
+    } else if (ch === '"') quoted = true;
+    else if (ch === ',') { row.push(cell); cell = ''; }
+    else if (ch === '\n' || ch === '\r') {
+      if (ch === '\r' && text[i + 1] === '\n') i += 1;
+      row.push(cell);
+      rows.push(row);
+      row = [];
+      cell = '';
+    } else cell += ch;
+  }
+  if (cell || row.length) rows.push([...row, cell]);
+  return rows.filter((r) => r.some((c) => c.trim()));
+}
+
+// Map of 'event:16' to { start, end, location } from the maintainer's export. A missing file gives an empty map.
+// The location column is optional: the legacy model has the field, but live never shows it.
 export function loadDates(file) {
   const known = new Map();
   if (!file) return known;
-  const lines = readFileSync(file, 'utf8').replace(/^﻿/, '').split(/\r?\n/).filter((l) => l.trim());
-  for (const line of lines.slice(1)) {
-    const [kind, id, start, end] = line.split(',').map((c) => c.trim());
+  for (const [kind, id, start, end, location = ''] of csvRows(readFileSync(file, 'utf8').replace(/^\uFEFF/, '')).slice(1).map((r) => r.map((c) => c.trim()))) {
     const s = wallClock(start);
-    if (kind && id && s) known.set(`${kind}:${Number(id)}`, { start: s, end: wallClock(end) });
+    if (kind && id && s) known.set(`${kind}:${Number(id)}`, { start: s, end: wallClock(end), location });
   }
   return known;
 }
@@ -670,7 +695,7 @@ export async function main(argv = process.argv.slice(2), { fetch = globalThis.fe
     const d = eventDates.get(e.id) ?? {};
     if (d.reason) report.inferred.push([e.path, d.start, d.reason]);
     files.set(`content/calendar/${e.id}-${e.slug}.md`, frontMatter({
-      title: e.title, date: d.start, end: d.end ?? undefined, summary: e.summary || undefined, location: e.location || undefined,
+      title: e.title, date: d.start, end: d.end ?? undefined, summary: e.summary || undefined, location: known.get(`event:${e.id}`)?.location || e.location || undefined,
       eventtopics: topicOf(e.path, e.topicLabel), url: `/calendar/event/${e.id}/${e.slug}`,
     }) + e.rewritten.html + '\n');
     report.counts.Events += 1;

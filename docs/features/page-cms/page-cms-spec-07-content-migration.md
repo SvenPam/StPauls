@@ -59,7 +59,7 @@ Rewording any content. The privacy and cookie policy decisions (cookie policy: s
 | Live | File | Front matter written |
 |---|---|---|
 | `/blog/article/{slug}` | `site/content/blog/{slug}.md` | `title`, `date`, `summary`, `blogtopics`, `image`, `image_alt` (when on the home page) |
-| `/calendar/event/{id}/{slug}` | `site/content/calendar/{id}-{slug}.md` | `title`, `date` (start), `end`, `summary`, `location` (when shown), `eventtopics`, `url: /calendar/event/{id}/{slug}` |
+| `/calendar/event/{id}/{slug}` | `site/content/calendar/{id}-{slug}.md` | `title`, `date` (start), `end`, `summary`, `location` (from the export), `eventtopics`, `url: /calendar/event/{id}/{slug}` |
 | `/notices/notice/{id}/{slug}` | `site/content/notices/{id}-{slug}.md` | `title`, `date`, `summary` (first 300 characters of the plain body, through the site's `excerpt`), `noticetopics`, `url: /notices/notice/{id}/{slug}` |
 | `/page/{type}/{slug}` | `site/content/page/{type}/{slug}.md` | `title`, `header`, `footer`, `weight` (from live menus), `embed`, `embed_src` (when the body had a known iframe) |
 | Home hero | `site/content/_index.md` | `lead` only, other keys kept |
@@ -75,10 +75,12 @@ Topics are written as slugs: the live topic label is looked up among the labels 
 `scripts/legacy-dates.csv`, exported by the maintainer from the legacy database:
 
 ```
-kind,id,start,end
-event,16,2015-12-01T19:30,2015-12-01T21:00
-notice,46,2024-03-10T00:00,
+kind,id,start,end,location
+event,16,2015-12-01T19:30,2015-12-01T21:00,"St Michael's, Kirkham"
+notice,46,2024-03-10T00:00,,
 ```
+
+`location` is optional. The legacy event model has a location field that live never shows, so the export is the only source. A value with a comma is quoted.
 
 | Case | Rule | Flagged in report |
 |---|---|---|
@@ -127,7 +129,7 @@ node scripts/migrate.mjs [--live http://stpaulswarton.co.uk] [--dates scripts/le
 
 ## Manual steps (maintainer)
 
-1. Export `kind,id,start,end` for every event and notice from the legacy database into `scripts/legacy-dates.csv` (CSV, UTF-8, ISO dates). If this cannot be done, say so: the script infers and flags.
+1. Export `kind,id,start,end,location` for every event and notice from the legacy database into `scripts/legacy-dates.csv` (CSV, UTF-8, ISO dates, `location` blank for notices). If this cannot be done, say so: the script infers and flags, and events get no location.
 2. Review the migrated content diff and `docs/features/page-cms/page-cms-migration-report.md`. Compare a few pages side by side with the screenshots.
 3. Pass the policy section of the report to the church (spec 10 follows it up).
 
