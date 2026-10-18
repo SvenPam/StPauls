@@ -195,3 +195,440 @@ content:
         required: true
         options:
           format: html
+  - name: home
+    label: Home page
+    type: file
+    path: site/content/_index.md
+    operations:
+      delete: false
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+        pattern:
+          regex: "^(?![Ii]ndex$).+"
+          message: Pick another title
+      - name: lead
+        label: Strapline
+        description: The line under the title on the big picture
+        type: string
+      - name: hero_image
+        label: Hero image
+        type: image
+      - name: hero_alt
+        label: Hero image description
+        description: Leave empty if the picture is only decoration
+        type: string
+  - name: pages
+    label: Pages
+    type: group
+    items:
+      - name: page-about
+        label: About
+        type: collection
+        path: site/content/page/about
+        filename: "{primary}.md"
+        exclude: [_index.md]
+        view:
+          fields: [title, header, footer, weight]
+          primary: title
+        operations:
+          rename: false
+        fields:
+          - name: title
+            label: Title
+            type: string
+            required: true
+            pattern:
+              regex: "^(?![Ii]ndex$).+"
+              message: Pick another title
+          - name: summary
+            label: Summary
+            description: Short text shown at the top of the page
+            type: string
+          - name: header
+            label: Show in the top menu
+            type: boolean
+          - name: footer
+            label: Show in the footer
+            type: boolean
+          - name: weight
+            label: Order in menu (lower comes first)
+            type: number
+            default: 100
+          - name: image
+            label: Image
+            type: image
+          - name: image_alt
+            label: Image description
+            type: string
+          - name: body
+            label: Page
+            type: rich-text
+            required: true
+            options:
+              format: html
+          - name: url
+            type: string
+            hidden: true
+          - name: layout
+            type: string
+            hidden: true
+      - name: page-services
+        label: Services
+        type: collection
+        path: site/content/page/services
+        filename: "{primary}.md"
+        exclude: [_index.md]
+        view:
+          fields: [title, header, footer, weight]
+          primary: title
+        operations:
+          rename: false
+        fields:
+          - name: title
+            label: Title
+            type: string
+            required: true
+            pattern:
+              regex: "^(?![Ii]ndex$).+"
+              message: Pick another title
+          - name: summary
+            label: Summary
+            description: Short text shown at the top of the page
+            type: string
+          - name: header
+            label: Show in the top menu
+            type: boolean
+          - name: footer
+            label: Show in the footer
+            type: boolean
+          - name: weight
+            label: Order in menu (lower comes first)
+            type: number
+            default: 100
+          - name: image
+            label: Image
+            type: image
+          - name: image_alt
+            label: Image description
+            type: string
+          - name: body
+            label: Page
+            type: rich-text
+            required: true
+            options:
+              format: html
+          - name: url
+            type: string
+            hidden: true
+          - name: layout
+            type: string
+            hidden: true
+      - name: page-groups
+        label: Groups
+        type: collection
+        path: site/content/page/groups
+        filename: "{primary}.md"
+        exclude: [_index.md]
+        view:
+          fields: [title, header, footer, weight]
+          primary: title
+        operations:
+          rename: false
+        fields:
+          - name: title
+            label: Title
+            type: string
+            required: true
+            pattern:
+              regex: "^(?![Ii]ndex$).+"
+              message: Pick another title
+          - name: summary
+            label: Summary
+            description: Short text shown at the top of the page
+            type: string
+          - name: header
+            label: Show in the top menu
+            type: boolean
+          - name: footer
+            label: Show in the footer
+            type: boolean
+          - name: weight
+            label: Order in menu (lower comes first)
+            type: number
+            default: 100
+          - name: image
+            label: Image
+            type: image
+          - name: image_alt
+            label: Image description
+            type: string
+          - name: body
+            label: Page
+            type: rich-text
+            required: true
+            options:
+              format: html
+          - name: url
+            type: string
+            hidden: true
+          - name: layout
+            type: string
+            hidden: true
+      - name: page-community
+        label: Community
+        type: collection
+        path: site/content/page/community
+        filename: "{primary}.md"
+        exclude: [_index.md]
+        view:
+          fields: [title, header, footer, weight]
+          primary: title
+        operations:
+          rename: false
+        fields:
+          - name: title
+            label: Title
+            type: string
+            required: true
+            pattern:
+              regex: "^(?![Ii]ndex$).+"
+              message: Pick another title
+          - name: summary
+            label: Summary
+            description: Short text shown at the top of the page
+            type: string
+          - name: header
+            label: Show in the top menu
+            type: boolean
+          - name: footer
+            label: Show in the footer
+            type: boolean
+          - name: weight
+            label: Order in menu (lower comes first)
+            type: number
+            default: 100
+          - name: image
+            label: Image
+            type: image
+          - name: image_alt
+            label: Image description
+            type: string
+          - name: body
+            label: Page
+            type: rich-text
+            required: true
+            options:
+              format: html
+          - name: url
+            type: string
+            hidden: true
+          - name: layout
+            type: string
+            hidden: true
+      - name: page-links
+        label: Links
+        type: collection
+        path: site/content/page/links
+        filename: "{primary}.md"
+        exclude: [_index.md]
+        view:
+          fields: [title, header, footer, weight]
+          primary: title
+        operations:
+          rename: false
+        fields:
+          - name: title
+            label: Title
+            type: string
+            required: true
+            pattern:
+              regex: "^(?![Ii]ndex$).+"
+              message: Pick another title
+          - name: summary
+            label: Summary
+            description: Short text shown at the top of the page
+            type: string
+          - name: header
+            label: Show in the top menu
+            type: boolean
+          - name: footer
+            label: Show in the footer
+            type: boolean
+          - name: weight
+            label: Order in menu (lower comes first)
+            type: number
+            default: 100
+          - name: image
+            label: Image
+            type: image
+          - name: image_alt
+            label: Image description
+            type: string
+          - name: body
+            label: Page
+            type: rich-text
+            required: true
+            options:
+              format: html
+          - name: url
+            type: string
+            hidden: true
+          - name: layout
+            type: string
+            hidden: true
+      - name: page-gallery
+        label: Gallery
+        type: collection
+        path: site/content/page/gallery
+        filename: "{primary}.md"
+        exclude: [_index.md]
+        view:
+          fields: [title, header, footer, weight]
+          primary: title
+        operations:
+          rename: false
+        fields:
+          - name: title
+            label: Title
+            type: string
+            required: true
+            pattern:
+              regex: "^(?![Ii]ndex$).+"
+              message: Pick another title
+          - name: summary
+            label: Summary
+            description: Short text shown at the top of the page
+            type: string
+          - name: header
+            label: Show in the top menu
+            type: boolean
+          - name: footer
+            label: Show in the footer
+            type: boolean
+          - name: weight
+            label: Order in menu (lower comes first)
+            type: number
+            default: 100
+          - name: image
+            label: Image
+            type: image
+          - name: image_alt
+            label: Image description
+            type: string
+          - name: body
+            label: Page
+            type: rich-text
+            required: true
+            options:
+              format: html
+          - name: url
+            type: string
+            hidden: true
+          - name: layout
+            type: string
+            hidden: true
+      - name: page-forms
+        label: Forms
+        type: collection
+        path: site/content/page/forms
+        filename: "{primary}.md"
+        exclude: [_index.md]
+        view:
+          fields: [title, header, footer, weight]
+          primary: title
+        operations:
+          rename: false
+        fields:
+          - name: title
+            label: Title
+            type: string
+            required: true
+            pattern:
+              regex: "^(?![Ii]ndex$).+"
+              message: Pick another title
+          - name: summary
+            label: Summary
+            description: Short text shown at the top of the page
+            type: string
+          - name: header
+            label: Show in the top menu
+            type: boolean
+          - name: footer
+            label: Show in the footer
+            type: boolean
+          - name: weight
+            label: Order in menu (lower comes first)
+            type: number
+            default: 100
+          - name: image
+            label: Image
+            type: image
+          - name: image_alt
+            label: Image description
+            type: string
+          - name: body
+            label: Page
+            type: rich-text
+            required: true
+            options:
+              format: html
+          - name: url
+            type: string
+            hidden: true
+          - name: layout
+            type: string
+            hidden: true
+      - name: page-safeguarding
+        label: Safeguarding
+        type: collection
+        path: site/content/page/safeguarding
+        filename: "{primary}.md"
+        exclude: [_index.md]
+        view:
+          fields: [title, header, footer, weight]
+          primary: title
+        operations:
+          rename: false
+        fields:
+          - name: title
+            label: Title
+            type: string
+            required: true
+            pattern:
+              regex: "^(?![Ii]ndex$).+"
+              message: Pick another title
+          - name: summary
+            label: Summary
+            description: Short text shown at the top of the page
+            type: string
+          - name: header
+            label: Show in the top menu
+            type: boolean
+          - name: footer
+            label: Show in the footer
+            type: boolean
+          - name: weight
+            label: Order in menu (lower comes first)
+            type: number
+            default: 100
+          - name: image
+            label: Image
+            type: image
+          - name: image_alt
+            label: Image description
+            type: string
+          - name: body
+            label: Page
+            type: rich-text
+            required: true
+            options:
+              format: html
+          - name: url
+            type: string
+            hidden: true
+          - name: layout
+            type: string
+            hidden: true
