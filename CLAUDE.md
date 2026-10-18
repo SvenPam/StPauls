@@ -102,6 +102,6 @@ The legacy CSS, images and views needed for reference are on `archive/umbraco-20
 
 ## Open items
 
-- Content match, deferred from spec 07 (2026-10-18): the maintainer pulls all content from the live and 2019 Umbraco databases with SQL for feature and content parity, exports `scripts/legacy-dates.csv` (dates and event locations), and the migration is re-run. Until then dates are inferred and flagged in `docs/features/page-cms/page-cms-migration-report.md`. See spec 07, "Deferred: content match".
+- Content match, deferred from spec 07 (2026-10-18): the maintainer pulls all content from the live and 2019 Umbraco databases with SQL for feature and content parity, exports `scripts/legacy-dates.csv` (dates and event locations), and the migration is re-run. The same step moves body copy from HTML to vanilla Markdown. Until then dates are inferred and flagged in `docs/features/page-cms/page-cms-migration-report.md`. See spec 07, "Deferred: content match".
 - The contact form inbox is not chosen yet. The form stays hidden until a Web3Forms key is set.
 - Easter 2026 and other seasonal pages are still being edited in the legacy back office by the church. Spec 11 re-extracts on cutover day.

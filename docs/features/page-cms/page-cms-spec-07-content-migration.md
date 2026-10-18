@@ -151,6 +151,7 @@ Agreed with the maintainer on 2026-10-18. Spec 07 is done with dates inferred an
 
 - exports `scripts/legacy-dates.csv` (`kind,id,start,end,location`) and re-runs `node scripts/migrate.mjs --dates scripts/legacy-dates.csv`, then `--check`;
 - compares the database content with the migrated files and with the Umbraco port's features;
+- moves body copy to vanilla Markdown (agreed 2026-10-18): Pages CMS body fields to `format: markdown`, Eleventy renders Markdown with raw HTML allowed, and the script converts bodies (links as `[text](url)`, no `<p>` tags). HTML stays only where Markdown has no form (the table, the iframe); inline styles such as centred images and image widths need a ruling;
 - takes side-by-side screenshots of five pages (home, an article with images, the gallery page, the church diary, an expired event) with `scripts/screenshots.mjs`.
 
 It gets its own spec or step before spec 11 (cutover), which re-runs the script anyway.
