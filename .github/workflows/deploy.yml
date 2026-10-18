@@ -7,7 +7,9 @@ on:
       - 'site/**'
       - 'infra/**'
       - '.pages.yml'
+      - 'tests/**'
       - '.github/workflows/deploy.yml'
+  pull_request:
   # Nightly rebuild so past events drop off the calendar.
   schedule:
     - cron: '17 3 * * *'
@@ -19,14 +21,53 @@ permissions:
 
 # A second Pages CMS save waits for the running deploy, then ships the newer commit.
 concurrency:
-  group: deploy
+  group: deploy-${{ github.ref }}
   cancel-in-progress: false
 
 env:
   HUGO_VERSION: 0.167.0
 
 jobs:
+  test:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: tests
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Hugo
+        run: |
+          mkdir -p "$RUNNER_TEMP/hugo"
+          curl -fsSL -o "$RUNNER_TEMP/hugo.tar.gz" \
+            "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+          tar -xzf "$RUNNER_TEMP/hugo.tar.gz" -C "$RUNNER_TEMP/hugo" hugo
+          echo "$RUNNER_TEMP/hugo" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/hugo/hugo" version
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+
+      - name: Install test tools
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Test
+        run: npm test
+
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-report
+          path: tests/playwright-report
+          retention-days: 7
+
   deploy:
+    needs: test
     # No environment: here. It would change the OIDC subject the federated credential trusts.
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
