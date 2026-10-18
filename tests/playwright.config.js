@@ -1,5 +1,11 @@
 import { defineConfig, devices } from '@playwright/test';
+import { existsSync } from 'node:fs';
 import { defineBddConfig } from 'playwright-bdd';
+
+// The cloud sandbox ships one Chromium that may not match the pinned Playwright. Use it when present;
+// CI and laptops use the browser `playwright install` fetched.
+const sandboxChromium = '/opt/pw-browsers/chromium';
+const executablePath = process.env.CHROMIUM_PATH || (existsSync(sandboxChromium) ? sandboxChromium : undefined);
 
 const testDir = defineBddConfig({
   features: 'features/*.feature',
@@ -23,7 +29,7 @@ export default defineConfig({
     baseURL: 'http://localhost:1313',
     trace: 'retain-on-failure',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'], launchOptions: { executablePath } } }],
   webServer: sites.map(([content, port, flags]) => ({
     command: `node serve.js ${content} ${port} ${flags}`.trim(),
     url: `http://localhost:${port}/404.html`,
