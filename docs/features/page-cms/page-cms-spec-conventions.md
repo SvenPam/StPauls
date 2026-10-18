@@ -355,6 +355,8 @@ Filters unless marked. Named exports are importable by `tests/unit/`.
 | `buildSwaConfig` | `swa.js`, export only | Output folder, data (`readData()` by default: `legacy` from 05, `site` and `embeds` from 09) | Writes and returns `staticwebapp.config.json` | 00, routes 05, headers 09 |
 | `contactKey` | `contact.js` | `settings` | The key when it matches the Web3Forms UUID pattern exactly, else `''` (form hidden) | 08 |
 | `enquiryTypes` | `contact.js` | `settings` | `enquiry_types` without empty entries, or `['General Enquiry']` | 08 |
+| `contentSecurityPolicy` | `swa.js`, export only | `embeds` | The CSP string, `frame-src` from the embed hosts | 09 |
+| `addNoopener` | `links.js`, export and the `noopener` transform (after `images`) | HTML | `noopener` added once to the `rel` of every `target="_blank"` link | 09 |
 | `readData` | `data.js`, export only | | Every `site/data/*.yaml` as `{ name: parsed }`, with the `DATA` folder layered over it from spec 08 | 05, 08 |
 | `pagesByType` | `menus.js` | `collections` | `[{ title, pages: [{ name, url }] }]`: every page type in weight order with all its pages, menu flags ignored. `menuItems` and `footerGroups` build on it | 05 |
 | `buildAssets` | `assets.js`, export only | Output folder | `{ css, js }`, each `{ url, integrity }` | 02 |
@@ -404,4 +406,4 @@ Values in `site/data/site.yaml`, read as `site.<key>` in templates and by `confi
 |---|---|---|
 | `title` | `St Paul's Warton`. Page titles, brand, feeds, copyright | 02 |
 | `url` | `https://stpaulswarton.co.uk`. Canonical links, feed and site map addresses, the contact form `redirect` | 05 |
-| `hsts_max_age` | Seconds for `Strict-Transport-Security`. `300` until the old site is gone, then `31536000` | 09, 12 |
+| `hsts_max_age` | Seconds for `Strict-Transport-Security`. `300` until the old site is gone, then `31536000`. Exists only if spec 09's check finds our header replaces the platform's; otherwise it is removed and Static Web Apps' own header stays | 09, 12 |
