@@ -1,12 +1,12 @@
 ---
-date: 2026-10-17
+date: 2026-10-18
 tags: [design, stpauls, plan]
 status: agreed
 ---
 
 # Design: replace the live site
 
-_The overall plan for replacing `stpaulswarton.co.uk` with the Hugo site and Pages CMS, now that the editor trial has passed. The per-session specs in [this folder](./) are written from this document. Background: [current state](page-cms-discovery-current-state.md), [way forward](page-cms-discovery-way-forward.md)._
+_The overall plan for replacing `stpaulswarton.co.uk` with the Eleventy site and Pages CMS, now that the editor trial has passed. The per-session specs in [this folder](./) are written from this document. Background: [current state](page-cms-discovery-current-state.md), [way forward](page-cms-discovery-way-forward.md). Specs 00 to 03 were built in Hugo and ported to Eleventy on 2026-10-18, see [the switch plan](page-cms-plan-eleventy-switch.md)._
 
 ---
 
@@ -32,7 +32,7 @@ The work comes in two phases:
 3. **Same look, better reading.** Same colours and general layout. Better text spacing, a bigger labelled menu button, images and embeds that never break out of the column.
 4. **Fast delivery.** Resized WebP images served with `<picture>` and `srcset`, small fingerprinted CSS, no script needed to read or navigate.
 5. **Secure by default.** HTTPS everywhere, security headers, no third-party scripts beyond the two embeds, a hardened build pipeline.
-6. **Low upkeep.** No server, database or runtime to patch. npm is used only for tests. The legacy Azure resources are removed at the end.
+6. **Low upkeep.** No server, database or runtime to patch. The legacy Azure resources are removed at the end. Merging the monthly grouped Dependabot pull requests is the one accepted chore (2026-10-18).
 
 ## Non-goals
 
@@ -53,7 +53,7 @@ The project has failed, even if it technically works, if any of these happen:
 | A live URL returns 404 after cutover | Facebook posts, search results and A Church Near You link into the site |
 | The congregation would not recognise it as their site | Look changes wait for phase 2 |
 | One of Paul's saves fails to publish because of a test | Tests must never assert on `site/content/` |
-| The maintainer gains a recurring chore (dependency bumps, server patches, renewals) | Volunteer time |
+| The maintainer gains a recurring chore (dependency bumps, server patches, renewals) | Volunteer time. Exception, accepted on 2026-10-18: merging the monthly Dependabot pull requests, one for npm and one for GitHub Actions |
 | The maintainer's name, LinkedIn or personal site appears anywhere | Standing decision |
 | Visitors see stale or missing content during cutover | The freeze is hours, not weeks |
 
@@ -70,13 +70,13 @@ Made by the maintainer in the design conversation on 2026-10-17, unless marked _
 | Look | Keep the colours and the general layout: header, hero, cards, footer |
 | Readability | Better text spacing (line height, line length, heading spacing). A bigger menu button with a label. Images never wider than the column |
 | Styles and scripts | jQuery and the Bootstrap 3 scripts are removed. Bootstrap 3 CSS is replaced by one small stylesheet that reproduces the current look |
-| Images | Hugo makes resized WebP copies and serves them with `<picture>`, `srcset`, lazy loading and fixed dimensions. Covers Paul's uploads |
+| Images | `config/images.js` makes resized WebP copies with sharp and serves them with `<picture>`, `srcset`, lazy loading and fixed dimensions. Covers Paul's uploads |
 | Images hot-linked today | Copied into the repo during migration (29 from `media.acny.uk`, 3 from `achurchnearyou.com`) and optimised like uploads |
 | Images hot-linked in future | Always fit the column whatever their size. Fixed `width` and `height` attributes are overridden by CSS. Lazy loaded. _Builder's call:_ not fetched at build time, so a publish never depends on another site being up |
 | Logins | Removed. Paul is added as a Pages CMS collaborator by the maintainer |
 | Account URLs | _Builder's call:_ `/account/login`, `/account/register`, `/account/manage` redirect to the home page |
-| Topic listings | Hugo taxonomy, same URLs as live (`/blog/topic/{topic}` and so on) |
-| Publish emails | Dropped. The export found three or four old subscribers who may not be receiving anything. Hugo RSS feeds for blog, events and notices are added at no cost. A one-off note goes to those subscribers, then the export is deleted |
+| Topic listings | One page per section and topic in `site/data/topics.yaml`, same URLs as live (`/blog/topic/{topic}` and so on) |
+| Publish emails | Dropped. The export found three or four old subscribers who may not be receiving anything. RSS feeds for blog, events and notices are added at no cost. A one-off note goes to those subscribers, then the export is deleted |
 | Contact form | Kept, using Web3Forms (free, no server). One inbox for all enquiry types, with the type in the subject. The destination is a placeholder for now and is configurable without a code change |
 | Cutover | DNS moves to Cloudflare early, still pointing at the old site. Paul practises on the test URL while the old site stays the real one. On cutover day: a short freeze, re-run the extraction, the maintainer reviews the diff, flip DNS in Cloudflare |
 | Social share links | _Builder's call:_ not carried over, as in spec 00. Google+ is gone and the links add clutter. Easy to add back |
@@ -90,21 +90,21 @@ Made by the maintainer in the design conversation on 2026-10-17, unless marked _
 | Author names | _Builder's call:_ "by Paul Barfoot" lines are not migrated. There are no accounts, and it keeps personal details to a minimum |
 | Notices menu | _Builder's call:_ not in the top menu, as on live. Reached from the home page and the footer |
 | Spam protection | _Builder's call:_ honeypot only at first. hCaptcha needs a third-party script, so it is switched on only if spam arrives |
-| HSTS | _Builder's call:_ five minutes from cutover so a rollback to the old HTTP-only site stays possible, then one year when the old site is removed |
+| HSTS | _Builder's call:_ five minutes from cutover so a rollback to the old HTTP-only site stays possible, then one year when the old site is removed. Static Web Apps adds its own `max-age=10886400` header on a custom domain, so spec 09 tests on the `azurestaticapps.net` URL that ours replaces it |
 | Event and notice dates | _Builder's call:_ the live site shows no year for events and no date for notices, so spec 07 asks the maintainer for a date export from the legacy database and flags anything inferred |
 
 ---
 
 ## What exists now
 
-### On `main` (spec 00)
+### On `main` (specs 00 to 03, on Eleventy since 2026-10-18)
 
 | | |
 |---|---|
-| Site | Hugo 0.167.0 extended, Notices section only at `/notices/{slug}/`, legacy `bootstrap.css` (134 KB) and `Site.css` copied as is |
-| Editor | `.pages.yml` with a Notices collection, media at `site/static/uploads/` |
-| Hosting | Azure Static Web App Free, `swa-stpauls-web`, deployed by `.github/workflows/deploy.yml` with OIDC |
-| Tests | Python standard library, build `tests/fixtures/` only |
+| Site | Eleventy 3.1.6 on Node 26. Blog, calendar and notices at the live URL patterns, topic pages, RSS feeds, the shared shell and one small stylesheet. `/` redirects to `/notices` until spec 04 |
+| Editor | `.pages.yml` with Blog, Events and Notices collections, media at `site/static/uploads/` |
+| Hosting | Azure Static Web App Free, `swa-stpauls-web`, deployed by `.github/workflows/deploy.yml`. Separate build, audit and deploy jobs. Only deploy signs in by OIDC, with two custom roles |
+| Tests | Playwright and Gherkin scenarios plus `node:test` unit tests, `npm test` at the root, on fixtures only |
 
 ### On the live site (crawled 2026-10-17)
 
@@ -148,7 +148,7 @@ Made by the maintainer in the design conversation on 2026-10-17, unless marked _
 | | |
 |---|---|
 | Source | One media folder, `/uploads/`, shared by migrated images and Paul's uploads, so he can reuse them from the media picker |
-| Processing | Hugo image processing (extended, no npm). WebP at several widths capped at the original width, with the original format as fallback inside `<picture>` |
+| Processing | sharp, from `config/images.js`, with a cache in `.cache/images/`. WebP at several widths capped at the original width, with the original format as fallback inside `<picture>` |
 | Markup | `srcset` and `sizes`, `width` and `height` from the source image, `loading="lazy"` except the first image on the page |
 | Body images | `<img src="/uploads/...">` inside the HTML body is rewritten to `<picture>` at build time |
 | Other images | Anything not under `/uploads/` is left as is and made to fit by CSS |
@@ -157,7 +157,7 @@ Made by the maintainer in the design conversation on 2026-10-17, unless marked _
 
 ### Look and front end
 
-- One stylesheet, built with Hugo Pipes (minified and fingerprinted). Bootstrap 3 CSS, glyphicons and the LESS sources are not carried over.
+- One stylesheet, minified with clean-css and fingerprinted in the file name by `config/assets.js`. Bootstrap 3 CSS, glyphicons and the LESS sources are not carried over.
 - The same palette (`#F3B200` gold, `#252525` charcoal, `#FDFDF7` page background and the rest of `Site.css`), the Century Gothic and Muli font stack, the hero, cards and footer layout.
 - Readability: body text at least 16 px, line height around 1.6, line length capped for reading, consistent spacing around headings and paragraphs.
 - Navigation works with no script. Any script is a few lines of plain JavaScript, written in the repo, never a library.
@@ -173,7 +173,7 @@ Made by the maintainer in the design conversation on 2026-10-17, unless marked _
 | CSP | Self by default. Frames limited to Google Calendar and EmbedSocial. Form posts limited to self and Web3Forms. Images allow any `https:` source so hot-linked images still show. No inline script |
 | Third parties | Only the two embeds and Web3Forms. No analytics, fonts or scripts from other domains |
 | Links | External links opened in a new tab get `rel="noopener"` |
-| Pipeline | Actions pinned to full commit SHAs. Hugo download checked against its published checksum. Least-privilege workflow permissions as today. _Builder's call:_ Dependabot for GitHub Actions only, grouped, monthly |
+| Pipeline | Actions pinned to full commit SHAs (spec 09). Node from `.nvmrc`. Exact npm pins. `npm audit` on every run, blocking only the weekly scheduled run. Dependabot for npm and GitHub Actions, monthly, grouped. Build and tests run with no Azure rights. Only the deploy job signs in by OIDC, runs no npm code, and holds two custom roles: Static Web App deployer on the resource, template deployer on the resource group |
 | Editor | Pages CMS GitHub App installed on this repo only. Collaborators by email invite |
 | Personal data | Subscriber export deleted once the one-off note is sent. No personal data in the repo |
 | Legacy | Version-leaking headers, HTTP only and the old scripts go away when the old site is decommissioned |
@@ -216,7 +216,7 @@ One spec per session, written with `writing-plans`, each built on a branch and m
 | 06 | [Images and embeds](page-cms-spec-06-images-and-embeds.md) | Uploads as WebP `<picture>` in fields and bodies, safe fallbacks, embeds as validated page fields, image cache in CI | Try a large upload on a phone |
 | 07 | [Content migration](page-cms-spec-07-content-migration.md) | Re-runnable extraction from live, images and uploads copied in, links rewritten, upload routes, migration report | Export event and notice dates from the legacy database. Review the migrated content |
 | 08 | [Contact form and site settings](page-cms-spec-08-contact-form-and-settings.md) | Site settings file, footer from settings, Web3Forms form behind a key, thanks page | Create a Web3Forms key when the inbox is known |
-| 09 | [Security and delivery hardening](page-cms-spec-09-security-and-delivery.md) | Headers and CSP, cache rules, pinned actions, Hugo checksum, Dependabot, budget tests, cookie policy outcome | Check headers and embeds after merge. Check cookies in a browser |
+| 09 | [Security and delivery hardening](page-cms-spec-09-security-and-delivery.md) | Headers and CSP, cache rules, actions pinned to SHAs, budget tests, cookie policy outcome | Check headers and embeds after merge. Check cookies in a browser |
 | 10 | [Editor rollout](page-cms-spec-10-editor-rollout.md) | Pages CMS labels and help text, round-trip check on migrated content, guide for Paul, policy wording suggestions | Round-trip saves, screenshots for the guide, invite Paul, practice, church agrees policy wording |
 | 11 | [Cutover](page-cms-spec-11-cutover.md) | Bare domain on the Static Web App in Bicep, cutover runbook (freeze, re-extract, diff review, DNS flip, URL check, rollback), practice content clean-up | Validate the domain a week ahead, Cloudflare settings, run the day with Paul |
 | 12 | [Handover and decommission](page-cms-spec-12-handover-and-decommission.md) | HSTS to a year, maintainer runbook, church handover, subscriber note, CLAUDE.md updated | Send the note, delete the export, remove legacy resources |
