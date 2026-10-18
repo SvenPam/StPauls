@@ -1,6 +1,6 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, rmSync, existsSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, rmSync, existsSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import sharp from 'sharp';
@@ -163,4 +163,20 @@ test('only the first image in main is eager', async () => {
 test('processed pictures are left alone', async () => {
   const html = await run('');
   assert.match(html, /<header><img src="\/images\/map-800\.abcd1234\.png" alt=""><\/header>/);
+});
+
+test('a portrait phone photo is turned upright', async () => {
+  await sharp({ create: { width: 1000, height: 600, channels: 3, background: { r: 1, g: 2, b: 3 } } })
+    .jpeg().withMetadata({ orientation: 6 }).toFile(join(uploads, 'portrait.jpg'));
+  const html = await up('/uploads/portrait.jpg');
+  assert.match(html, / width="480" height="800"/);
+  const file = /src="(\/images\/[^"]+\.jpg)"/.exec(html)[1];
+  const meta = await sharp(join(out, file)).metadata();
+  assert.deepEqual([meta.width, meta.height], [480, 800]);
+});
+
+test('a truncated upload is a plain image, never an error', async () => {
+  const whole = await sharp({ create: { width: 1000, height: 600, channels: 3, background: { r: 9, g: 9, b: 9 } } }).jpeg().toBuffer();
+  writeFileSync(join(uploads, 'truncated.jpg'), whole.subarray(0, Math.floor(whole.length / 2)));
+  assert.equal(await up('/uploads/truncated.jpg'), '<img src="/uploads/truncated.jpg" alt="A" loading="lazy" decoding="async">');
 });

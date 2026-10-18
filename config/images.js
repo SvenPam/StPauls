@@ -20,16 +20,18 @@ const FALLBACK_MAX = 800;
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&#34;').replace(/'/g, '&#39;');
 const exists = (p) => access(p).then(() => true, () => false);
 
-// `crop` is the fill aspect as [w, h], or null. Uncropped keys are unchanged, so existing file names stay the same.
+// `crop` is the fill aspect as [w, h], or null. `upright` marks copies made after EXIF rotation, so older unrotated
+// copies in a local or restored cache are never reused.
 async function variant(input, srcHash, name, width, format, out, crop = null) {
-  const id = `${srcHash}:${width}:${format}:${QUALITY[format]}${crop ? `:fill=${crop.join('x')}` : ''}`;
+  const id = `${srcHash}:${width}:${format}:${QUALITY[format]}:upright${crop ? `:fill=${crop.join('x')}` : ''}`;
   const key = createHash('sha256').update(id).digest('hex').slice(0, 16);
   const ext = format === 'jpeg' ? 'jpg' : format;
   const cached = path.join(CACHE, `${key}.${ext}`);
   if (!(await exists(cached))) {
     await mkdir(CACHE, { recursive: true });
     // A crop may scale a short source up to fill the height; widths are still capped at the source width.
-    const img = sharp(input).resize(crop
+    // autoOrient: phone photos carry their rotation in EXIF, which the output would otherwise drop.
+    const img = sharp(input).autoOrient().resize(crop
       ? { width, height: Math.round((width * crop[1]) / crop[0]), fit: 'cover' }
       : { width, withoutEnlargement: true });
     // Write beside the final file, then rename: a concurrent build never sees a half-written image.
@@ -100,20 +102,28 @@ export async function pictureHtml({ src, alt = '', sizes = '100vw', eager = fals
   // Lower case, and every run of other characters than a-z and 0-9 as '-', so srcset never holds a space.
   const name = path.basename(file, path.extname(file)).toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
+  // The size as shown, after EXIF rotation.
+  const { width: srcWidth, height: srcHeight } = meta.autoOrient ?? meta;
   const crop = parseFill(fill);
   if (fill && !crop) throw new Error(`picture: fill "${fill}" is not WxH`);
-  let widths = (crop ? [crop[0], crop[0] * 2] : WIDTHS).filter((w) => w <= meta.width);
-  if (!widths.length) widths = [meta.width];
+  let widths = (crop ? [crop[0], crop[0] * 2] : WIDTHS).filter((w) => w <= srcWidth);
+  if (!widths.length) widths = [srcWidth];
 
   const webp = [];
   const orig = [];
   let fallback;
-  for (const w of widths) {
-    webp.push(`${await variant(input, srcHash, name, w, 'webp', out, crop)} ${w}w`);
-    const url = await variant(input, srcHash, name, w, format, out, crop);
-    orig.push(`${url} ${w}w`);
-    if (crop) fallback ??= { url, width: crop[0], height: crop[1] };
-    else if (w <= FALLBACK_MAX || !fallback) fallback = { url, width: w, height: Math.round((w * meta.height) / meta.width) };
+  try {
+    for (const w of widths) {
+      webp.push(`${await variant(input, srcHash, name, w, 'webp', out, crop)} ${w}w`);
+      const url = await variant(input, srcHash, name, w, format, out, crop);
+      orig.push(`${url} ${w}w`);
+      if (crop) fallback ??= { url, width: crop[0], height: crop[1] };
+      else if (w <= FALLBACK_MAX || !fallback) fallback = { url, width: w, height: Math.round((w * srcHeight) / srcWidth) };
+    }
+  } catch (err) {
+    // A truncated or oversized upload can pass metadata() and still fail to decode.
+    if (src.startsWith('/uploads/')) return plainImg(src, alt);
+    throw err;
   }
   return `<picture>
 <source type="image/webp" srcset="${webp.join(', ')}" sizes="${esc(sizes)}">
