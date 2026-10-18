@@ -16,7 +16,8 @@ let config;
 before(async () => {
   out = await mkdtemp(path.join(tmpdir(), 'swa-'));
   execFileSync('npx', ['eleventy', `--output=${out}`], {
-    env: { ...process.env, CONTENT: 'tests/fixtures/content' },
+    // An empty uploads folder, so Paul's real uploads add no routes to the fixture build.
+    env: { ...process.env, CONTENT: 'tests/fixtures/content', UPLOADS: await mkdtemp(path.join(tmpdir(), 'swa-uploads-')) },
     stdio: 'pipe',
   });
   raw = await readFile(path.join(out, 'staticwebapp.config.json'), 'utf8');

@@ -26,7 +26,7 @@ Do not reopen these without being asked.
 | Logins | Removed. Paul is a Pages CMS collaborator. `/account/*` redirects home |
 | Contact form | Web3Forms, one inbox, key in Site settings, hidden until a real key is set |
 | Domain | Bare `stpaulswarton.co.uk` is primary. Cloudflare redirects `www` to it |
-| Cookie policy | Dropped if the site and its embeds set no cookies (spec 09) |
+| Cookie policy | Google Calendar's embed sets `NID`, so the page stays: a short note naming the embeds' cookies, and click-to-load for embeds that set any (spec 09, 2026-10-18) |
 | Cutover | DNS to Cloudflare early, Paul practises on the test URL, short freeze and re-extraction on the day |
 
 ## Who is who
@@ -88,7 +88,7 @@ The legacy CSS, images and views needed for reference are on `archive/umbraco-20
 - `az` and `bicep` were not installed. The sandbox `node` is 22, too old: install Node 26 outside the repo with `npm i --prefix <dir> node@26` and put `<dir>/node_modules/.bin` first on `PATH` (2026-10-18).
 - Downloads from `github.com/.../releases` returned 403 through the sandbox proxy, and `pagescms.org` did not resolve. PyPI and the npm registry were reachable.
 - Install tools outside the repo. actionlint from PyPI: `python3 -m venv <dir> && <dir>/bin/pip install actionlint-py`. Hugo (`hugo==0.167.0`, same venv) is needed only for the one-off `scripts/compare-hugo.mjs`. Bicep 0.48.1 from NuGet: `https://api.nuget.org/v3-flatcontainer/azure.bicep.commandline.linux-x64/0.48.1/azure.bicep.commandline.linux-x64.0.48.1.nupkg`, extract `tools/bicep` with `python3 -m zipfile -e`, `chmod +x`.
-- Tests: Chromium is preinstalled at `/opt/pw-browsers` and matches `@playwright/test` 1.56.1, so do not run `playwright install`. With Node 26 on `PATH`, run `npm ci && npm test` at the repo root.
+- Tests: Chromium is preinstalled at `/opt/pw-browsers` and matches `@playwright/test` 1.56.1, so do not run `playwright install`. The pin is held there on purpose and Dependabot ignores it (2026-10-18); CI installs the browser for whatever is pinned. With Node 26 on `PATH`, run `npm ci && npm test` at the repo root.
 - `az`, Azure and Pages CMS cannot be reached from the sandbox. Say plainly what was not run locally.
 - The live site `http://stpaulswarton.co.uk` was reachable with `curl`. `www.stpaulswarton.co.uk` did not resolve (the sandbox resolver only answers `A` for some names). It does exist: see the DNS how-to.
 - Later on 2026-10-17: GitHub release downloads and `git ls-remote` worked, and `raw.githubusercontent.com` served docs sources (Pages CMS, Static Web Apps, Hugo, Web3Forms). The test site `brave-coast-006318103.5.azurestaticapps.net` was reachable. `calendar.google.com`, `embedsocial.com`, `web3forms.com` and DNS-over-HTTPS were blocked. Details in `docs/features/page-cms/page-cms-spec-conventions.md`.
@@ -96,12 +96,12 @@ The legacy CSS, images and views needed for reference are on `archive/umbraco-20
 
 ## Next steps
 
-1. Spec 06 is done. Next is spec 07, `docs/features/page-cms/page-cms-spec-07-content-migration.md`. Build the rest in order, one per session. Read `docs/features/page-cms/page-cms-spec-conventions.md` first.
+1. Spec 07 is done (content match deferred, see Open items). Next is spec 08, `docs/features/page-cms/page-cms-spec-08-contact-form-and-settings.md`. Build the rest in order, one per session. Read `docs/features/page-cms/page-cms-spec-conventions.md` first.
 2. Each spec ends with the maintainer's manual steps. Say plainly when blocked on one.
 3. After spec 12, phase 2 (design options) gets its own design.
 
 ## Open items
 
-- Event and notice dates are not shown on the live site. Spec 07 needs a date export from the legacy database, or it infers and flags them.
+- Content match, deferred from spec 07 (2026-10-18): the maintainer pulls all content from the live and 2019 Umbraco databases with SQL for feature and content parity, exports `scripts/legacy-dates.csv` (dates and event locations), and the migration is re-run. The same step moves body copy from HTML to vanilla Markdown. Until then dates are inferred and flagged in `docs/features/page-cms/page-cms-migration-report.md`. See spec 07, "Deferred: content match".
 - The contact form inbox is not chosen yet. The form stays hidden until a Web3Forms key is set.
 - Easter 2026 and other seasonal pages are still being edited in the legacy back office by the church. Spec 11 re-extracts on cutover day.

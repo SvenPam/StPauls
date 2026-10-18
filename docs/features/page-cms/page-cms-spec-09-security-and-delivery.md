@@ -40,7 +40,7 @@ The site sends a strict set of headers that still lets the two embeds and the co
 
 ## Out of scope
 
-HSTS preload submission. Cloudflare settings (spec 11). Click-to-load embeds, unless the cookie check calls for them and the maintainer chooses it.
+HSTS preload submission. Cloudflare settings (spec 11). Click-to-load for embeds that set no cookies.
 
 ---
 
@@ -120,6 +120,8 @@ A how-to `docs/features/page-cms/page-cms-how-to-check-cookies.md` for the maint
 |---|---|
 | No cookies on any page | Delete the cookie policy page. Add a `legacy.yaml` redirect `/page/about/cookie-policy` to `/page/about/privacy-policy`. It leaves the menus by itself, because menus follow content |
 | Cookies from the embeds | Keep the page. Stop and ask the maintainer to choose: a short cookie note that names the embeds and their cookies, or click-to-load embeds (no third-party request until the visitor clicks "Show calendar" or "Show photos") |
+
+**Already known (2026-10-18, spec 07 session):** the Google Calendar embed sets Google's `NID` cookie (seen in the response headers of `calendar.google.com/calendar/embed`). EmbedSocial set no cookie in its headers; its scripts were not checked in a browser. The maintainer chose to keep the embeds with a short cookie note naming each embed's cookies, and click-to-load for any embed that sets cookies, so nothing is set before the visitor agrees. The cookie check still runs, to confirm the full list (EmbedSocial in a browser).
 
 The site itself sets no cookies; the "Storage" budget scenario checks it in a real browser.
 

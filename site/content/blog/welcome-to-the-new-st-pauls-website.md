@@ -1,0 +1,17 @@
+---
+title: Welcome to the new St. Paul's website
+date: 2015-11-08
+summary: The trials and tribulations of getting this site up and running...
+blogtopics: website
+---
+<p>If you're reading this you have either come purposefully looking for the St. Paul's, Warton website or you have stumbled across this site accidentally. Either way, you are here now, so welcome!</p>
+<p>This website has been a long time in the making and thanks need to be made to Stephen Pammenter for the development work he has done to date, and to Rob Willetts and Mike, our&nbsp;Vicar, for the work they have done in the background to make it possible.</p>
+<p>Until now the only site for Warton's Parish Church of St. Paul's was the&nbsp;<a href="http://www.achurchnearyou.com/venue.php?V=19565&amp;P=0" target="_blank">A Church Near You site</a>&nbsp;but there we were just one of a huge number of similarly branded web pages. Now, thanks to Stephen, we have our own, uniquely-styled website.</p>
+<p>My first involvement was when I agreed to take over the updating of the old site (many thanks to Margaret Jacobs for her work keeping the site running up until then). Since then I have tried to keep the weekly updates of the News Sheet ongoing, and have added new events in the hope that they would drum up new visitors (it didn't do much for the Aviation displays in the Church last month but at least I tried!). I have also updated the service times since they changed at the beginning of September 2015.</p>
+<p>So to this new site; after a quick demo on-line from Stephen I was raring to give it a go. All I needed was an account on the site and some admin privileges which were soon arranged between Rob and Stephen. I got my first try yesterday and found it quite straight-forward and intuitive to use. The About Us page and Service Times&nbsp;were&nbsp;copied over from the old site and links made to the Baptism Form and the News Sheet (still currently hosted on the old site if you check out the links - just got to find out how to upload files onto the new site itself) and it started to take shape.</p>
+<p>Before today's Remembrance Service I put the Events for the next week on, and then this afternoon I have added the information about the many Church groups (MU, WI etc.) and all of the events for November. I have spotted that the times for the events aren't related to UK time because one hour before the Remembrance Service it said there was 8 hours to go! Not sure how to solve that one - Ste, any clues? The Blog topics links return the dreaded 404 Error message, and a link to the <a href="/Pages" target="_blank">Pages page</a> doesn't seem to exist. I've had a play with Notices but then couldn't find the one I created - it's gone into a great black hole somewhere (just like all of my Granddad's word processor files that he used to insist had "just disappeared", but that's another story...)</p>
+<p>Well, it's over to you all now to use the site and let me know what you think. You'll get the most out of it if you register as you will then get updates about new or changed content, you may even be allowed to contribute yourselves to save me from doing it all. If you like what you see, then thank you, if you don't like it then I'll refer you to my partners in crime, Rob and Stephen!</p>
+<p>Best wishes and enjoy the site,</p>
+<p>Paul Barfoot</p>
+<p>Website Administrator</p>
+<p style="text-align:center"><img alt="" src="/uploads/legacy/Gallery/website.jpg" width="500"></p>

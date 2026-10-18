@@ -5,6 +5,10 @@ updates:
     schedule:
       interval: monthly
     open-pull-requests-limit: 5
+    # Pinned to the Playwright whose Chromium the cloud sandbox ships (/opt/pw-browsers), so tests run the
+    # same everywhere. Bump it by hand when the sandbox image moves on.
+    ignore:
+      - dependency-name: "@playwright/test"
     groups:
       npm:
         patterns: ["*"]
