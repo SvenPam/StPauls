@@ -22,7 +22,8 @@ async function legacyUploads(outDir) {
 }
 
 // The CSP. frame-src lists the https host of every embeds.yaml entry, so a new embed type is allowed with it.
-export function contentSecurityPolicy(embeds = {}) {
+// form-action allows the site's own address because Web3Forms redirects there after a post, also from the test URL.
+export function contentSecurityPolicy(embeds = {}, siteUrl) {
   const frames = Object.values(embeds).map(({ host }) => `https://${host}`);
   return [
     "default-src 'self'",
@@ -36,7 +37,7 @@ export function contentSecurityPolicy(embeds = {}) {
     "font-src 'self'",
     "connect-src 'self'",
     `frame-src ${frames.join(' ')}`,
-    "form-action 'self' https://api.web3forms.com",
+    ["form-action 'self'", siteUrl && new URL(siteUrl).origin, 'https://api.web3forms.com'].filter(Boolean).join(' '),
     'upgrade-insecure-requests',
   ].join('; ');
 }
@@ -68,7 +69,7 @@ export async function buildSwaConfig(outDir = '_site', data = readData()) {
     ),
   ];
   const globalHeaders = {
-    'Content-Security-Policy': contentSecurityPolicy(data.embeds),
+    'Content-Security-Policy': contentSecurityPolicy(data.embeds, data.site?.url),
     'X-Content-Type-Options': 'nosniff',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
     'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()',

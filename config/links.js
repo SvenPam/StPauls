@@ -1,7 +1,8 @@
 // Links that open a new tab get rel="noopener", so the new page cannot reach back into this one.
 // Legacy bodies carry such links in any case and quoting; templates write rel="noopener" themselves.
 
-const A_TAG = /<a\s[^>]*>/gi;
+// Quoted attribute values may hold '>'.
+const A_TAG = /<a\s(?:[^>"']|"[^"]*"|'[^']*')*>/gi;
 const BLANK = /\starget\s*=\s*(["']?)_blank\1(?=[\s>/])/i;
 const REL = /(\srel\s*=\s*)(["'])(.*?)\2/i;
 

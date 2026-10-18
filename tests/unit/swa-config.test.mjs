@@ -190,3 +190,7 @@ test('the config stays under 20 KB with 40 legacy uploads', async () => {
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+test('the form may return to the real site after posting, even from the test URL', () => {
+  assert.ok(csp()['form-action'].includes('https://stpaulswarton.co.uk'));
+});

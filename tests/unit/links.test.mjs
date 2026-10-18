@@ -14,3 +14,10 @@ test('legacy markup is matched whatever its case and quotes', () => {
   assert.equal(addNoopener('<a target=_blank href="/f" REL="external">f</a>'), '<a target=_blank href="/f" REL="external noopener">f</a>');
   assert.equal(addNoopener('<a href="/g" target="_self">g</a><abbr target="_blank">x</abbr>'), '<a href="/g" target="_self">g</a><abbr target="_blank">x</abbr>');
 });
+
+test('a > inside an attribute value does not cut the tag short', () => {
+  assert.equal(
+    addNoopener('<a title="x > y" target="_blank" href="/a">a</a>'),
+    '<a title="x > y" target="_blank" href="/a" rel="noopener">a</a>',
+  );
+});
