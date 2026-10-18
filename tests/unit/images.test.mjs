@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import sharp from 'sharp';
-import { assetPath, pictureHtml } from '../../config/images.js';
+import { assetPath, optimiseImages, pictureHtml } from '../../config/images.js';
 import { writeFixtureUploads } from '../fixtures/uploads.mjs';
 
 let tmp, out, uploads;
@@ -124,4 +124,43 @@ test('a missing upload or another site is a plain lazy image, never an error', a
 
 test('a missing layout asset is still an error', async () => {
   await assert.rejects(up('images/missing.png'));
+});
+
+const page = (body) => `<header><img src="/images/map-800.abcd1234.png" alt=""></header><main>${body}</main>`;
+const run = (body) => optimiseImages(page(body), { assets: tmp, uploads, out });
+
+test('an upload in a body becomes a picture, its own attributes dropped', async () => {
+  const html = await run('<p><img src="/uploads/fixture-wide.png" alt="Wide one" width="1024" style="float:left"></p>');
+  assert.match(html, /<main><p><picture>[\s\S]*width="800" height="450"[\s\S]*<\/picture><\/p>/);
+  assert.doesNotMatch(html, /float:left|width="1024"/);
+});
+
+test('odd img markup is read and alt is escaped once', async () => {
+  for (const tag of [`<IMG SRC='/uploads/fixture-huge.png' ALT='Quote " and > inside'>`, `<IMG SRC='/uploads/fixture-huge.png' ALT='Quote &quot; and &gt; inside'>`]) {
+    const html = await run(tag);
+    assert.match(html, /<picture>[\s\S]*alt="Quote &#34; and &gt; inside"/);
+    assert.doesNotMatch(html, /inside'>/);
+  }
+});
+
+test('an own-domain upload with a space in its name is processed', async () => {
+  const html = await run('<img src="http://stpaulswarton.co.uk/uploads/Fixture Space.PNG" alt="Spaces">');
+  assert.match(html, /<picture>[\s\S]*fixture-space-480\.\w{8}\.webp 480w/);
+});
+
+test('a hot-linked image keeps its attributes and becomes lazy', async () => {
+  const html = await run('<img src="https://media.acny.uk/x.jpg" alt="Hot linked" width="1024">');
+  assert.match(html, /<img src="https:\/\/media\.acny\.uk\/x\.jpg" alt="Hot linked" width="1024" loading="lazy" decoding="async">/);
+});
+
+test('only the first image in main is eager', async () => {
+  const html = await run('<img src="/uploads/fixture-wide.png" alt="1"><img src="/uploads/fixture-wide.png" alt="2">');
+  const imgs = [...html.split('<main>')[1].matchAll(/<img [^>]*>/g)].map((m) => m[0]);
+  assert.doesNotMatch(imgs[0], /loading=/);
+  assert.match(imgs[1], /loading="lazy"/);
+});
+
+test('processed pictures are left alone', async () => {
+  const html = await run('');
+  assert.match(html, /<header><img src="\/images\/map-800\.abcd1234\.png" alt=""><\/header>/);
 });

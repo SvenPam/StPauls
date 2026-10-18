@@ -4,6 +4,7 @@
 // `fill: 'WxH'` crops to that aspect (cards). Resized files are cached in .cache/images/, keyed on the source bytes,
 // width, format, quality and fill.
 import sharp from 'sharp';
+import { decodeHTML } from 'entities';
 import { createHash, randomBytes } from 'node:crypto';
 import { statSync } from 'node:fs';
 import { access, copyFile, mkdir, readFile, rename } from 'node:fs/promises';
@@ -134,7 +135,62 @@ export function assetPath(src, { assets = ASSETS } = {}) {
   }
 }
 
+// Body images. Every <img> in a built page: an upload becomes a picture, one this build made (/images/) is left alone,
+// and anything else keeps its attributes and gains lazy loading. Tags are matched quote-aware, so a '>' inside a quoted
+// attribute does not end one.
+const IMG = /<img\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi;
+const ATTR = /\s+([^\s=>\/"']+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+)))?/g;
+const OWN_UPLOADS = /^https?:\/\/stpaulswarton\.co\.uk(?=\/uploads\/)/i;
+const BODY_SIZES = '(min-width: 48rem) 70ch, 100vw';
+
+const attrsOf = (tag) => {
+  const attrs = {};
+  for (const [, name, ...v] of tag.slice(4).matchAll(ATTR)) attrs[name.toLowerCase()] ??= v.find((x) => x !== undefined) ?? '';
+  return attrs;
+};
+
+// One build reads each upload once: the same picture is reused, cleared before every build.
+const memo = new Map();
+const pictureOnce = (opts, dirs) => {
+  const key = JSON.stringify([opts, dirs]);
+  if (!memo.has(key)) memo.set(key, pictureHtml(opts, dirs));
+  return memo.get(key);
+};
+
+export async function optimiseImages(html, { assets = ASSETS, uploads = UPLOADS_DIR, out = '_site' } = {}) {
+  const main = /<main\b[^>]*>/i.exec(html);
+  const mainStart = main ? main.index + main[0].length : Infinity;
+  let firstInMain = true;
+  let result = '';
+  let last = 0;
+  for (const m of html.matchAll(IMG)) {
+    const tag = m[0];
+    const inMain = m.index >= mainStart;
+    const eager = inMain && firstInMain;
+    if (inMain) firstInMain = false;
+    const attrs = attrsOf(tag);
+    const src = decodeHTML(attrs.src ?? '').trim().replace(OWN_UPLOADS, '');
+    let replacement = tag;
+    if (src.startsWith('/images/')) {
+      // Already a picture from this build.
+    } else if (src.startsWith('/uploads/')) {
+      replacement = await pictureOnce({ src, alt: decodeHTML(attrs.alt ?? ''), sizes: BODY_SIZES, eager }, { assets, uploads, out });
+    } else if (!('loading' in attrs)) {
+      const extra = ` loading="lazy"${'decoding' in attrs ? '' : ' decoding="async"'}`;
+      replacement = tag.replace(/\s*\/?>$/, (end) => `${extra}${end.trim() === '/>' ? ' />' : '>'}`);
+    }
+    result += html.slice(last, m.index) + replacement;
+    last = m.index + tag.length;
+  }
+  return result + html.slice(last);
+}
+
 export default function (eleventyConfig) {
+  eleventyConfig.on('eleventy.before', () => memo.clear());
+  eleventyConfig.addTransform('images', function (content) {
+    if (!this.page.outputPath?.endsWith?.('.html')) return content;
+    return optimiseImages(content, { assets: ASSETS, uploads: UPLOADS_DIR, out: eleventyConfig.directories.output });
+  });
   eleventyConfig.addFilter('assetPath', (src) => assetPath(src));
   eleventyConfig.addAsyncShortcode('picture', (opts) =>
     pictureHtml(opts, { assets: ASSETS, uploads: UPLOADS_DIR, out: eleventyConfig.directories.output }),
