@@ -96,12 +96,12 @@ The legacy CSS, images and views needed for reference are on `archive/umbraco-20
 
 ## Next steps
 
-1. Spec 06 is done. Next is spec 07, `docs/features/page-cms/page-cms-spec-07-content-migration.md`. Build the rest in order, one per session. Read `docs/features/page-cms/page-cms-spec-conventions.md` first.
+1. Spec 07 is done (content match deferred, see Open items). Next is spec 08, `docs/features/page-cms/page-cms-spec-08-contact-form-and-settings.md`. Build the rest in order, one per session. Read `docs/features/page-cms/page-cms-spec-conventions.md` first.
 2. Each spec ends with the maintainer's manual steps. Say plainly when blocked on one.
 3. After spec 12, phase 2 (design options) gets its own design.
 
 ## Open items
 
-- Event and notice dates are not shown on the live site. Spec 07 needs a date export from the legacy database, or it infers and flags them.
+- Content match, deferred from spec 07 (2026-10-18): the maintainer pulls all content from the live and 2019 Umbraco databases with SQL for feature and content parity, exports `scripts/legacy-dates.csv` (dates and event locations), and the migration is re-run. Until then dates are inferred and flagged in `docs/features/page-cms/page-cms-migration-report.md`. See spec 07, "Deferred: content match".
 - The contact form inbox is not chosen yet. The form stays hidden until a Web3Forms key is set.
 - Easter 2026 and other seasonal pages are still being edited in the legacy back office by the church. Spec 11 re-extracts on cutover day.

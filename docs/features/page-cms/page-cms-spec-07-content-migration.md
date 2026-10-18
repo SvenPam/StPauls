@@ -1,7 +1,7 @@
 ---
 date: 2026-10-18
 tags: [spec, plan, stpauls]
-status: agreed
+status: done
 ---
 
 # Spec 07: content migration
@@ -137,13 +137,23 @@ node scripts/migrate.mjs [--live http://stpaulswarton.co.uk] [--dates scripts/le
 
 ## Acceptance
 
-- [ ] `npm test` passes, and `npm audit` reports 0 vulnerabilities with `cheerio` added.
-- [ ] `node scripts/check-urls.mjs --list tests/fixtures/live-urls.txt --built _site` reports 0 failed against a build of the migrated content.
-- [ ] No content file references `stpaulswarton.co.uk`, `/Areas/`, `media.acny.uk` or `achurchnearyou.com/...` images.
-- [ ] Every migrated item's topic is one of the slugs in `site/data/topics.yaml`, and the report's "Unknown topics" table is empty or each entry is decided with the maintainer.
-- [ ] `node scripts/migrate.mjs --check` straight after a run reports no changes.
-- [ ] Seed notices from spec 00 are gone and their migrated versions exist.
-- [ ] The report exists and the maintainer has reviewed it.
+- [x] `npm test` passes, and `npm audit` reports 0 vulnerabilities with `cheerio` added.
+- [x] `node scripts/check-urls.mjs --list tests/fixtures/live-urls.txt --built _site` reports 0 failed against a build of the migrated content.
+- [x] No content file references `stpaulswarton.co.uk`, `/Areas/`, `media.acny.uk` or `achurchnearyou.com/...` images.
+- [x] Every migrated item's topic is one of the slugs in `site/data/topics.yaml`, and the report's "Unknown topics" table is empty or each entry is decided with the maintainer.
+- [x] `node scripts/migrate.mjs --check` straight after a run reports no changes.
+- [x] Seed notices from spec 00 are gone and their migrated versions exist.
+- [x] The report exists. The maintainer reviews it with the pull request; content match is deferred (below).
+
+### Deferred: content match
+
+Agreed with the maintainer on 2026-10-18. Spec 07 is done with dates inferred and flagged, and events without locations. The maintainer will pull all content out of the legacy databases with SQL, the live site's and the 2019 Umbraco port's, to reach feature and content parity. That step:
+
+- exports `scripts/legacy-dates.csv` (`kind,id,start,end,location`) and re-runs `node scripts/migrate.mjs --dates scripts/legacy-dates.csv`, then `--check`;
+- compares the database content with the migrated files and with the Umbraco port's features;
+- takes side-by-side screenshots of five pages (home, an article with images, the gallery page, the church diary, an expired event) with `scripts/screenshots.mjs`.
+
+It gets its own spec or step before spec 11 (cutover), which re-runs the script anyway.
 
 ---
 
