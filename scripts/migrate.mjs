@@ -1,11 +1,15 @@
 // Content migration from the live site (spec 07). Hand-run, never in CI.
 // Pure functions parse saved live HTML into plain objects; main() fetches, rewrites and writes.
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
 import { load } from 'cheerio';
-import { Document, Scalar, parse as parseYaml } from 'yaml';
+import { Document, Scalar, parse as parseYaml, parseDocument } from 'yaml';
 import { embedFor } from '../config/embeds.js';
+import { excerpt, plainText } from '../config/filters.js';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const EMBEDS = parseYaml(readFileSync(`${ROOT}site/data/embeds.yaml`, 'utf8'));
@@ -427,4 +431,306 @@ export function rewriteBody(html, ctx = newContext()) {
   flush();
   const out = lines.join('\n').replace(/[ \t]*\r?\n\s*/g, '\n').trim();
   return { html: out, downloads: [...used], embed, notes };
+}
+
+// --- Writing ---
+
+// Writes each file whose text differs (or, with check, only lists it). Returns the changed paths relative to site.
+export async function writeSite(files, site, { check = false } = {}) {
+  const changed = [];
+  for (const [rel, text] of [...files].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) {
+    const file = path.join(site, rel);
+    const now = existsSync(file) ? await readFile(file, 'utf8') : null;
+    if (now === text) continue;
+    changed.push(rel);
+    if (!check) {
+      await mkdir(path.dirname(file), { recursive: true });
+      await writeFile(file, text);
+    }
+  }
+  return changed;
+}
+
+const UPLOADS_MARK = 'uploads (spec 07)';
+
+// Redirects for live spellings of legacy uploads that spec 05's prefix routes do not cover, kept sorted under one
+// comment at the end of `redirects`. Returns true when the file changes (or would, with check).
+export async function updateLegacy(file, downloads, { check = false } = {}) {
+  const before = await readFile(file, 'utf8');
+  const doc = parseDocument(before);
+  const prefixes = (doc.toJS().upload_prefixes ?? []).map((p) => p.replace(/\/+$/, ''));
+  const wanted = new Map();
+  for (const d of downloads) {
+    if (!d.dest.startsWith('uploads/legacy/')) continue;
+    const tail = d.dest.slice('uploads/legacy/'.length);
+    const covered = new Set(prefixes.map((p) => `${p}/${tail}`));
+    const to = `/uploads/legacy/${tail.split('/').map(encodeURIComponent).join('/')}`;
+    for (const from of d.legacyPaths) if (!covered.has(from)) wanted.set(from, to);
+  }
+  let redirects = doc.get('redirects');
+  if (!redirects) {
+    doc.set('redirects', doc.createNode([]));
+    redirects = doc.get('redirects');
+  }
+  redirects.items = redirects.items.filter((item) => !String(item.get?.('to') ?? '').startsWith('/uploads/legacy/'));
+  const entries = [...wanted].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
+  entries.forEach(([from, to], i) => {
+    const node = doc.createNode({ from, to });
+    node.flow = true;
+    if (i === 0) node.commentBefore = ` ${UPLOADS_MARK}`;
+    redirects.items.push(node);
+  });
+  const after = doc.toString({ lineWidth: 0 });
+  if (after === before) return false;
+  if (!check) await writeFile(file, after);
+  return true;
+}
+
+const cell = (s) => String(s ?? '').replace(/\|/g, '\\|').replace(/\s+/g, ' ').trim();
+
+function table(head, rows) {
+  if (!rows.length) return '_None._\n';
+  return [`| ${head.join(' | ')} |`, `|${head.map(() => '---').join('|')}|`, ...rows.map((r) => `| ${r.map(cell).join(' | ')} |`)].join('\n') + '\n';
+}
+
+export async function writeReport(file, r) {
+  const text = `---
+date: ${r.date}
+tags: [report, stpauls, migration]
+status: draft
+---
+
+# Migration report
+
+_Written by \`scripts/migrate.mjs\` from ${r.live}. Run again on cutover day. See [spec 07](page-cms-spec-07-content-migration.md)._
+
+## Counts
+
+${table(['Type', 'Items'], Object.entries(r.counts))}
+## Inferred dates
+
+${table(['Item', 'Date', 'Why'], r.inferred)}
+## Unknown topics
+
+${table(['Item', 'Live topic'], r.unknownTopics)}
+## Failed downloads
+
+${table(['File', 'From', 'Error'], r.failed)}
+## Iframes kept
+
+${table(['Item', 'Address'], r.iframes)}
+## Removed scripts
+
+${table(['Item', 'What'], r.removed)}
+## Files the script did not write
+
+${table(['File'], r.unwritten.map((f) => [f]))}
+## Policy text that no longer applies
+
+${table(['Page', 'Sentence'], r.policy)}`;
+  await mkdir(path.dirname(file), { recursive: true });
+  await writeFile(file, text);
+}
+
+// --- Running ---
+
+const POLICY = /google analytics|disqus|register|log in|login|account|subscribe/i;
+const UA = 'stpauls-migrate/1.0 (scripts/migrate.mjs)';
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function get(fetch, url, as = 'text') {
+  let last;
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    if (attempt) await sleep(2000 * attempt);
+    try {
+      const res = await fetch(url, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(30_000) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return as === 'bytes' ? Buffer.from(await res.arrayBuffer()) : await res.text();
+    } catch (err) {
+      last = err;
+      if (/HTTP 4\d\d/.test(err.message)) break;
+    }
+  }
+  throw last;
+}
+
+// Content files under the item folders that this run did not write.
+function unwrittenFiles(site, written) {
+  const out = [];
+  const content = path.join(site, 'content');
+  const dirs = ['blog', 'calendar', 'notices'];
+  if (existsSync(path.join(content, 'page'))) {
+    for (const d of readdirSync(path.join(content, 'page'), { withFileTypes: true })) if (d.isDirectory()) dirs.push(`page/${d.name}`);
+  }
+  for (const dir of dirs) {
+    if (!existsSync(path.join(content, dir))) continue;
+    for (const f of readdirSync(path.join(content, dir)).sort()) {
+      const rel = `content/${dir}/${f}`;
+      if (f.endsWith('.md') && f !== '_index.md' && rel !== 'content/page/about/contact-us.md' && !written.has(rel)) out.push(rel);
+    }
+  }
+  return out;
+}
+
+const sentences = (html) => plainText(html).split(/(?<=[.!?])\s+/);
+
+export async function main(argv = process.argv.slice(2), { fetch = globalThis.fetch, log = console.log } = {}) {
+  const { values: opts } = parseArgs({
+    args: argv,
+    options: {
+      live: { type: 'string', default: LIVE },
+      dates: { type: 'string' },
+      site: { type: 'string', default: 'site' },
+      report: { type: 'string', default: 'docs/features/page-cms/page-cms-migration-report.md' },
+      check: { type: 'boolean', default: false },
+    },
+  });
+  const live = opts.live.replace(/\/+$/, '');
+  const site = opts.site;
+  const topicsFile = [path.join(site, 'data/topics.yaml'), `${ROOT}site/data/topics.yaml`].find(existsSync);
+  const topics = parseYaml(readFileSync(topicsFile, 'utf8'));
+  const known = loadDates(opts.dates ?? null);
+
+  const sitemap = await get(fetch, `${live}/sitemap.xml`);
+  const paths = [...new Set([...sitemap.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/g)].map((m) => new URL(m[1].replace(/&amp;/g, '&')).pathname))];
+  const homeHtml = await get(fetch, `${live}/`);
+  const home = parseHome(homeHtml);
+  const menus = parseMenus(homeHtml);
+  const blog = parseBlogIndex(await get(fetch, `${live}/blog`));
+
+  const ctx = newContext(live);
+  const report = { date: new Date().toISOString().slice(0, 10), live, counts: { Articles: 0, Events: 0, Notices: 0, Pages: 0 }, inferred: [], unknownTopics: [], failed: [], iframes: [], removed: [], unwritten: [], policy: [] };
+  const files = new Map();
+  const events = [];
+  const notices = [];
+
+  const topicOf = (where, label) => {
+    const slug = topicSlug(label, topics);
+    if (!slug && label) report.unknownTopics.push([where, label]);
+    return slug || undefined;
+  };
+  const rewrite = (where, html) => {
+    const r = rewriteBody(html, ctx);
+    for (const n of r.notes) {
+      if (n.startsWith('iframe kept: ')) report.iframes.push([where, n.slice(13)]);
+      else report.removed.push([where, n.replace(/^removed: /, '')]);
+    }
+    return r;
+  };
+  const cardImage = (slug) => {
+    const card = home.cards[slug];
+    if (!card) return {};
+    const r = rewriteBody(`<img src="${card.image.replace(/"/g, '&quot;')}">`, ctx);
+    return { image: load(r.html)('img').attr('src'), image_alt: card.alt };
+  };
+
+  for (const p of paths) {
+    const c = classify(p);
+    if (!c) continue;
+    const [kind, info] = c;
+    let html;
+    try {
+      html = await get(fetch, `${live}${p}`);
+    } catch (err) {
+      report.failed.push([p, `${live}${p}`, err.message]);
+      continue;
+    }
+    if (kind === 'article') {
+      const a = parseArticle(html);
+      const listed = blog[info.slug];
+      const date = listed?.date ?? a.date;
+      if (!listed?.date) report.inferred.push([p, date ?? '', 'not on the /blog list, date from the article page']);
+      const body = rewrite(p, a.body);
+      files.set(`content/blog/${info.slug}.md`, frontMatter({
+        title: a.title, date, summary: a.summary, blogtopics: topicOf(p, listed?.topic), ...cardImage(info.slug),
+      }) + body.html + '\n');
+      report.counts.Articles += 1;
+    } else if (kind === 'event') {
+      const e = parseEvent(html);
+      events.push({ ...e, ...info, path: p, rewritten: rewrite(p, e.body) });
+    } else if (kind === 'notice') {
+      const n = parseNotice(html);
+      notices.push({ ...n, ...info, path: p, rewritten: rewrite(p, n.body) });
+    } else if (kind === 'page') {
+      if (`${info.type}/${info.slug}` === 'about/contact-us') continue;
+      const pg = parsePage(html);
+      const body = rewrite(p, pg.body);
+      const menu = menus[p] ?? { header: false, footer: false };
+      for (const s of sentences(body.html)) if (POLICY.test(s)) report.policy.push([p, s]);
+      files.set(`content/page/${info.type}/${info.slug}.md`, frontMatter({
+        title: pg.title, header: menu.header, footer: menu.footer, weight: menu.weight, ...(body.embed ?? {}),
+      }) + (body.html ? `${body.html}\n` : ''));
+      report.counts.Pages += 1;
+    }
+  }
+
+  const eventDates = inferEventDates(events, known);
+  for (const e of events) {
+    const d = eventDates.get(e.id) ?? {};
+    if (d.reason) report.inferred.push([e.path, d.start, d.reason]);
+    files.set(`content/calendar/${e.id}-${e.slug}.md`, frontMatter({
+      title: e.title, date: d.start, end: d.end ?? undefined, summary: e.summary || undefined, location: e.location || undefined,
+      eventtopics: topicOf(e.path, e.topicLabel), url: `/calendar/event/${e.id}/${e.slug}`,
+    }) + e.rewritten.html + '\n');
+    report.counts.Events += 1;
+  }
+  const order = [...new Set([...home.noticeOrder, ...notices.map((n) => n.id).sort((a, b) => b - a)])];
+  const noticeDates = notices.length ? inferNoticeDates(order, known) : new Map();
+  for (const n of notices) {
+    const d = noticeDates.get(n.id);
+    if (d.reason) report.inferred.push([n.path, d.date, d.reason]);
+    files.set(`content/notices/${n.id}-${n.slug}.md`, frontMatter({
+      title: n.title, date: d.date, summary: excerpt(n.rewritten.html), noticetopics: topicOf(n.path, n.topicLabel), url: `/notices/notice/${n.id}/${n.slug}`,
+    }) + n.rewritten.html + '\n');
+    report.counts.Notices += 1;
+  }
+
+  // The home page lead, the only key the script owns in the root _index.md.
+  const indexFile = path.join(site, 'content/_index.md');
+  if (home.lead && existsSync(indexFile)) {
+    const text = readFileSync(indexFile, 'utf8');
+    const match = text.match(/^---\n([\s\S]*?\n)?---\n([\s\S]*)$/);
+    if (match) {
+      const doc = parseDocument(match[1] ?? '');
+      if (doc.get('lead') !== home.lead) {
+        doc.set('lead', home.lead);
+        files.set('content/_index.md', `---\n${doc.toString({ lineWidth: 0 })}---\n${match[2]}`);
+      }
+    }
+  }
+
+  const changed = await writeSite(files, site, { check: opts.check });
+
+  const downloads = [...ctx.legacy.values(), ...ctx.content.values(), ...ctx.acny.values()];
+  for (const d of downloads) {
+    const dest = path.join(site, 'static', d.dest);
+    if (existsSync(dest)) continue;
+    changed.push(`static/${d.dest}`);
+    if (opts.check) continue;
+    try {
+      const bytes = await get(fetch, d.url, 'bytes');
+      await mkdir(path.dirname(dest), { recursive: true });
+      await writeFile(dest, bytes);
+    } catch (err) {
+      changed.pop();
+      report.failed.push([d.dest, d.url, err.message]);
+    }
+  }
+  const legacyFile = path.join(site, 'data/legacy.yaml');
+  if (existsSync(legacyFile) && (await updateLegacy(legacyFile, downloads, { check: opts.check }))) changed.push('data/legacy.yaml');
+
+  if (opts.check) {
+    for (const f of changed) log(`would change: ${f}`);
+    log(`${changed.length} file(s) would change`);
+    return changed.length ? 1 : 0;
+  }
+  report.unwritten = unwrittenFiles(site, new Set(files.keys()));
+  await writeReport(opts.report, report);
+  log(`${Object.entries(report.counts).map(([k, v]) => `${v} ${k.toLowerCase()}`).join(', ')}; ${changed.length} file(s) changed; ${report.failed.length} failed; report ${opts.report}`);
+  return 0;
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  process.exitCode = await main();
 }
