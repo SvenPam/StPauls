@@ -25,3 +25,8 @@ test('excerpt cuts long text at 300 characters', () => {
   assert.equal([...excerpt(`<p>${'a'.repeat(400)}</p>`)].length, 301);
   assert.equal(excerpt('<p>short</p>'), 'short');
 });
+
+test('plainText strips characters XML 1.0 forbids, also from numeric entities', () => {
+  assert.equal(plainText('<p>a&#0;b&#8;c\u0001d\u000be\u001ff&#x1F;g</p>'), 'abcd efg');
+  assert.equal(plainText('<p>tab\there\nand\u000cmore</p>'), 'tab here and more');
+});

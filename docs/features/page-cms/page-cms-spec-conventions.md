@@ -53,7 +53,7 @@ Every task in every spec includes these.
 | `site/static/` | Copied as is to the site root |
 
 - Every `.md` file is front matter plus an HTML body. `config/content.js` registers the `md` extension raw: no Markdown and no Nunjucks runs on it, so a body is published byte for byte, `{{ }}` and `{% %}` included. Templates print it with `{{ content | safe }}`.
-- A content file gets a URL only from `itemPermalink` in `config/content.js`. Today that covers `blog`, `calendar` and `notices`. Anything else in the content folder gets `permalink: false` until a spec adds it (spec 04 adds `page/` and the home page).
+- A content file gets a URL only from `itemPermalink` in `config/content.js`. Today that covers `blog`, `calendar` and `notices`. Anything else in the content folder gets `permalink: false` and renders nothing (`content.njk` includes a section template only for those three) until a spec adds it (spec 04 adds `page/` and the home page).
 - Internal links are written without a trailing slash, except `/`, through the `href` filter. Eleventy's `page.url` and `item.url` end with `/`. Static Web Apps runs with `trailingSlash: "never"` from spec 05, so `/blog/article/x` is served directly and `/blog/article/x/` gets a 301.
 - No inline `<script>`, `<style>` or event handlers in templates. Script lives in `site/assets/js/site.js`, minified, hashed into the file name and loaded with `defer` and `integrity`. Nothing needs script to read or navigate.
 - Templates use no inline `style` attributes. Content bodies may contain them (legacy HTML and the rich text editor).
@@ -170,7 +170,7 @@ Behaviour the specs rely on, checked on 2026-10-17 (Eleventy and the Static Web 
 |---|---|
 | `fileSlug` drops a date prefix: `2026-01-05-dated.md` gives `dated` | Not used. `itemPermalink` keeps the whole file name, so the URL is `/notices/notice/2026-01-05-dated`, as Hugo built it |
 | Front matter times are read as UTC. A `Date` from `2026-10-17T19:30:00` is 19:30 UTC | Times are London wall-clock times. Display uses UTC getters (`config/dates.js`), anything compared with "now" goes through `londonInstant` |
-| A time without seconds (`2026-10-17T19:30`) is not a YAML timestamp and stays a string | `eventEnd` reads such an `end`. A `date` like that fails the build in the date filters, so Pages CMS formats keep seconds |
+| A time without seconds (`2026-10-17T19:30`) is not a YAML timestamp and stays a string | `wall()` in `config/dates.js` reads such a string, and a quoted `date: "2099-07-03T10:00:00"`, as a wall time (`YYYY-MM-DD`, optional `THH:MM`, optional `:SS`). Every date filter, `eventEnd`, `eventStatus` and `upcoming` use it. Anything else is left to the caller's fallback |
 | `layout` front matter names a file in `site/_includes/` (`layout: base.njk`) | Content gets `layout: content.njk` as global data, which picks `sections/{section}-list.njk` or `-item.njk`. A content file that sets its own `layout` skips that dispatch |
 | A computed `layout` did not work in the spike | `layout` is plain global data, never in `eleventyComputed` |
 | Global `eleventyComputed` also applies to virtual templates (`addTemplate`) | The computed `section`, `isIndex`, `topic` and `permalink` act only on `.md` inputs. Site pages set their own `permalink` and `layout` |

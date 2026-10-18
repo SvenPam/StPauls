@@ -12,7 +12,17 @@ export const newestFirst = (items) => [...(items ?? [])].reverse();
 // Visible text of an HTML body: tags removed, entities decoded once (every named entity),
 // whitespace collapsed. A tag becomes a space so words in neighbouring blocks stay apart.
 export function plainText(html) {
-  const text = decodeHTML(String(html ?? '').replace(/<[^>]*>/g, ' '));
+  // Characters XML 1.0 forbids would make a feed invalid. Numeric entities for them (&#0; decodes to U+FFFD)
+  // go before decoding, raw ones after.
+  const illegal = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g;
+  const withoutIllegalEntities = String(html ?? '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&#(x[0-9a-f]+|\d+);/gi, (all, n) => {
+      const code = n[0] === 'x' || n[0] === 'X' ? parseInt(n.slice(1), 16) : Number(n);
+      return code <= 0x1f && ![0x09, 0x0a, 0x0d].includes(code) ? '' : all;
+    });
+  // Vertical tab and form feed are whitespace to a reader, so they become spaces rather than joining words.
+  const text = decodeHTML(withoutIllegalEntities).replace(/[\u000B\u000C]/g, ' ').replace(illegal, '');
   return text.replace(/\s+/g, ' ').trim();
 }
 

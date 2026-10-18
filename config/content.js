@@ -2,7 +2,8 @@
 // Bodies are published byte for byte, with no Markdown and no Nunjucks.
 import path from 'node:path';
 
-export const CONTENT_DIR = process.env.CONTENT ?? 'site/content';
+// Relative to the working directory, because Eleventy globs and input paths are. An absolute CONTENT is converted.
+export const CONTENT_DIR = path.relative(process.cwd(), path.resolve(process.env.CONTENT ?? 'site/content')).split(path.sep).join('/');
 
 const SECTIONS = ['blog', 'calendar', 'notices'];
 
@@ -44,7 +45,8 @@ export function itemPermalink(inputPath, data) {
   const section = sectionOf(inputPath);
   if (!SECTIONS.includes(section)) return false;
   if (isIndex(inputPath)) return `/${section}/index.html`;
-  if (data.url) return `${String(data.url).replace(/\/+$/, '')}/index.html`;
+  const url = data.url ? String(data.url).trim().replace(/\/+$/, '') : '';
+  if (url) return `${url}/index.html`;
   return `${ITEM_PATHS[section]}/${path.basename(inputPath, '.md')}/index.html`;
 }
 

@@ -61,3 +61,8 @@ Feature: Notices
   Scenario: No notices
     When I open "/notices" on the empty site
     Then I see "Could not find any notices."
+
+  Scenario: A stray content file publishes no page and does not fail the build
+    Then "/stray" does not exist
+    And "/notices/sub/x" does not exist
+    And "/notices/notice/x" does not exist
