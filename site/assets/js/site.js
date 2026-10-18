@@ -38,9 +38,11 @@
   document.addEventListener('click', (e) => {
     groups().forEach((d) => { if (!d.contains(e.target)) d.open = false; });
   });
-  // An open dropdown would cover the content that focus moves on to.
+  // An open dropdown would cover the content that focus moves on to. Moving to another
+  // dropdown is left to <details name>, which closes this one after the click, not before.
   document.addEventListener('focusout', (e) => {
-    groups().forEach((d) => { if (d.contains(e.target) && !d.contains(e.relatedTarget)) d.open = false; });
+    if (nav && nav.contains(e.relatedTarget)) return;
+    groups().forEach((d) => { if (d.contains(e.target)) d.open = false; });
   });
 
   // Events that ended since the last build. The nightly build drops them for good.
