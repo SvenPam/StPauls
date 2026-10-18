@@ -172,7 +172,7 @@ node scripts/migrate.mjs [--live http://stpaulswarton.co.uk] [--dates scripts/le
 3. An event with no year anywhere and no CSV row, between two anchored events. Expected: an inferred year that keeps id order, and a report line. Pinned by "an event year is inferred from its neighbours".
 4. Re-running after Paul edited a migrated file in Pages CMS during practice. Expected: the live version wins (live is the source of truth until cutover), and `--check` lists the file first. Pinned by "check mode lists a changed file".
 5. A live page body with characters YAML dislikes in the title or summary (`:`, `#`, quotes) and template syntax in the body (`{{`, `---` on its own line). Expected: front matter still parses and Eleventy builds and shows the body as written. Pinned by "front matter survives awkward values" and "the migrated fixture builds".
-6. A live topic label the site does not know. Expected: no topic in the file and a report line, never a topic value that has no page. Pinned by "every written topic is a site topic".
+6. A live topic label the site does not know. Expected: no topic in the file and a report line, never a topic value that has no page. Pinned by "every written topic is a site topic" and "the written files only use site topics".
 
 ---
 
@@ -261,6 +261,9 @@ Expected: FAIL, `scripts/migrate.mjs` not found.
 - [ ] **Step 5: Write the parsers** with `cheerio.load`, selecting by tag and class and keeping inner HTML with `.html()`. No regex over whole documents except for the date and time text. The module runs its CLI only when started directly, so importing it runs nothing.
 
 - [ ] **Step 6: Run the tests and watch them pass, then commit**
+
+Run: `npm run test:unit`
+Expected: all pass, `migrate.test.mjs` included.
 
 ```bash
 git add package.json package-lock.json scripts/migrate.mjs tests
@@ -377,6 +380,9 @@ Expected: FAIL, the functions are not exported yet.
 
 - [ ] **Step 4: Run the tests and watch them pass, then commit**
 
+Run: `npm run test:unit`
+Expected: all pass.
+
 ```bash
 git add scripts/migrate.mjs tests
 git commit -m "Add date inference, body rewriting, topics and front matter writer"
@@ -409,7 +415,7 @@ test('migrated items keep their live URL', () => {
   assert.match(readFileSync(join(site, 'content/calendar/16-mu-advent-carol-service.md'), 'utf8'), /^url: \/calendar\/event\/16\/mu-advent-carol-service$/m);
 });
 
-test('every written topic is a site topic', () => { /* every blogtopics, eventtopics, noticetopics value in the written files is a key of topics.yaml */ });
+test('the written files only use site topics', () => { /* every blogtopics, eventtopics, noticetopics value in the written files is a key of topics.yaml */ });
 
 test('a second run changes nothing', async () => {
   assert.equal(await m.main([...argv, '--check'], { fetch }), 0);
@@ -460,6 +466,9 @@ Expected: FAIL, `main` is not exported yet.
 
 - [ ] **Step 4: Run the full suite, then commit**
 
+Run: `npm test`
+Expected: all pass. Nothing under `site/content/` or `docs/` changed (`git status`).
+
 ```bash
 git add scripts tests
 git commit -m "Add migration CLI, report and legacy route update"
@@ -493,6 +502,7 @@ Run: `node scripts/migrate.mjs --dates scripts/legacy-dates.csv --check` (expect
 ```bash
 git add -A site docs scripts
 git commit -m "Migrate content and images from the live site"
+git push -u origin <session branch>
 ```
 
 Tell the maintainer the review and the policy follow-up are theirs.

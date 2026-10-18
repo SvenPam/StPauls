@@ -151,7 +151,7 @@ Made by the maintainer in the design conversation on 2026-10-17, unless marked _
 | Processing | sharp, from `config/images.js`, with a cache in `.cache/images/`. WebP at several widths capped at the original width, with the original format as fallback inside `<picture>` |
 | Markup | `srcset` and `sizes`, `width` and `height` from the source image, `loading="lazy"` except the first image on the page |
 | Body images | `<img src="/uploads/...">` inside the HTML body is rewritten to `<picture>` at build time |
-| Other images | Anything not under `/uploads/` is left as is and made to fit by CSS |
+| Other images | Anything not under `/uploads/` keeps its address and attributes, gains `loading="lazy"` and `decoding="async"` when it has no `loading`, and is made to fit by CSS (spec 06) |
 | Alt text | An alt text field wherever Paul picks an image in a front matter field. Migrated images keep their live alt text |
 | Legacy paths | `/Areas/st_pauls/Uploads/...` keeps working through redirects, whatever its case or slashes |
 
@@ -168,7 +168,7 @@ Made by the maintainer in the design conversation on 2026-10-17, unless marked _
 
 | Area | Baseline |
 |---|---|
-| Transport | HTTPS only once on the custom domain. HSTS at five minutes from cutover, so a rollback stays possible, raised to one year (no preload) when the old site is removed |
+| Transport | HTTPS only once on the custom domain. HSTS at five minutes from cutover, so a rollback stays possible, raised to one year (no preload) when the old site is removed. Both only if spec 09 finds our header replaces the one Static Web Apps sends; otherwise the platform's header stays and the rollback goes through Cloudflare (spec 11) |
 | Headers | Set in `staticwebapp.config.json`: Content Security Policy, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, `frame-ancestors 'none'` |
 | CSP | Self by default. Frames limited to Google Calendar and EmbedSocial. Form posts limited to self and Web3Forms. Images allow any `https:` source so hot-linked images still show. No inline script |
 | Third parties | Only the two embeds and Web3Forms. No analytics, fonts or scripts from other domains |
@@ -197,7 +197,7 @@ Made by the maintainer in the design conversation on 2026-10-17, unless marked _
 
 ### Testing
 
-- Playwright with Gherkin scenarios (`playwright-bdd`) in `tests/`, run on every pull request and before every deploy. Tests build `tests/fixtures/` and never assert on `site/content/`. Changed from Python on 2026-10-18 so the script and pages are tested in a real browser.
+- Playwright with Gherkin scenarios (`playwright-bdd`) in `tests/` for behaviour, and `node:test` in `tests/unit/` for pure functions and generated files (dates, filters, `staticwebapp.config.json`, the workflow, the roles). Both run with `npm test` on every pull request and before every deploy. Tests build `tests/fixtures/` and never assert on `site/content/`. Changed from Python on 2026-10-18 so the script and pages are tested in a real browser.
 - A separate URL check script compares a built site, or the deployed site, with a snapshot of the live sitemap. It is run by hand during migration and cutover, not in the deploy workflow, so Paul deleting an old event never blocks a publish.
 
 ---

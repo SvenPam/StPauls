@@ -69,7 +69,7 @@ The tranquility site wraps a local JPEG or PNG in one 1600 px WebP. This site ke
 
 `optimiseImages(html, { assets, uploads, out })` in `config/images.js`, registered as `addTransform('images', ...)` for every output ending in `.html`.
 
-1. Find each `<img ...>` tag (case-insensitive, `<img\b[^>]*>`), in order. Read `src` and `alt` in single or double quotes. Decode `alt` once with `entities`.
+1. Find each `<img ...>` tag, in order, with a quote-aware, case-insensitive pattern, `<img\b(?:[^>"']|"[^"]*"|'[^']*')*>`, so a raw `>` inside a quoted attribute (`ALT='Quote " and > inside'`) does not end the tag. Read `src` and `alt` in single or double quotes. Decode `alt` once with `entities`.
 2. A `src` under `/images/` is a picture this build already made: left alone.
 3. A `src` that starts with `/uploads/`, or with `https://stpaulswarton.co.uk/uploads/` or `http://stpaulswarton.co.uk/uploads/` (normalised to `/uploads/`): the tag is replaced by `pictureHtml` with `sizes: '(min-width: 48rem) 70ch, 100vw'`. It is `eager` only when it is the first `<img>` inside `<main>`; every other one is lazy.
 4. Any other `<img>` keeps its `src` and attributes, and gains `loading="lazy" decoding="async"` when it has no `loading`. CSS from spec 02 overrides any fixed width, so it fits the column.
@@ -279,8 +279,11 @@ test('an upload in a body becomes a picture, its own attributes dropped', async 
 });
 
 test('odd img markup is read and alt is escaped once', async () => {
-  const html = await run(`<IMG SRC='/uploads/fixture-huge.png' ALT='Quote &quot; and &gt; inside'>`);
-  assert.match(html, /alt="Quote &#34; and &gt; inside"/);
+  for (const tag of [`<IMG SRC='/uploads/fixture-huge.png' ALT='Quote " and > inside'>`, `<IMG SRC='/uploads/fixture-huge.png' ALT='Quote &quot; and &gt; inside'>`]) {
+    const html = await run(tag);
+    assert.match(html, /<picture>[\s\S]*alt="Quote &#34; and &gt; inside"/);
+    assert.doesNotMatch(html, /inside'>/);
+  }
 });
 
 test('an own-domain upload with a space in its name is processed', async () => {
@@ -490,4 +493,5 @@ Expected: all pass, no actionlint output.
 ```bash
 git add .github tests
 git commit -m "Cache processed images between builds"
+git push -u origin <session branch>
 ```

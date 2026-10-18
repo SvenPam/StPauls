@@ -78,7 +78,7 @@ Decommissioning the old site and raising HSTS (spec 12, four weeks later).
 | 6 | Claude | `node scripts/check-urls.mjs --list tests/fixtures/live-urls.txt --base https://brave-coast-006318103.5.azurestaticapps.net` | `0 failed` |
 | 6a | Maintainer | Write down the current `@` and `www` records (type, value, proxy status) and the SSL/TLS mode, next to the spec 01 records table | Recorded |
 | 7 | Maintainer | Cloudflare cutover settings above | Records saved |
-| 8 | Claude | `node scripts/check-urls.mjs --list tests/fixtures/live-urls.txt --base https://stpaulswarton.co.uk` and the same with `--base https://www.stpaulswarton.co.uk` (every path a 301 to the bare domain, same path), `curl -sI http://stpaulswarton.co.uk/blog` (301 to `https://`), `curl -sI https://www.stpaulswarton.co.uk/blog/article/church-roof-completed` (301 to the bare domain, same path), one `http://www.stpaulswarton.co.uk/Areas/st_pauls/Uploads/...` link ending in 200, headers from spec 09 present | All pass |
+| 8 | Claude | `node scripts/check-urls.mjs --list tests/fixtures/live-urls.txt --base https://stpaulswarton.co.uk` and `--base https://www.stpaulswarton.co.uk --redirects-to https://stpaulswarton.co.uk` (every path a 301 to the same path on the bare domain, spec 05's `--redirects-to` mode), `curl -sI http://stpaulswarton.co.uk/blog` (301 to `https://`), `curl -sI https://www.stpaulswarton.co.uk/blog/article/church-roof-completed` (301 to the bare domain, same path), one `http://www.stpaulswarton.co.uk/Areas/st_pauls/Uploads/...` link ending in 200, headers from spec 09 present, and `curl -sI https://stpaulswarton.co.uk/` showing exactly one `strict-transport-security` line, `max-age=300` (when spec 09 kept the short HSTS) | All pass. If HSTS on the custom domain is not exactly one `max-age=300`, record it in checked facts and use the Flexible rollback row from now on |
 | 9 | Paul | Adds a real notice in Pages CMS | Live within 5 minutes |
 | 10 | Maintainer | Sends Paul the "you're live" message | Sent |
 
@@ -90,8 +90,8 @@ When step 8 or 9 fails and cannot be fixed within an hour, put `@` (and `www` if
 
 | Spec 09 found | Rollback |
 |---|---|
-| Our `max-age=300` replaces the platform's header | Records back to the spec 01 values, **DNS only**. Browsers stop insisting on HTTPS within five minutes, so the old HTTP-only site works again |
-| The platform's `max-age=10886400; includeSubDomains; preload` stays | Browsers that saw the new site insist on HTTPS for about four months, so plain HTTP cannot come back. Records back to the old App Service but **Proxied**, SSL/TLS mode **Flexible** (Cloudflare serves HTTPS to visitors and fetches the old site over HTTP), **Always Use HTTPS** stays on. Return SSL/TLS to **Full (strict)** when the new site comes back |
+| Our `max-age=300` replaces the platform's header, on `azurestaticapps.net` in spec 09 and on `stpaulswarton.co.uk` in step 8 | Records back to the spec 01 values, **DNS only**. Browsers stop insisting on HTTPS within five minutes, so the old HTTP-only site works again |
+| The platform's `max-age=10886400; includeSubDomains; preload` stays, on either host | Browsers that saw the new site insist on HTTPS for about four months on `stpaulswarton.co.uk` and every subdomain (`includeSubDomains`), so plain HTTP cannot come back. Check every name in the spec 01 records table: any that serves only HTTP must be proxied through Cloudflare too. Records back to the old App Service but **Proxied**, SSL/TLS mode **Flexible** (Cloudflare serves HTTPS to visitors and fetches the old site over HTTP), **Always Use HTTPS** stays on. Return SSL/TLS to **Full (strict)** when the new site comes back |
 
 The old site is still running until spec 12. Tell Paul to keep using the old site until a new date.
 
@@ -103,7 +103,7 @@ Two short messages in the runbook, humanised, no em dash: to Paul the day before
 
 ## Manual steps (maintainer)
 
-1. A week ahead: in Azure Cloud Shell, run `az staticwebapp hostname set --name swa-stpauls-web --resource-group <rg> --hostname stpaulswarton.co.uk --validation-method dns-txt-token --no-wait`, then `az staticwebapp hostname show --name swa-stpauls-web --resource-group <rg> --hostname stpaulswarton.co.uk --query validationToken -o tsv`, and add the value as a `TXT` record at `@` in Cloudflare. Wait for the domain status **Ready** in the portal. Then merge the parameter change.
+1. A week ahead: in Azure Cloud Shell, run `az staticwebapp hostname set --name swa-stpauls-web --resource-group <rg> --hostname stpaulswarton.co.uk --validation-method dns-txt-token --no-wait`, then `az staticwebapp hostname show --name swa-stpauls-web --resource-group <rg> --hostname stpaulswarton.co.uk --query validationToken -o tsv`, and add the value as a `TXT` record in Cloudflare at the host Azure shows (`@` or `_dnsauth`). Wait for the domain status **Ready** in the portal. Then merge the parameter change.
 2. The Cloudflare preparation and cutover settings.
 3. Agree the cutover date and time with Paul.
 4. Run cutover day with Claude and Paul.
@@ -114,7 +114,7 @@ Two short messages in the runbook, humanised, no em dash: to Paul the day before
 
 - [ ] `npm test` passes, including `tests/unit/infra.test.mjs` with Bicep on `PATH` (it skips without it).
 - [ ] The runbook covers preparation, the day's order, checks, the rollback that matches spec 09's HSTS result and both messages, with no em dash (review).
-- [ ] On the day: `check-urls.mjs --base https://stpaulswarton.co.uk` reports `0 failed`, `--base https://www.stpaulswarton.co.uk` shows every path redirected to the bare domain, `http://` and `www` redirect as specified, the headers from spec 09 are present on the bare domain, and Paul publishes a notice through Pages CMS.
+- [ ] On the day: `check-urls.mjs --base https://stpaulswarton.co.uk` reports `0 failed`, `--base https://www.stpaulswarton.co.uk --redirects-to https://stpaulswarton.co.uk` reports `0 failed`, the bare domain sends the HSTS header spec 09 expects (or the Flexible rollback is recorded as the one to use), `http://` and `www` redirect as specified, the headers from spec 09 are present on the bare domain, and Paul publishes a notice through Pages CMS.
 
 ---
 
@@ -190,6 +190,9 @@ Expected: FAIL, no `customDomain` parameter.
 
 - [ ] **Step 4: Run the tests, `bicep lint infra/main.bicep`, then commit**
 
+Run: `npm run test:unit && bicep lint infra/main.bicep`
+Expected: all pass, no lint output.
+
 ```bash
 git add infra tests
 git commit -m "Add an optional custom domain to the Static Web App"
@@ -214,6 +217,7 @@ Expected: no output. The runbook gets no test: it is a document.
 ```bash
 git add docs
 git commit -m "Add the cutover runbook"
+git push -u origin <session branch>
 ```
 
 Tell the maintainer the week-ahead steps are theirs, and agree a date.
@@ -225,13 +229,13 @@ Tell the maintainer the week-ahead steps are theirs, and agree a date.
 **Files:**
 - Modify: `infra/main.bicepparam`, `tests/unit/infra.test.mjs`
 
-- [ ] **Step 1:** Only once the maintainer confirms the domain is **Ready**: add `param customDomain = 'stpaulswarton.co.uk'`, add a test that `bicep build-params infra/main.bicepparam --stdout` gives `customDomain` `stpaulswarton.co.uk` (skipped without Bicep), run `npm test`, commit `Declare the custom domain in Bicep`. The maintainer merges; the deploy job applies it and the domain stays **Ready**.
+- [ ] **Step 1:** Only once the maintainer confirms the domain is **Ready**: add `param customDomain = 'stpaulswarton.co.uk'`, add a test that `bicep build-params infra/main.bicepparam --stdout` gives `customDomain` `stpaulswarton.co.uk` (skipped without Bicep), run `npm test`, commit `Declare the custom domain in Bicep`, push. The maintainer merges; the deploy job applies it and the domain stays **Ready**.
 
 ---
 
 ### Task 4: Cutover day
 
 - [ ] **Step 1:** Follow the runbook's day order with the maintainer and Paul. Run every check command yourself and paste results into the session.
-- [ ] **Step 2:** Commit the migrated content and any decided deletions as `Final content sync from the live site`, and let the maintainer merge.
-- [ ] **Step 3:** After step 8 passes, record the date and outcome at the top of the runbook and in `docs/features/page-cms/page-cms-discovery-way-forward.md`, and commit.
+- [ ] **Step 2:** Commit the migrated content and any decided deletions as `Final content sync from the live site`, push with `git push -u origin <session branch>`, and let the maintainer merge.
+- [ ] **Step 3:** After step 8 passes, record the date and outcome at the top of the runbook and in `docs/features/page-cms/page-cms-discovery-way-forward.md`, commit and push.
 - [ ] **Step 4:** If rollback is used, record why and what to fix, and stop.

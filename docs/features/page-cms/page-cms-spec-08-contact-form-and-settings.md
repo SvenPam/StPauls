@@ -70,7 +70,7 @@ directions_url: "https://www.google.com/maps/dir/?api=1&destination=53.7513578,-
 
 | | |
 |---|---|
-| `DATA` | Optional folder, relative to the repo root. For each file name, `DATA/{name}.yaml` wins over `site/data/{name}.yaml`; every other file still comes from `site/data`. A file only in `DATA` is added |
+| `DATA` | Optional folder, relative to the repo root (the build runs there). `serve.js --data <dir>` resolves `<dir>` the same way as the content folder, from where `serve.js` runs, and passes it on relative to the repo root, so `--data fixtures/data/with-key` from `tests/` becomes `DATA=tests/fixtures/data/with-key`. For each file name, `DATA/{name}.yaml` wins over `site/data/{name}.yaml`; every other file still comes from `site/data`. A file only in `DATA` is added |
 | Globals and `readData()` | Both use the layered set, so `buildSwaConfig` (spec 05) and the templates see the same data |
 | `tests/serve.js` | `--data <dir>` sets `DATA` for the build |
 | `config/topics.js` | Keeps reading `site/data/topics.yaml` directly. Fixtures never override topics |
@@ -400,4 +400,5 @@ Expected: all pass, including "Whatever Paul has saved builds".
 ```bash
 git add .pages.yml docs tests
 git commit -m "Add Site settings to Pages CMS and a contact form how-to"
+git push -u origin <session branch>
 ```

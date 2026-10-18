@@ -54,7 +54,7 @@ HSTS preload submission. Cloudflare settings (spec 11). Click-to-load embeds, un
 | Deploy | The maintainer merges that one change. `main` deploys only to the test URL until cutover, so nothing live is affected. The sandbox cannot deploy |
 | Check | `curl -sI https://brave-coast-006318103.5.azurestaticapps.net/` and `curl -sI https://brave-coast-006318103.5.azurestaticapps.net/notices` |
 | Only ours (`max-age=300`, one header) | Keep the plan: five minutes from cutover, one year in spec 12 |
-| Static Web Apps' alongside ours, or instead of it | The five-minute HSTS cannot work. Remove `hsts_max_age` and the header, and record it. Spec 11's rollback then relies on Cloudflare serving the old site over HTTPS (record proxied, SSL/TLS mode **Flexible**) instead of plain HTTP, and spec 12 leaves Static Web Apps' default in place |
+| Static Web Apps' alongside ours, or instead of it | The five-minute HSTS cannot work. Remove `hsts_max_age` and the header, and record it. The platform's header carries `includeSubDomains`, so once visitors reach the new site their browsers insist on HTTPS for every name under `stpaulswarton.co.uk` for about four months: check each record in the spec 01 records table and list any name that serves only HTTP (it needs HTTPS, for example through Cloudflare's proxy, before cutover). Spec 11's rollback then relies on Cloudflare serving the old site over HTTPS (record proxied, SSL/TLS mode **Flexible**) instead of plain HTTP, and spec 12 leaves Static Web Apps' default in place |
 
 Either way the result is a new row in [checked facts](page-cms-spec-conventions.md#azure-static-web-apps), with the date and the headers seen, in the same commit as any change it causes.
 
@@ -63,7 +63,7 @@ Either way the result is a new row in [checked facts](page-cms-spec-conventions.
 | Header | Value |
 |---|---|
 | `Content-Security-Policy` | `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' https: data:; font-src 'self'; connect-src 'self'; frame-src {https://host for each embeds.yaml entry, space separated}; form-action 'self' https://api.web3forms.com; upgrade-insecure-requests` |
-| `Strict-Transport-Security` | `max-age={site.hsts_max_age}`, only when `hsts_max_age` is set (it is not after a failed HSTS check). No `includeSubDomains`, no `preload`: the church may have other names on the domain. Five minutes keeps a rollback to the old HTTP-only site possible after cutover; spec 12 raises it to `31536000` once the old site is gone |
+| `Strict-Transport-Security` | `max-age={site.hsts_max_age}`, only when `hsts_max_age` is set (it is not after a failed HSTS check). Ours has no `includeSubDomains` and no `preload`, because the church may have other names on the domain. That reasoning only holds when the check finds ours replaces the platform's header; otherwise the platform's `includeSubDomains` applies anyway (see the HSTS check). Five minutes keeps a rollback to the old HTTP-only site possible after cutover; spec 12 raises it to `31536000` once the old site is gone |
 | `X-Content-Type-Options` | `nosniff` |
 | `Referrer-Policy` | `strict-origin-when-cross-origin` |
 | `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()` |
@@ -108,7 +108,7 @@ HTML keeps the platform default, so a publish shows within a minute.
 | `site.js` | under 2,048 bytes (spec 02, kept) |
 | Home page first load | HTML + CSS + JS + the hero's fallback image under 400,000 bytes |
 | Scripts | Only `/js/site.<hash>.js`, on every page |
-| Images | Every `<img>` has `alt`. Every `<img>` whose `src` starts with `/uploads/` or `/images/` has `width` and `height`. At most one `<img>` per page without `loading="lazy"` |
+| Images | Every `<img>` has `alt`. Every `<img>` whose `src` starts with `/images/`, or with `/uploads/` for a file that exists in the build, has `width` and `height`. A missing upload is a plain `<img>` with no size by design (spec 06), so it is exempt. At most one `<img>` per page without `loading="lazy"` |
 | Fonts | Only from `/fonts/` |
 | Storage | No cookie and nothing in `localStorage` or `sessionStorage` after visiting the pages |
 
@@ -218,15 +218,16 @@ Expected: FAIL, no `globalHeaders`.
 ```bash
 git add config site tests
 git commit -m "Send a five-minute HSTS header to check it replaces the platform's"
+git push -u origin <session branch>
 ```
 
-- [ ] **Step 4: Ask the maintainer to merge and run manual step 1.** Stop here until they report the headers.
+- [ ] **Step 4: Ask the maintainer to merge the pushed branch and run manual step 1.** Stop here until they report the headers.
 
 - [ ] **Step 5: Record the outcome**
 
-Only ours: add the fact row (date, `strict-transport-security: max-age=300` alone), commit `Record that our HSTS header replaces the platform's`.
+Only ours: add the fact row (date, `strict-transport-security: max-age=300` alone), commit `Record that our HSTS header replaces the platform's`, push.
 
-Static Web Apps' seen: add the fact row, remove `hsts_max_age` and the header, change the first unit test to expect no HSTS header, rewrite spec 11's Rollback for Cloudflare Flexible and spec 12's HSTS task to "leave Static Web Apps' default", update the design's HSTS row and the conventions' Site data row, run `npm test`, commit `Drop the five-minute HSTS, the platform's header wins`.
+Static Web Apps' seen: add the fact row, remove `hsts_max_age` and the header, change the first unit test to expect no HSTS header, rewrite spec 11's Rollback for Cloudflare Flexible and spec 12's HSTS task to "leave Static Web Apps' default", update the design's HSTS row and the conventions' Site data row, run `npm test`, commit `Drop the five-minute HSTS, the platform's header wins`, push. Spec 11's rollback text must also say that the platform's `includeSubDomains` makes browsers insist on HTTPS for every name under `stpaulswarton.co.uk` for about four months, so any HTTP-only name in the spec 01 records table needs checking before cutover.
 
 ---
 
@@ -294,6 +295,7 @@ Expected: FAIL.
 - [ ] **Step 4: Run the full suite**
 
 Run: `npm test`
+Expected: all pass, the config still under 20 KB.
 
 - [ ] **Step 5: Commit**
 
@@ -366,7 +368,7 @@ Feature: Delivery budgets
     Then the site has set no cookies and stored nothing
 ```
 
-"every image on the page has an alt attribute" comes from spec 04. New steps in `tests/steps/site.js`: "every link that opens a new tab has {string}", "the page, its stylesheet, script and hero image add up to under {int} bytes" (response sizes from `request`), "the only script is our own" (every `script[src]` matches `^/js/site\.[0-9a-f]{10}\.js$`), "every local image has a width and height" (`img` with `src` under `/uploads/` or `/images/`), "at most one image loads straight away" (count of `img` without `loading="lazy"`), "every font comes from {string}" (the `url()`s in the stylesheet's `@font-face` rules), "the site has set no cookies and stored nothing" (`context.cookies()` is empty, `localStorage.length` and `sessionStorage.length` are 0).
+"every image on the page has an alt attribute" comes from spec 04. New steps in `tests/steps/site.js`: "every link that opens a new tab has {string}", "the page, its stylesheet, script and hero image add up to under {int} bytes" (response sizes from `request`), "the only script is our own" (every `script[src]` matches `^/js/site\.[0-9a-f]{10}\.js$`), "every local image has a width and height" (`img` with `src` under `/images/`, or under `/uploads/` when a `request` for that `src` returns 200; a missing upload such as `/uploads/deleted.jpg` is skipped), "at most one image loads straight away" (count of `img` without `loading="lazy"`), "every font comes from {string}" (the `url()`s in the stylesheet's `@font-face` rules), "the site has set no cookies and stored nothing" (`context.cookies()` is empty, `localStorage.length` and `sessionStorage.length` are 0).
 
 - [ ] **Step 2: Run them and watch them fail**
 
@@ -378,6 +380,7 @@ Expected: FAIL on `noopener` at least.
 - [ ] **Step 4: Run the full suite**
 
 Run: `npm test`
+Expected: all pass, budgets included.
 
 - [ ] **Step 5: Commit**
 
@@ -441,8 +444,9 @@ git commit -m "Pin actions to commits"
 ```bash
 git add docs
 git commit -m "Add a how-to for checking cookies"
+git push -u origin <session branch>
 ```
 
 - [ ] **Step 2: Ask the maintainer to do the check** after merge and report back. Stop here until they do.
 
-- [ ] **Step 3: Apply the outcome** from the Cookies table. No cookies: delete the page, add the redirect, run `npm test` (the unit test "every local redirect target exists" covers the new target), then `npm run build && node scripts/check-urls.mjs --list tests/fixtures/live-urls.txt --built _site` (the cookie policy path now passes as a redirect), commit `Drop the cookie policy, the site sets no cookies`. Cookies found: record them in the how-to and ask the maintainer to choose; the chosen option is a follow-up task in this spec.
+- [ ] **Step 3: Apply the outcome** from the Cookies table. No cookies: delete the page, add the redirect, run `npm test` (the unit test "every local redirect target exists" covers the new target), then `npm run build && node scripts/check-urls.mjs --list tests/fixtures/live-urls.txt --built _site` (the cookie policy path now passes as a redirect), commit `Drop the cookie policy, the site sets no cookies`, push. Cookies found: record them in the how-to and ask the maintainer to choose; the chosen option is a follow-up task in this spec.

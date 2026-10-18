@@ -51,7 +51,6 @@ Committed, and run by `.github/workflows/deploy.yml` on every pull request and b
 
 - Gherkin features in `tests/features/`, JavaScript steps in `tests/steps/`, `node:test` unit tests in `tests/unit/`, fixtures in `tests/fixtures/`. Run with `npm ci && npm test` at the repo root (`npm run test:unit`, `npm run test:bdd` for one half).
 - Test behaviour in a real browser: what a page shows, where links go, what `site.js` does, what the feeds and `.pages.yml` produce. No tests on docs or Markdown.
-- Specs 04 to 12 show Python `unittest` examples. Write them as scenarios instead; the Python only describes the behaviour.
 - Every spec adds scenarios for what it builds and keeps the whole suite green. Reuse existing steps where they fit.
 
 ## When the maintainer gives final approval on a spec
@@ -74,7 +73,7 @@ Do all of these on the spec's branch before it merges:
 | `docs/features/page-cms/page-cms-spec-conventions.md` | Shared rules and the names specs pass between each other |
 | `.claude/skills/` | Imported obra/superpowers skills, see `.claude/skills/SUPERPOWERS.md` |
 | `site/` | Eleventy site: `content/` (Paul's), `_includes/`, `pages/`, `data/`, `assets/`, `static/` |
-| `config/` | Eleventy modules loaded by `eleventy.config.js`: content, URLs, data, assets, images, dates, filters, topics, `staticwebapp.config.json` |
+| `config/` | Eleventy modules loaded by `eleventy.config.js`: content (URLs and collections), data, pages, assets, images, dates, filters, topics, `staticwebapp.config.json` |
 | `infra/` | Bicep for the Static Web App, custom role definitions in `infra/roles/` |
 | `.pages.yml` | Pages CMS config |
 | `tests/` | Playwright and Gherkin tests, `node:test` unit tests, fixtures, `serve.js` (builds a fixture folder and serves it) |

@@ -100,7 +100,7 @@ A page in a folder with no `_index.md` (a ninth type added by hand) still gets `
 | `content.njk` | Root `_index.md`: `sections/home.njk`. Any other file outside `blog/`, `calendar/` and `notices/`: `sections/page.njk`. The section dispatch stays as it is for the three dated sections |
 | `sections/page.njk` | Title (h1), summary as `.lead` when set, image through `partials/image.njk` when set, body in `.prose` |
 | `contact.njk` | Extends `base.njk`. As a page, then the church address (as in the footer) and a link "Church contact list" to `/page/about/contact-list`. Spec 08 adds the form |
-| `sections/home.njk` | Hero: `<section class="hero">` with `picture` (`eager: true`, `sizes: '100vw'`) of `hero_image` or else `images/hero.jpg`, `alt` from `hero_alt` or else `""` (decorative), the site title (h1) and `lead`. Then "Church Notices" (h2 linking to `/notices`) with every notice newest first as `<a class="home-notice">` holding an `h3` title and the summary. Then "Latest Blog Articles" (h2 linking to `/blog`) with the 3 newest articles as `partials/card.njk`, image cropped with `fill: '350x300'`, title, summary, "Read →" link |
+| `sections/home.njk` | Hero: `<section class="hero">` with `picture` (`eager: true`, `sizes: '100vw'`) of `hero_image | assetPath` or else `images/hero.jpg`, so a Pages CMS `/uploads/...` value falls back to the default hero until spec 06 lets `picture` read uploads, `alt` from `hero_alt` or else `""` (decorative), the site title (h1) and `lead`. Then "Church Notices" (h2 linking to `/notices`) with every notice newest first as `<a class="home-notice">` holding an `h3` title and the summary. Then "Latest Blog Articles" (h2 linking to `/blog`) with the 3 newest articles as `partials/card.njk`, image cropped with `fill: '350x300'`, title, summary, "Read →" link |
 
 `card.njk` passes `fill` to `picture` when the including template sets `cardFill`. Cards stay inside `asyncEach`, and `ifAsync` guards the picture (see [Eleventy facts](page-cms-spec-conventions.md#eleventy-316)).
 
@@ -604,6 +604,7 @@ Expected: all pass, including "Whatever Paul has saved builds".
 ```bash
 git add .pages.yml tests
 git commit -m "Add pages and home page to Pages CMS"
+git push -u origin <session branch>
 ```
 
 Tell the maintainer the Pages CMS check is theirs after merge.

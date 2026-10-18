@@ -334,7 +334,7 @@ Filters unless marked. Named exports are importable by `tests/unit/`.
 | `newestFirst` | `filters.js` | Collection | A reversed copy | 03 |
 | `plainText` | `filters.js` | HTML | Visible text, entities decoded once, whitespace collapsed | 03 |
 | `excerpt` | `filters.js` | HTML, max (300) | `plainText` cut at max code points, with `…` when cut | 03 |
-| `date` | `dates.js` | Date | `02-Jan-06` | 03 |
+| `date` | `dates.js` | Date | Day-Mon-YY, as `01-Aug-15` | 03 |
 | `time`, `month`, `day` | `dates.js` | Date | `7:30 PM`, `January`, `5` | 03 |
 | `isoLondon` | `dates.js` | Date | RFC 3339 with London's offset, `Z` in winter | 03 |
 | `rfc822London` | `dates.js` | Date | RSS `pubDate` with London's offset | 03 |
@@ -392,7 +392,7 @@ Asset names change only when the bytes do, so spec 09 can cache them `immutable`
 | `tests/fixtures/empty/` | Every section with no items, and the home page (04) | 00 onwards |
 | `tests/fixtures/data/{no-key,with-key}/` | Fixture `settings.yaml` for `--data`. `KEYED_SITE` (`tests/steps/fixtures.js`) is the 1315 server built with `with-key` | 08 |
 | `tests/fixtures/live/` | Trimmed snapshots of live pages for the migration tests | 07 |
-| `scripts/check-urls.mjs` | Compares a built (`--built _site`) or deployed (`--base https://<host>`, routes from `--config`, default `_site/staticwebapp.config.json`) site with `tests/fixtures/live-urls.txt`. Exports `loadList`, `matchRoute`, `checkBuilt`, `checkHost`, `main`. Run by hand, never in the workflow | 05 |
+| `scripts/check-urls.mjs` | Compares a built (`--built _site`) or deployed (`--base https://<host>`, routes from `--config`, default `_site/staticwebapp.config.json`) site with `tests/fixtures/live-urls.txt`. `--redirects-to <host>` with `--base` expects every path to 301 to the same path on that host (spec 11, `www`). Exports `loadList`, `matchRoute`, `checkBuilt`, `checkHost`, `main`. Run by hand, never in the workflow | 05 |
 | `tests/fixtures/live-urls.txt` | Live sitemap paths plus the known variants, with the fetch date | 05 |
 | `scripts/screenshots.mjs` | Side-by-side screenshots with Playwright. Hand-run | 02 |
 | `scripts/compare-hugo.mjs` | Hugo against Eleventy, page by page. Used once for the switch. Removed in spec 12's repo tidy | Switch, removed 12 |

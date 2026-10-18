@@ -102,6 +102,7 @@ One path per line, sorted, no host, no trailing slash: every `<loc>` in the live
 | | |
 |---|---|
 | Usage | `node scripts/check-urls.mjs --list tests/fixtures/live-urls.txt --built _site`, or `--base https://<host> [--config _site/staticwebapp.config.json]` |
+| `--redirects-to` | With `--base`, a different check: every path must answer 301 with `Location` equal to `<redirects-to><path>`, the same path on another host. Spec 11 uses it for `www` (`--base https://www.stpaulswarton.co.uk --redirects-to https://stpaulswarton.co.uk`). No `--config` needed |
 | `--built` | For each path, pass when a file exists at `<built>/<path>/index.html` or `<built>/<path>` (path decoded), or a route in `<built>/staticwebapp.config.json` matches it exactly or by its trailing `*` prefix, case-sensitive |
 | `--base` | For each path, `GET` with `redirect: 'manual'`. Pass on 200, or on 301 or 302 when a redirect route in `--config` matches the path and `Location` is that route's target (or the path without its trailing slash). Anything else fails. Routes come from a local build, so the check never depends on the host publishing its config. Run `npm run build` first |
 | Output | One line per failure (`/nope: not built`, `/blog: 301 to /elsewhere`), then a summary `N checked, M failed`. Exit code 1 when any failed |
@@ -231,7 +232,7 @@ New step in `tests/steps/pages.js`: "the canonical address is {string}" (`link[r
 
 - [ ] **Step 2: Run them and watch them fail**
 
-Run: `npm run test:unit && npm run test:bdd -- --grep "canonical"`
+Run: `npm run test:unit && npm run test:bdd -- --grep "Every page names its address"`
 Expected: FAIL. No `trailingSlash`, no legacy routes, no canonical link.
 
 - [ ] **Step 3: Write `legacy.yaml`, `readData`, the routes in `buildSwaConfig`, `site.url`, the canonical link and the feed base**
@@ -349,7 +350,7 @@ git commit -m "Add XML and HTML site maps and robots.txt"
 - Create: `tests/unit/check-urls.test.mjs`
 
 **Interfaces:**
-- Produces: `scripts/check-urls.mjs` with named exports `loadList(file: string): string[]`, `matchRoute(route: string, path: string): boolean`, `checkBuilt(paths: string[], built: string): Promise<string[]>` (failures), `checkHost(paths: string[], base: string, { config, fetch }): Promise<string[]>` (failures; `fetch` defaults to the global one, so tests inject a fake), and `main(argv: string[]): Promise<number>`. It runs `main` only when started directly. Used in specs 07 and 11.
+- Produces: `scripts/check-urls.mjs` with named exports `loadList(file: string): string[]`, `matchRoute(route: string, path: string): boolean`, `checkBuilt(paths: string[], built: string): Promise<string[]>` (failures), `checkHost(paths: string[], base: string, { config, fetch, redirectsTo }): Promise<string[]>` (failures; `fetch` defaults to the global one, so tests inject a fake; with `redirectsTo` every path must 301 to the same path on that host), and `main(argv: string[]): Promise<number>`. It runs `main` only when started directly. Used in specs 07 and 11.
 
 - [ ] **Step 1: Take the snapshot**
 
@@ -395,6 +396,11 @@ test('a configured redirect to its target passes', async () => {
   assert.deepEqual(await checkHost(['/account/login', '/Calendar'], 'https://h', { config, fetch }), []);
 });
 
+test('redirectsTo expects every path on the other host', async () => {
+  const fetch = fakeFetch({ '/blog': [301, 'https://bare/blog'], '/notices': [301, 'https://bare/'] });
+  assert.deepEqual(await checkHost(['/blog', '/notices'], 'https://www', { fetch, redirectsTo: 'https://bare' }), ['/notices: 301 to https://bare/']);
+});
+
 test('the list ignores comments and blank lines', () => { /* temp file with "# x", "", "/a" gives ["/a"] */ });
 
 test('the live list is sorted, unique and has no trailing slashes', () => {
@@ -422,4 +428,5 @@ Expected: the suite passes. The script lists the content URLs not yet migrated a
 ```bash
 git add scripts tests
 git commit -m "Add live URL snapshot and URL check script"
+git push -u origin <session branch>
 ```

@@ -162,6 +162,7 @@ Expected: no output. These are review checks: the conventions keep docs out of `
 ```bash
 git add docs
 git commit -m "Add maintainer runbook, church handover and subscriber note"
+git push -u origin <session branch>
 ```
 
 ---
@@ -190,9 +191,10 @@ Expected: FAIL with `max-age=300`, then PASS after the change.
 ```bash
 git add site tests
 git commit -m "Raise HSTS to a year now the old site is gone"
+git push -u origin <session branch>
 ```
 
-- [ ] **Step 3: Otherwise record it.** Add to the runbook's Checks row that HSTS is Static Web Apps' own `max-age=10886400; includeSubDomains; preload` and that `site/data/site.yaml` has no `hsts_max_age` on purpose (spec 09). Commit `Record that HSTS is the platform's`.
+- [ ] **Step 3: Otherwise record it.** Add to the runbook's Checks row that HSTS is Static Web Apps' own `max-age=10886400; includeSubDomains; preload` and that `site/data/site.yaml` has no `hsts_max_age` on purpose (spec 09). Commit `Record that HSTS is the platform's` and push.
 
 - [ ] **Step 4: After the deploy**, `curl -sI https://stpaulswarton.co.uk/` and paste the `strict-transport-security` line into the hand-off.
 
@@ -211,4 +213,4 @@ git commit -m "Raise HSTS to a year now the old site is gone"
 Run: `npm ci && npm test`
 Expected: all pass. No test imports the parity script.
 
-- [ ] **Step 3: Commit** `Record phase 1 as done`, and tell the maintainer which manual steps remain.
+- [ ] **Step 3: Commit** `Record phase 1 as done`, push with `git push -u origin <session branch>`, and tell the maintainer which manual steps remain.

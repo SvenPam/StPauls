@@ -225,6 +225,7 @@ Expected: no output. These are review checks, not tests: the conventions keep do
 ```bash
 git add docs
 git commit -m "Add the editor guide and suggested policy wording"
+git push -u origin <session branch>
 ```
 
 ---
@@ -250,4 +251,5 @@ Expected: one commit per saved item, and the build passes with each saved item a
 ```bash
 git add -A .pages.yml scripts tests docs
 git commit -m "Fix issues found saving migrated content in Pages CMS"
+git push -u origin <session branch>
 ```
