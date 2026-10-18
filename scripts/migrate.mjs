@@ -706,14 +706,14 @@ export async function main(argv = process.argv.slice(2), { fetch = globalThis.fe
   for (const d of downloads) {
     const dest = path.join(site, 'static', d.dest);
     if (existsSync(dest)) continue;
-    changed.push(`static/${d.dest}`);
-    if (opts.check) continue;
+    // Check mode fetches too, so a file gone from the source (already broken on live) is not a change.
     try {
       const bytes = await get(fetch, d.url, 'bytes');
+      changed.push(`static/${d.dest}`);
+      if (opts.check) continue;
       await mkdir(path.dirname(dest), { recursive: true });
       await writeFile(dest, bytes);
     } catch (err) {
-      changed.pop();
       report.failed.push([d.dest, d.url, err.message]);
     }
   }

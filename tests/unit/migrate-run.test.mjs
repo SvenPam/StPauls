@@ -16,7 +16,8 @@ const snap = (name) => readFileSync(`tests/fixtures/live/${name}`, 'utf8');
 const formsPage = snap('page-diary.html')
   .replace('Church Diary', 'Forms')
   .replace(/<iframe[^>]*><\/iframe>/, '<p><a href="/Areas/st_pauls/Uploads/baptism-form.pdf">Baptism form</a> and <a href="http://www.stpaulswarton.co.uk/areas/ST_PAULS/uploads/Baptism-Form.pdf">again</a></p>' +
-    '<p><img src="https://media.acny.uk/media/thumbs/e0/60/e0602c.jpg?h=300&amp;w=350&amp;mode=crop" alt="Crocus"></p>');
+    '<p><img src="https://media.acny.uk/media/thumbs/e0/60/e0602c.jpg?h=300&amp;w=350&amp;mode=crop" alt="Crocus"></p>' +
+    '<p><img src="https://media.acny.uk/media/venues/gone.jpg" alt="Gone"></p>');
 
 const PAGES = {
   '/': snap('home.html'),
@@ -45,6 +46,7 @@ const fetch = async (url) => {
     return new Response(`<?xml version="1.0"?><urlset>${locs}</urlset>`);
   }
   if (u.origin === LIVE && PAGES[u.pathname]) return new Response(PAGES[u.pathname]);
+  if (u.pathname.endsWith('/gone.jpg')) return new Response('denied', { status: 403 });
   if (/\.(jpe?g|png|gif)$/i.test(u.pathname)) return new Response(jpeg);
   if (/\.pdf$/i.test(u.pathname)) return new Response('%PDF-1.4 fixture');
   return new Response('not found', { status: 404 });
@@ -131,6 +133,7 @@ test('the report lists policy text, inferred dates, unknown topics and files it 
   for (const h of ['## Policy text that no longer applies', '## Inferred dates', '## Unknown topics', '## Files the script did not write']) assert.ok(rep.includes(h), h);
   assert.match(rep, /notices\/practice\.md/);
   assert.match(rep, /mu-advent-carol-service/);
+  assert.match(rep, /\| uploads\/acny\/gone\.jpg \| https:\/\/media\.acny\.uk\/media\/venues\/gone\.jpg \| HTTP 403 \|/);
 });
 
 test('check mode lists a changed file', async () => {

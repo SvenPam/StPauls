@@ -1,9 +1,10 @@
 // One stylesheet and one script, minified, content-hashed and written to the output folder.
 // Exposes global `assets` ({ css, js } each { url, integrity }), a `build.year`, and passes site/static through to the root.
-// When UPLOADS names another uploads folder (the tests), it is published at /uploads too.
+// When UPLOADS names another uploads folder (the tests), it is published at /uploads instead of site/static/uploads.
 import CleanCSS from 'clean-css';
 import { minify } from 'terser';
 import { createHash } from 'node:crypto';
+import { readdirSync } from 'node:fs';
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -35,6 +36,12 @@ export default function (eleventyConfig) {
   });
   eleventyConfig.addGlobalData('assets', () => current);
   eleventyConfig.addGlobalData('build', { year: new Date().getFullYear() });
-  eleventyConfig.addPassthroughCopy({ 'site/static': '/' });
-  if (process.env.UPLOADS) eleventyConfig.addPassthroughCopy({ [process.env.UPLOADS]: '/uploads' });
+  if (process.env.UPLOADS) {
+    for (const entry of readdirSync('site/static')) {
+      if (entry !== 'uploads') eleventyConfig.addPassthroughCopy({ [`site/static/${entry}`]: `/${entry}` });
+    }
+    eleventyConfig.addPassthroughCopy({ [process.env.UPLOADS]: '/uploads' });
+  } else {
+    eleventyConfig.addPassthroughCopy({ 'site/static': '/' });
+  }
 }
