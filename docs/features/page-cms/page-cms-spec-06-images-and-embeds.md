@@ -1,7 +1,7 @@
 ---
 date: 2026-10-18
 tags: [spec, plan, stpauls]
-status: agreed
+status: done
 ---
 
 # Spec 06: images and embeds
@@ -121,13 +121,13 @@ In the `build` job, before the Build step, `actions/cache` (current major tag; s
 
 ## Acceptance
 
-- [ ] `npm test` passes.
-- [ ] A 1600 by 900 upload in a body becomes `<picture>` with WebP at 480, 800, 1200 and 1600, and `width="800" height="450"` on the fallback.
-- [ ] A hot-linked image keeps its `src`, gains `loading="lazy"`, and fits the column.
-- [ ] A missing upload, a GIF and an SVG render as plain images without failing the build.
-- [ ] A Google Calendar embed renders sandboxed and responsive. An embed address on another host renders nothing.
-- [ ] Every page collection in Pages CMS has `embed` and `embed_src`.
-- [ ] `actionlint` passes.
+- [x] `npm test` passes.
+- [x] A 1600 by 900 upload in a body becomes `<picture>` with WebP at 480, 800, 1200 and 1600, and `width="800" height="450"` on the fallback.
+- [x] A hot-linked image keeps its `src`, gains `loading="lazy"`, and fits the column.
+- [x] A missing upload, a GIF and an SVG render as plain images without failing the build.
+- [x] A Google Calendar embed renders sandboxed and responsive. An embed address on another host renders nothing.
+- [x] Every page collection in Pages CMS has `embed` and `embed_src`.
+- [x] `actionlint` passes.
 
 ---
 
