@@ -52,3 +52,10 @@ test('Dependabot is monthly, grouped and limited to 5 PRs', () => {
     assert.equal(Object.keys(u.groups).length, 1);
   }
 });
+test('the weekly audit has its own concurrency group', () => {
+  assert.equal(wf.concurrency['cancel-in-progress'], false);
+  assert.equal(
+    wf.concurrency.group,
+    "${{ github.event.schedule == '41 4 * * 1' && 'audit' || 'deploy' }}-${{ github.ref }}",
+  );
+});

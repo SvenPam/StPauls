@@ -27,8 +27,9 @@ permissions:
   contents: read
 
 # A second Pages CMS save waits for the running deploy, then ships the newer commit.
+# The weekly audit has its own group so it cannot replace a deploy that is waiting.
 concurrency:
-  group: deploy-${{ github.ref }}
+  group: ${{ github.event.schedule == '41 4 * * 1' && 'audit' || 'deploy' }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
