@@ -319,9 +319,9 @@ Each file is a global named after it (`topics.yaml` is `topics`).
 | `partials/footer.njk` | `collections \| footerGroups` (`menus.footer` until 04), `site`, `build.year` | Footer groups, Find Us map and address, copyright | 02, rewritten 04, 08 |
 | `partials/card.njk` | `item`, optional `cardFill` (04) | `<article class="card">` for lists, topic pages and the home page. Render inside `asyncEach`. With `cardFill` the image is cropped with `picture` `fill` | 03, 04 |
 | `partials/blog-aside.njk` | `topics`, `collections.blog` | Blog topics and the 7 latest articles | 03 |
-| `partials/image.njk` | `imageSrc`, `imageAlt` | `picture` for a file under `site/assets/`, plain `<img>` otherwise | 03, uploads 06 |
+| `partials/image.njk` | `imageSrc`, `imageAlt` | `picture` for a file under `site/assets/`, plain `<img>` otherwise. From 06 every image goes to `picture` | 03, uploads 06 |
 | `partials/topic-link.njk` | `topicSlug`, `topicSection` | Topic link, or nothing for a topic not in `topics.yaml` | 03 |
-| `partials/embed.njk` | Page data | Sandboxed responsive iframe, or nothing | 06 |
+| `partials/embed.njk` | Page data, `embedFor` | Sandboxed responsive iframe, or nothing. Included by `sections/page.njk` after the body | 06 |
 
 ### Functions in `config/`
 
@@ -345,7 +345,10 @@ Filters unless marked. Named exports are importable by `tests/unit/`.
 | `topicOf` | `content.js`, export only | Section, data | Topic slug or `''` | 03 |
 | `itemPermalink` | `content.js`, export only | Input path, data | Output path or `false` | 03, extended 04 |
 | `assetPath` | `images.js` | Front matter image path | Path under `site/assets/`, or `''` | 03 |
-| `picture` (async shortcode) | `images.js` | `{ src, alt, sizes, eager }`, `src` under `site/assets/` | `<picture>` with WebP and the original format at 480, 800, 1200, 1600 (up to the source width), `width`, `height`, lazy unless `eager` | 02, `fill` 04, uploads 06 |
+| `UPLOADS_DIR` | `images.js`, export only | | `process.env.UPLOADS ?? 'site/static/uploads'` | 06 |
+| `optimiseImages` | `images.js`, export and the `images` transform | HTML, `{ assets, uploads, out }` | Body `<img>` of uploads (also on `http(s)://stpaulswarton.co.uk/uploads/`) as `<picture>`, eager only for the first image in `<main>`; other images not under `/images/` gain `loading="lazy" decoding="async"` | 06 |
+| `embedFor` | `embeds.js` | Page data, `embeds` | `{ key, src, title }` when `embed` is known and `embed_src` (a leading `//` made `https://`) is `https:` on exactly that host, else `null` | 06 |
+| `picture` (async shortcode) | `images.js` | `{ src, alt, sizes, eager, fill }`, `src` under `site/assets/`, or `/uploads/...` from `UPLOADS_DIR` (06). Core `pictureHtml(opts, { assets, uploads, out })`. A missing upload or another site gives a plain lazy `<img>`; GIF and SVG uploads stay plain with their size | `<picture>` with WebP and the original format at 480, 800, 1200, 1600 (up to the source width), `width`, `height`, lazy unless `eager` | 02, `fill` 04, uploads 06 |
 | `menuItems` | `menus.js` | `collections` | `menus.main` shape: Home, Blog, Calendar, then per page type in weight order its `header: true` pages, a plain `{ name, url }` for one, `{ name, children }` for several, none skipped | 04 |
 | `footerGroups` | `menus.js` | `collections` | `menus.footer` shape: `Links` (blog, calendar, notices, site map, `about` pages with `footer: true`), then a group per other type with `footer: true` pages | 04 |
 | `buildSwaConfig` | `swa.js`, export only | Output folder, data (`readData()` by default: `legacy` from 05, `site` and `embeds` from 09) | Writes and returns `staticwebapp.config.json` | 00, routes 05, headers 09 |
@@ -364,9 +367,9 @@ The body is printed as `{{ content | safe }}`. Spec 06 (body images) and spec 09
 | `site/assets/css/*.css` | Concatenated in file name order, minified with clean-css, written to `/css/site.<hash>.css` with `integrity` | 02 |
 | `site/assets/js/site.js` | The only script. Menu toggle (02), hiding expired events (03), contact subject (08). Minified with terser to `/js/site.<hash>.js` | 02 |
 | `site/assets/images/` | Layout images through `picture`: map (02), hero (04). Written to `/images/{name}-{width}.<hash>.{ext}` | 02 |
-| `.cache/images/` | Resized image cache, keyed on source bytes, width, format and quality. Not committed | 02, CI cache 06 |
+| `.cache/images/` | Resized image cache, keyed on source bytes, width, format, quality and `fill`. Not committed. The `build` job restores it with `actions/cache`, key `images-<hash of package-lock.json and config/images.js>-<hash of uploads and layout images>` | 02, CI cache 06 |
 | `site/static/` | Copied to the root: `favicon.ico`, `fonts/` | 02 |
-| `site/static/uploads/` | Pages CMS media folder, published at `/uploads/` | 00, 06 |
+| `site/static/uploads/` | Pages CMS media folder, published at `/uploads/`. Resized copies go to `/images/{slug}-{width}.<hash8>.{ext}`. `uploads/legacy/` holds the migrated legacy uploads (07) | 00, 06, 07 |
 
 Asset names change only when the bytes do, so spec 09 can cache them `immutable`.
 
@@ -374,12 +377,12 @@ Asset names change only when the bytes do, so spec 09 can cache them `immutable`
 
 | Name | What | Spec |
 |---|---|---|
-| `tests/serve.js <content dir> <port>` | Builds the site with `npx @11ty/eleventy` and `CONTENT=<content dir>` into a temp folder and serves it like Static Web Apps. Spec 06 adds an uploads folder option and spec 08 a data folder option, and `playwright.config.js` gets a server per content set | 03 |
-| `tests/playwright.config.js` | One server per content set: `fixtures/content` on 1313, `fixtures/empty` on 1314 | 03 |
+| `tests/serve.js <content dir> <port> [--uploads] [--data <dir>]` | Builds the site with `npx @11ty/eleventy` and `CONTENT=<content dir>` into a temp folder and serves it like Static Web Apps. `--uploads` (06) writes the fixture uploads to a temp folder and sets `UPLOADS`. `--data` (08) sets `DATA` | 03, 06, 08 |
+| `tests/playwright.config.js` | One server per content set: `fixtures/content` on 1313 (with `--uploads` from 06, `--data fixtures/data/no-key` from 08), `fixtures/empty` on 1314, `fixtures/content` with `--data fixtures/data/with-key` on 1315 (08) | 03 |
 | `tests/features/*.feature` | One feature per area: `menu`, `layout`, `notices`, `blog`, `calendar`, `feeds`, `editor` (Pages CMS config and the real content build). Later: `pages` (pages, contact, home, 04), `sitemap` (05), `images` (06), `contact` (08), `budgets` (09) | 03 |
 | `tests/steps/*.js` | Shared steps. `fixtures.js` holds the `ui` world (current page, feed, config) | 03 |
-| `tests/unit/*.test.mjs` | `node:test`: `dates`, `filters`, `images`, `topics`, `swa-config`, `workflow`, `roles`. Later: `content`, `menus` (04), `check-urls` (05), `migrate` (07), `contact` (08), `links` (09), `infra` (11) | 03 |
-| Image fixtures | Small committed PNGs, or written by a step or unit test with `sharp` or `node:zlib`. Spec 06 | 06 |
+| `tests/unit/*.test.mjs` | `node:test`: `dates`, `filters`, `images`, `topics`, `swa-config`, `workflow`, `roles`. Later: `content`, `menus` (04), `check-urls` (05), `embeds` (06), `migrate` (07), `contact` (08), `links` (09), `infra` (11) | 03 |
+| Image fixtures | `tests/fixtures/uploads.mjs` `writeFixtureUploads(dir)` writes `fixture-wide.png` (1600 by 900), `fixture-huge.png` (6000 by 4000), `Fixture Space.PNG` (900 by 600), `fixture.gif`, `fixture.svg` with sharp. Nothing binary committed | 06 |
 | `tests/fixtures/content/` | One fixture tree for every section | 00 onwards |
 | `tests/fixtures/empty/` | Every section with no items | 00 onwards |
 | `tests/fixtures/live/` | Trimmed snapshots of live pages for the migration tests | 07 |
