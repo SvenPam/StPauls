@@ -1,4 +1,4 @@
-// Site-owned pages (home stub, 404, later topic pages and feeds) live in site/pages/, outside the content dir.
+// Site-owned pages (404, topic pages and feeds) live in site/pages/, outside the content dir.
 // Each sets its own `layout` and `permalink`.
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';

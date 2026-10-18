@@ -2,7 +2,9 @@
 layout: base.njk
 ---
 {#- ifAsync, not if: a plain if around an include that runs the async picture shortcode drops its output.
-    The three dated sections have list and item templates. Anything else that has a permalink is a page. -#}
+    The three dated sections have list and item templates, the root _index.md is the home page, anything else with a permalink is a page. -#}
 {%- set dated = section == "blog" or section == "calendar" or section == "notices" -%}
+{%- set home = section == "" and isIndex -%}
 {% ifAsync dated %}{% include "sections/" + section + ("-list" if isIndex else "-item") + ".njk" %}{% endif %}
-{%- ifAsync not dated %}{% include "sections/page.njk" %}{% endif %}
+{%- ifAsync home %}{% include "sections/home.njk" %}{% endif %}
+{%- ifAsync not dated and not home %}{% include "sections/page.njk" %}{% endif %}

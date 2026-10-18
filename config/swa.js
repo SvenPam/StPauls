@@ -1,11 +1,11 @@
 // Writes staticwebapp.config.json for Azure Static Web Apps after each build.
-// Spec 05 adds trailingSlash and the generated legacy routes here.
+// No routes until spec 05 adds trailingSlash and the generated legacy routes. / is the home page.
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 export async function buildSwaConfig(outDir = '_site') {
   const config = {
-    routes: [{ route: '/', redirect: '/notices/', statusCode: 302 }],
+    routes: [],
     responseOverrides: {
       404: { rewrite: '/404.html', statusCode: 404 },
     },

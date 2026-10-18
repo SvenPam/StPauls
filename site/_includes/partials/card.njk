@@ -1,4 +1,5 @@
-{#- One item in a list or topic page, from `item`. Lists render it inside asyncEach because blog cards may hold a picture. -#}
+{#- One item in a list, topic page or the home page, from `item`. Lists render it inside asyncEach because blog cards may hold a picture.
+    With `cardFill` ('WxH') the image is cropped to that aspect. -#}
 {%- set d = item.data -%}
 {%- set event = d.section == 'calendar' -%}
 <article class="card"{% if event %} data-end="{{ d | eventEnd | isoLondon }}"{% endif %}>
@@ -13,7 +14,7 @@
   {%- if d.location %}
   <p class="card__location">{{ d.location }}</p>
   {%- endif %}
-  {%- ifAsync d.section == 'blog' %}{% set imageSrc = d.image %}{% set imageAlt = d.image_alt %}{% include "partials/image.njk" %}{% endif %}
+  {%- ifAsync d.section == 'blog' %}{% set imageSrc = d.image %}{% set imageAlt = d.image_alt %}{% set imageFill = cardFill %}{% include "partials/image.njk" %}{% endif %}
   {%- if d.summary %}
   <p class="{% if d.section == 'notices' %}notice-summary{% else %}card__summary{% endif %}">{{ d.summary }}</p>
   {%- endif %}

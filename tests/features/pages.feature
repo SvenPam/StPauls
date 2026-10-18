@@ -35,3 +35,29 @@ Feature: Pages
       | gallery      | Gallery      | 90  |
       | forms        | Forms        | 100 |
       | safeguarding | Safeguarding | 110 |
+
+  Scenario: The home page
+    When I open "/"
+    Then the hero shows "St Paul's Warton" and "Serving Christ - Serving the Community"
+    And the hero image loads straight away
+    And the "Church Notices" link goes to "/notices"
+    And the home notices are, in order:
+      | Fixture future   |
+      | Fixture newer    |
+      | Fixture older    |
+      | Fixture migrated |
+    And the cards are, in order:
+      | Fixture article 8 |
+      | Fixture article 7 |
+      | Fixture article 6 |
+    And the "Fixture article 8" card image is 350 by 300
+
+  Scenario: Every image on the home page has a description
+    When I open "/"
+    Then every image on the page has an alt attribute
+
+  Scenario: The home page with no content
+    When I open "/" on the empty site
+    Then I see "Church Notices"
+    And I see "Latest Blog Articles"
+    And there are no cards
