@@ -32,11 +32,10 @@ test('staticwebapp.config.json is built, parses and is under 20 KB', async () =>
   assert.ok(size < 20 * 1024, `config is ${size} bytes`);
 });
 
-test('it holds the same content as the old static file', () => {
-  assert.deepEqual(config, {
-    routes: [{ route: '/', redirect: '/notices/', statusCode: 302 }],
-    responseOverrides: { 404: { rewrite: '/404.html', statusCode: 404 } },
-  });
+test('the root is served, not redirected', () => {
+  assert.deepEqual(config.routes.filter((r) => r.route === '/'), []);
+  assert.deepEqual(config.routes, []);
+  assert.deepEqual(config.responseOverrides, { 404: { rewrite: '/404.html', statusCode: 404 } });
 });
 
 test('the 404 override rewrites to a built page with status 404', () => {

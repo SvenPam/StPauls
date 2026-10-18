@@ -1,5 +1,10 @@
 import { expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { parse } from 'yaml';
 import { EMPTY_SITE, Given, Then, When } from './fixtures.js';
+
+const REPO = resolve('..');
 
 const main = (ui) => ui.page.locator('main');
 const visible = (locator) => locator.filter({ visible: true });
@@ -109,4 +114,52 @@ Then('no link in the page ends with a slash', async ({ ui }) => {
 Then('the page does not scroll sideways', async ({ ui }) => {
   const [scroll, client] = await ui.page.evaluate(() => [document.documentElement.scrollWidth, document.documentElement.clientWidth]);
   expect(scroll).toBeLessThanOrEqual(client);
+});
+
+// Structural files only: the page types are the maintainer's and hidden from Pages CMS.
+Then('the real page types are, in order:', async ({}, table) => {
+  for (const [type, title, weight] of table.raw()) {
+    const text = readFileSync(join(REPO, 'site/content/page', type, '_index.md'), 'utf8');
+    const data = parse(/^---\n([\s\S]*?)\n---/.exec(text)[1]);
+    expect({ type, title: data.title, weight: data.weight }).toEqual({ type, title, weight: Number(weight) });
+  }
+});
+
+Then('the hero shows {string} and {string}', async ({ ui }, title, lead) => {
+  await expect(ui.page.locator('.hero h1')).toHaveText(title);
+  await expect(ui.page.locator('.hero')).toContainText(lead);
+});
+
+Then('the hero image loads straight away', async ({ ui }) => {
+  const img = ui.page.locator('.hero img');
+  await expect(img).toHaveCount(1);
+  await expect(img).not.toHaveAttribute('loading');
+});
+
+// The page starts with these notices, in this order.
+Then('the home notices are, in order:', async ({ ui }, table) => {
+  const want = table.raw().map((r) => r[0]);
+  const got = await main(ui).locator('.home-notice h3').allTextContents();
+  expect(got.slice(0, want.length).map((t) => t.trim())).toEqual(want);
+});
+
+Then('the {string} card image is {int} by {int}', async ({ ui }, title, width, height) => {
+  const card = main(ui).locator('.card').filter({ has: ui.page.getByRole('link', { name: title, exact: true }) });
+  const img = card.locator('img');
+  await expect(img).toHaveAttribute('width', String(width));
+  await expect(img).toHaveAttribute('height', String(height));
+});
+
+Then('every image on the page has an alt attribute', async ({ ui }) => {
+  const missing = await ui.page.locator('img:not([alt])').evaluateAll((imgs) => imgs.map((i) => i.outerHTML));
+  expect(missing).toEqual([]);
+});
+
+Then('there are no cards', async ({ ui }) => {
+  await expect(main(ui).locator('.card')).toHaveCount(0);
+});
+
+Then('the page has the site header and footer', async ({ ui }) => {
+  await expect(ui.page.locator('header.site-header')).toHaveCount(1);
+  await expect(ui.page.locator('footer.site-footer')).toHaveCount(1);
 });

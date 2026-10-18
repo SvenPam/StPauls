@@ -34,3 +34,21 @@ Feature: Pages CMS
 
   Scenario: Whatever Paul has saved builds
     Then the real content builds
+
+  Scenario: The home page is one entry Paul cannot delete
+    Then the "home" entry edits the file "site/content/_index.md"
+    And the "home" entry has the fields "title, lead, hero_image, hero_alt"
+
+  Scenario: Pages are grouped by type in menu order
+    Then the "pages" group holds, in order:
+      | page-about        |
+      | page-services     |
+      | page-groups       |
+      | page-community    |
+      | page-links        |
+      | page-gallery      |
+      | page-forms        |
+      | page-safeguarding |
+    And every page collection saves to its type folder with the fields "title, summary, header, footer, weight, image, image_alt, body, url, layout"
+    And the "page-about" collection has a hidden "url" field
+    And the "page-about" collection has a hidden "layout" field

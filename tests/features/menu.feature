@@ -56,3 +56,38 @@ Feature: Main menu
     When I open "/notices"
     And I press Tab
     Then focus is on the "Skip to content" link
+
+  Scenario: The menu follows the pages
+    When I open "/notices"
+    And I press the menu button
+    Then the main menu items are, in order:
+      | Home     |
+      | Blog     |
+      | Calendar |
+      | About    |
+      | Services |
+      | Groups   |
+      | Gallery  |
+    And the "Groups" link goes to "/page/groups/church-groups" in the menu
+    And the "About" menu lists, in order:
+      | About Us       |
+      | Contact Us     |
+      | Privacy Policy |
+    And the "Services" menu lists, in order:
+      | Easter Services 2026    |
+      | Regular Church Services |
+
+  Scenario: The footer follows the pages
+    When I open "/notices"
+    Then the footer groups are, in order:
+      | Links    |
+      | Services |
+      | Groups   |
+      | Gallery  |
+    And the "Links" footer group links to, in order:
+      | /blog                      |
+      | /calendar                  |
+      | /notices                   |
+      | /sitemap                   |
+      | /contact                   |
+      | /page/about/privacy-policy |

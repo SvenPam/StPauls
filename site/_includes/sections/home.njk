@@ -1,0 +1,36 @@
+{#- The home page, from the root _index.md. A hero_image Pages CMS saved under /uploads falls back to the default hero
+    until spec 06 lets picture read uploads. An empty hero_alt makes the image decorative. -#}
+{%- set heroSrc = (hero_image | assetPath) or 'images/hero.jpg' %}
+<section class="hero">
+  {% picture { src: heroSrc, alt: hero_alt or '', sizes: '100vw', eager: true } %}
+  <div class="hero__text">
+    <h1>{{ title }}</h1>
+    {%- if lead %}
+    <p class="hero__lead">{{ lead }}</p>
+    {%- endif %}
+  </div>
+</section>
+
+<section class="home-section" aria-labelledby="home-notices">
+  <h2 id="home-notices"><a href="/notices">Church Notices</a></h2>
+  <div class="home-notices">
+    {%- for item in collections.notices | newestFirst %}
+    <a class="home-notice" href="{{ item.url | href }}">
+      <h3>{{ item.data.title }}</h3>
+      {%- if item.data.summary %}
+      <p>{{ item.data.summary }}</p>
+      {%- endif %}
+    </a>
+    {%- endfor %}
+  </div>
+</section>
+
+<section class="home-section" aria-labelledby="home-articles">
+  <h2 id="home-articles"><a href="/blog">Latest Blog Articles</a></h2>
+  <div class="card-grid">
+    {%- set cardFill = '350x300' %}
+    {%- asyncEach item in (collections.blog | newestFirst).slice(0, 3) %}
+    {% include "partials/card.njk" %}
+    {%- endeach %}
+  </div>
+</section>

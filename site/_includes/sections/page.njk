@@ -1,0 +1,10 @@
+<article>
+  <h1>{{ title }}</h1>
+  {%- if summary %}
+  <p class="lead">{{ summary }}</p>
+  {%- endif %}
+  {% set imageSrc = image %}{% set imageAlt = image_alt %}{% include "partials/image.njk" %}
+  <div class="prose">
+    {{ content | safe }}
+  </div>
+</article>

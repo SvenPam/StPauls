@@ -73,3 +73,18 @@ test('assetPath accepts files under site/assets and rejects uploads, folders and
   assert.equal(assetPath(''), '');
   assert.equal(assetPath(undefined), '');
 });
+
+test('fill crops to the aspect and sizes the img to it', async () => {
+  const html = await pictureHtml({ src: 'images/t.png', alt: 'T', fill: '350x300' }, { assets: tmp, out });
+  assert.match(html, /-350\.\w{8}\.webp 350w, [^"]*-700\.\w{8}\.webp 700w"/);
+  assert.match(html, / width="350" height="300"/);
+  const file = /src="([^"]*\.png)"/.exec(html)[1];
+  const meta = await sharp(join(out, file)).metadata();
+  assert.equal(meta.width / meta.height, 350 / 300);
+});
+
+test('a cropped and an uncropped copy of one source do not collide', async () => {
+  const plain = await pictureHtml({ src: 'images/t.png', alt: 'T' }, { assets: tmp, out });
+  const cropped = await pictureHtml({ src: 'images/t.png', alt: 'T', fill: '350x300' }, { assets: tmp, out });
+  assert.notEqual(/src="([^"]+)"/.exec(plain)[1], /src="([^"]+)"/.exec(cropped)[1]);
+});

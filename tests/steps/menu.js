@@ -60,3 +60,28 @@ Then('the menu button is at least {int} by {int} pixels', async ({ ui }, w, h) =
   expect(box.width).toBeGreaterThanOrEqual(w);
   expect(box.height).toBeGreaterThanOrEqual(h);
 });
+
+const column = (table) => table.raw().map((r) => r[0]);
+const footerGroup = (ui, title) => ui.page.locator('.footer-groups .footer-group')
+  .filter({ has: ui.page.locator('.footer-group__title').getByText(title, { exact: true }) }).first();
+
+Then('the main menu items are, in order:', async ({ ui }, table) => {
+  await expect(nav(ui).locator('.site-nav__list > li > details > summary, .site-nav__list > li > a')).toHaveText(column(table));
+});
+
+Then('the {string} link goes to {string} in the menu', async ({ ui }, name, href) => {
+  await expect(nav(ui).getByRole('link', { name, exact: true })).toHaveAttribute('href', href);
+});
+
+Then('the {string} menu lists, in order:', async ({ ui }, name, table) => {
+  await expect(group(ui, name).locator('a')).toHaveText(column(table));
+});
+
+Then('the footer groups are, in order:', async ({ ui }, table) => {
+  await expect(ui.page.locator('.footer-groups .footer-group__title')).toHaveText(column(table));
+});
+
+Then('the {string} footer group links to, in order:', async ({ ui }, title, table) => {
+  const hrefs = await footerGroup(ui, title).locator('a').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
+  expect(hrefs).toEqual(column(table));
+});
