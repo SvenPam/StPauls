@@ -1,0 +1,28 @@
+{
+  "name": "stpauls",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=26"
+  },
+  "scripts": {
+    "build": "eleventy",
+    "test": "npm run test:unit && npm run test:bdd",
+    "test:unit": "node --test \"tests/unit/**/*.test.mjs\"",
+    "test:bdd": "cd tests && bddgen && playwright test",
+    "audit": "npm audit"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "3.1.6",
+    "@playwright/test": "1.56.1",
+    "clean-css": "5.3.3",
+    "playwright-bdd": "8.5.1",
+    "sharp": "0.35.5",
+    "terser": "5.51.2",
+    "yaml": "2.9.1"
+  },
+  "overrides": {
+    "chokidar": "4.0.3",
+    "argparse": "2.0.1"
+  }
+}

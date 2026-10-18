@@ -1,0 +1,4 @@
+---
+layout: base.njk
+---
+{% include "sections/" + section + ("-list" if isIndex else "-item") + ".njk" %}

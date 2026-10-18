@@ -6,7 +6,7 @@ const testDir = defineBddConfig({
   steps: 'steps/*.js',
 });
 
-// Each content set is built with Hugo and served as Static Web Apps serves it.
+// Each content set is built with Eleventy and served as Static Web Apps serves it.
 const sites = [
   ['fixtures/content', 1313],
   ['fixtures/empty', 1314],
@@ -14,9 +14,11 @@ const sites = [
 
 export default defineConfig({
   testDir,
+  // Kept in tests/ now that package.json is at the repo root.
+  outputDir: 'test-results',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
+  reporter: process.env.CI ? [['list'], ['html', { open: 'never', outputFolder: 'playwright-report' }]] : 'list',
   use: {
     baseURL: 'http://localhost:1313',
     trace: 'retain-on-failure',

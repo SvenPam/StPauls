@@ -58,7 +58,8 @@ Then('a title of {string} is {word}', async ({ ui }, title, outcome) => {
 Then('the real content builds', async () => {
   const out = mkdtempSync(join(tmpdir(), 'stpauls-real-'));
   try {
-    execFileSync(process.env.HUGO ?? 'hugo', ['--source', join(REPO, 'site'), '--destination', out, '--minify', '--quiet'], { stdio: 'pipe' });
+    const { CONTENT, ...env } = process.env;
+    execFileSync('npx', ['@11ty/eleventy', `--output=${out}`, '--quiet'], { cwd: REPO, env, stdio: 'pipe' });
   } finally {
     rmSync(out, { recursive: true, force: true });
   }
