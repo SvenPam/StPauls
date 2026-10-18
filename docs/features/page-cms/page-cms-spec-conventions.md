@@ -1,5 +1,5 @@
 ---
-date: 2026-10-17
+date: 2026-10-18
 tags: [reference, stpauls, specs]
 status: stable
 ---
@@ -25,29 +25,59 @@ Every task in every spec includes these.
 
 ### Build
 
-- Hugo extended `0.167.0`, the same string everywhere. No npm in the Hugo build: the only `package.json` is in `tests/`. No remote Hugo modules, no theme. Local `[[module.mounts]]` are fine.
-- Hugo config has no `languageCode` (deprecated since 0.158, it trips `--panicOnWarning`).
-- Templates use the 0.146+ layout: `site/layouts/baseof.html`, `site/layouts/_partials/`, `site/layouts/{section}/section.html`, `site/layouts/{section}/page.html`.
-- Content bodies are HTML. Templates render them through `_partials/body.html` (spec 03), never `.Content`. `.Content` runs Goldmark, which turns indented HTML after a blank line into a code block.
-- Internal links are written without a trailing slash, except `/`, through `_partials/href.html` (spec 02). Static Web Apps runs with `trailingSlash: "never"` from spec 05, so `/blog/article/x` is served directly and `/blog/article/x/` gets a 301.
-- No inline `<script>` and no inline event handlers. Script lives in `site/assets/js/site.js`, fingerprinted and loaded with `defer`. Nothing needs script to read or navigate.
+- Eleventy `3.1.6` on Node `26`. `.nvmrc` holds `26`, `package.json` has `"engines": { "node": ">=26" }`, the workflow reads `node-version-file: .nvmrc`.
+- One root `package.json` and `package-lock.json` for the build, the tests and the hand-run scripts. Exact versions only (no `^` or `~`), `.npmrc` has `save-exact=true`. A new dependency is exact-pinned, and `npm audit` reports 0 vulnerabilities after any change to `package.json`.
+
+| Package | Pin | Use |
+|---|---|---|
+| `@11ty/eleventy` | `3.1.6` | Generator |
+| `sharp` | `0.35.5` | Resized images |
+| `clean-css` | `5.3.3` | Stylesheet minify |
+| `terser` | `5.51.2` | Script minify |
+| `yaml` | `2.9.1` | `site/data/*.yaml` |
+| `entities` | `6.0.1` | Entity decoding in feed text |
+| `@playwright/test` | `1.56.1` | Browser tests. Matches the sandbox Chromium |
+| `playwright-bdd` | `9.2.1` | Gherkin scenarios. The 8.x line had audit findings with no fix |
+| `overrides` | `chokidar` `4.0.3`, `argparse` `2.0.1` | Without them `npm audit` reports 1 high, 1 moderate |
+
+| Path | What |
+|---|---|
+| `eleventy.config.js` | Input is the content folder (`CONTENT`, default `site/content`), includes `site/_includes/`, output `_site/`. Loads every `config/*.js` in name order |
+| `config/*.js` | One module per concern, each a default export that takes `eleventyConfig`. Pure functions are also named exports, so `tests/unit/` can import them |
+| `site/content/` | Paul's content, `.md` files only |
+| `site/_includes/` | Nunjucks layouts and includes |
+| `site/pages/*.njk` | Site-owned pages (home stub, 404, topic pages, feeds). `config/pages.js` registers each with `addTemplate`. Each sets its own `permalink` and `layout` |
+| `site/data/*.yaml` | Global data. `config/data.js` makes one global per file, named after it |
+| `site/assets/` | Stylesheets, the script and layout images, processed by `config/assets.js` and `config/images.js` |
+| `site/static/` | Copied as is to the site root |
+
+- Every `.md` file is front matter plus an HTML body. `config/content.js` registers the `md` extension raw: no Markdown and no Nunjucks runs on it, so a body is published byte for byte, `{{ }}` and `{% %}` included. Templates print it with `{{ content | safe }}`.
+- A content file gets a URL only from `itemPermalink` in `config/content.js`. Today that covers `blog`, `calendar` and `notices`. Anything else in the content folder gets `permalink: false` until a spec adds it (spec 04 adds `page/` and the home page).
+- Internal links are written without a trailing slash, except `/`, through the `href` filter. Eleventy's `page.url` and `item.url` end with `/`. Static Web Apps runs with `trailingSlash: "never"` from spec 05, so `/blog/article/x` is served directly and `/blog/article/x/` gets a 301.
+- No inline `<script>`, `<style>` or event handlers in templates. Script lives in `site/assets/js/site.js`, minified, hashed into the file name and loaded with `defer` and `integrity`. Nothing needs script to read or navigate.
 - Templates use no inline `style` attributes. Content bodies may contain them (legacy HTML and the rich text editor).
+- One stylesheet under 25000 bytes, one script under 2048 bytes.
 - Templates make no requests to other domains, except the two embeds (spec 06) and the contact form post (spec 08).
+- `staticwebapp.config.json` is written by `config/swa.js` after every build. There is no static copy. Spec 05 adds routes there, spec 09 headers.
 
 ### Tests
 
-- Playwright Test with `playwright-bdd`. Scenarios are Gherkin in `tests/features/*.feature`, steps are JavaScript in `tests/steps/*.js`. Run all with `npm test` in `tests/` (first time: `npm ci`). Committed, and run by the workflow on every pull request and before every deploy.
+- Run everything with `npm ci && npm test` at the repo root. `npm test` runs `npm run test:unit`, then `npm run test:bdd`. Committed, and run by the `build` job on every pull request, every push to `main` and the nightly schedule, so before every deploy.
+- Behaviour: Playwright Test with `playwright-bdd`. Scenarios are Gherkin in `tests/features/*.feature`, steps are JavaScript in `tests/steps/*.js`, config in `tests/playwright.config.js`.
+- Pure functions and generated files: `node:test` in `tests/unit/*.test.mjs` (dates, filters, images, topics, `staticwebapp.config.json`, the workflow, the Azure roles). Anything a visitor or Paul would see is a scenario instead.
 - Tests assert behaviour a visitor or Paul would notice: what a page shows, where links go, what the script does in a real browser, what the feeds and the Pages CMS config produce. Never assert on docs, Markdown, or the wording of a file when its effect can be checked instead.
 - Steps are reusable and written in plain words ("When I open \"/calendar\"", "Then the cards are, in order:"). Add a step only when no existing one fits.
-- Time-dependent behaviour uses fixture dates far in the past (`2015-...`) or far in the future (`2099-...`), and Playwright's clock (`Given it is "..."`) for what the script does between builds.
+- Time-dependent behaviour uses fixture dates far in the past (`2015-...`) or far in the future (`2099-...`), and Playwright's clock (`Given it is "..."`) for what the script does between builds. A summer date (`2099-06-...`) covers the London offset.
 - Tests never assert on `site/content/` or `site/data/settings.yaml`. Paul edits and deletes those, and a failing test would block his publish. `tests/serve.js` builds a fixture folder (`tests/fixtures/content/`, `tests/fixtures/empty/`) and serves it as Static Web Apps does. Two exceptions: "Whatever Paul has saved builds" builds the real content and asserts only that it builds, and spec 04 may check the structural `page/{type}/_index.md` files, which are hidden from Pages CMS.
 - Every spec adds or updates fixtures and scenarios for what it builds, and keeps "No personal details or trackers" passing.
-- Specs 04 to 12 were written with Python `unittest` examples in their plans. Read each named test as the behaviour to cover and write it as a scenario in the matching feature file. `Run:` lines name the feature file the scenarios go in. Drop any test that only checks docs or Markdown.
+- Specs 04 to 12 name the behaviours to cover. Write each as a scenario in the matching feature file, or as a `node:test` case when it checks a function or a generated file. Drop any test that only checks docs or Markdown.
+- The `audit` job can show a red check on pull requests and pushes without failing the run (`continue-on-error`). Never make it a required check. Only the weekly scheduled audit fails the run.
 
 ### Content and editor
 
 - Any task that adds or renames a front matter key updates `.pages.yml` in the same task. From spec 03 Pages CMS keeps unknown keys (`settings.content.merge: true`), but every key is still declared, with `hidden: true` when Paul should not see it.
 - Rich text fields use `format: html`. The trial notice was stored as Markdown because that is the default.
+- Date fields with a time keep seconds in their `format` (`yyyy-MM-dd'T'HH:mm:ss`). See Eleventy facts.
 - Existing live URLs never change. A migrated item that cannot get its live URL from the permalink pattern carries a hidden `url` field.
 
 ### Privacy and security
@@ -57,9 +87,30 @@ Every task in every spec includes these.
 
 ### Azure and GitHub
 
-- Static Web App `Microsoft.Web/staticSites@2025-03-01`, SKU `Free`, `location` default `westeurope`, name `swa-stpauls-web`.
+- Static Web App `Microsoft.Web/staticSites@2025-03-01`, SKU `Free`, `location` default `westeurope`, name `swa-stpauls-web`. Bicep in `infra/main.bicep` and `infra/main.bicepparam`, run by the `deploy` job.
 - Azure sign in by OIDC only. Secrets `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, variable `AZURE_RESOURCE_GROUP`. No client secret, no stored SWA token, no `environment:` on the job (it changes the OIDC subject away from `repo:SvenPam@3789646/StPauls@1423163125:ref:refs/heads/main`).
-- The test job runs on every pull request, every push to `main` and the nightly schedule. The deploy job needs it and runs only on `main`. Changes reach the test URL only after the maintainer merges.
+- The identity holds the two custom roles in `infra/roles/`, never `Contributor`. Set up in the [Azure how-to](page-cms-how-to-set-up-azure-and-pages-cms.md). `tests/unit/roles.test.mjs` pins their actions.
+
+| Role | File in `infra/roles/` | Actions | Assigned at |
+|---|---|---|---|
+| `StPauls Static Web App deployer` | `stpauls-static-web-app-deployer.json` | `Microsoft.Web/staticSites/read`, `write`, `customDomains/*`, `listSecrets/action` | The Static Web App |
+| `StPauls template deployer` | `stpauls-template-deployer.json` | `Microsoft.Resources/deployments/*` | The resource group |
+
+- A spec whose Bicep needs another action (spec 11's custom domain may) adds that one action to the role file and its unit test, and lists `az role definition update` in its manual steps.
+
+Jobs in `.github/workflows/deploy.yml`:
+
+| Job | Runs | Does | Rights |
+|---|---|---|---|
+| `build` | Pull requests, pushes to `main`, nightly (`17 3 * * *`), manual. Not the weekly audit | `npm ci`, `npm run build`, `npm test`, uploads `_site` as the `site` artifact | `contents: read` |
+| `audit` | Every run. Fails the run only on the weekly schedule (`41 4 * * 1`) | `npm ci --ignore-scripts`, `npm audit` | `contents: read` |
+| `deploy` | `main` only. Not pull requests, not the weekly audit. Needs `build`, never `audit` | Downloads `site` (`actions/download-artifact@v8`), runs Bicep, reads the token with `az staticwebapp secrets list`, uploads with `Azure/static-web-apps-deploy@v1` (`action: upload`, `skip_app_build: true`) | The only job with `id-token: write`. Runs no `node`, `npm` or `npx` |
+
+- Concurrency group `${{ github.event.schedule == '41 4 * * 1' && 'audit' || 'deploy' }}-${{ github.ref }}`, `cancel-in-progress: false`. A second Pages CMS save waits for the running deploy and then ships, and the weekly audit never cancels a pending deploy.
+- Pushes to `main` run only when a path in `on.push.paths` changes: `site/**`, `config/**`, `eleventy.config.js`, `package.json`, `package-lock.json`, `.nvmrc`, `infra/**`, `.pages.yml`, `tests/**`, the workflow. A spec that adds a new top-level build input adds it there and to `tests/unit/workflow.test.mjs`.
+- Dependabot (`.github/dependabot.yml`) opens one grouped pull request a month for npm and one for GitHub Actions, at most 5 open each. Merging them is the one accepted recurring chore (2026-10-18).
+- Actions are pinned to major tags until spec 09 pins them to full commit SHAs.
+- Changes reach the test URL only after the maintainer merges.
 
 ### Docs and commits
 
@@ -77,17 +128,19 @@ Install outside the repo, for example in the scratchpad.
 
 | Tool | How |
 |---|---|
-| Hugo and actionlint | `python3 -m venv <dir> && <dir>/bin/pip install hugo==0.167.0 actionlint-py`, then put `<dir>/bin` on `PATH` |
+| Node 26 | `npm i --prefix <dir> node@26`, then put `<dir>/node_modules/.bin` first on `PATH`. The sandbox's own Node is 22 and is too old. Then `npm ci` at the repo root |
+| Playwright and screenshots | Come with `npm ci`. Chromium is in `/opt/pw-browsers` (`PLAYWRIGHT_BROWSERS_PATH`). Never run `playwright install` in the sandbox |
 | Bicep 0.48.1 | Download `https://api.nuget.org/v3-flatcontainer/azure.bicep.commandline.linux-x64/0.48.1/azure.bicep.commandline.linux-x64.0.48.1.nupkg`, extract with `python3 -m zipfile -e <nupkg> <dir>`, `chmod +x <dir>/tools/bicep`, put `<dir>/tools` on `PATH` |
-| Screenshots and browser checks | `<dir>/bin/pip install playwright` in the same venv. It finds Chromium in `/opt/pw-browsers`. Never run `playwright install`. Sandbox only, never in CI |
+| actionlint | `python3 -m venv <dir> && <dir>/bin/pip install actionlint-py` |
+| Hugo 0.167.0 | Only for `scripts/compare-hugo.mjs`, the one-off parity check. `<dir>/bin/pip install hugo==0.167.0` in the same venv. Nothing else needs it |
 
 | Reachable from the sandbox (checked 2026-10-17) | Not reachable |
 |---|---|
 | Live site `http://stpaulswarton.co.uk` (bare domain, not `www`) | `az`, Azure portal, `learn.microsoft.com` |
 | Test site `https://brave-coast-006318103.5.azurestaticapps.net` | `pagescms.org`, `app.pagescms.org` |
-| GitHub release downloads, `git ls-remote` on public repos | `web3forms.com`, DNS-over-HTTPS resolvers (both work on full network access) |
+| GitHub release downloads, `git ls-remote` on public repos, the npm registry | `web3forms.com`, DNS-over-HTTPS resolvers (both work on full network access) |
 | With full network access: `dns.google` (DNS over HTTPS), `rdap.nominet.uk` | Raw DNS (port 53, only `A` answers come back) and `whois` (port 43), whatever the network setting |
-| `raw.githubusercontent.com`: docs sources in `MicrosoftDocs/azure-docs`, `pages-cms/website` (`docs/`), `gohugoio/hugo` (`docs/`), `surjithctly/web3forms-docs` | The GitHub web UI and API |
+| `raw.githubusercontent.com`: docs sources in `MicrosoftDocs/azure-docs`, `pages-cms/website` (`docs/`), `11ty/11ty-website` (`src/docs/`, checked 2026-10-18), `surjithctly/web3forms-docs` | The GitHub web UI and API |
 
 Say plainly in the hand-off what could not be run locally.
 
@@ -95,30 +148,47 @@ Say plainly in the hand-off what could not be run locally.
 
 ## Checked facts
 
-Behaviour the specs rely on, checked on 2026-10-17. Re-check if a version changes.
+Behaviour the specs rely on, checked on 2026-10-17 (Eleventy and the Static Web Apps routing rows on 2026-10-18). Re-check if a version changes.
 
 ### Azure Static Web Apps
 
 | Fact | Consequence |
 |---|---|
 | File paths are case-sensitive (`/NOTICES/` is 404) | Mixed-case legacy links (`/Calendar`, `/Notices`, `/Contact`, `/Account/Login`) need explicit routes |
-| Route matching case sensitivity is undocumented | Case variants use `rewrite`, never `redirect`, so a rule can never loop. A `redirect` is only used when its target cannot match its own route |
+| Route matching is case-sensitive: the exact-case legacy path 301s, the lower-cased one 404s (checked against tranquility and ste-pam.com) | Each legacy case variant needs its own route. A redirect cannot loop on a target that differs in case. `tests/unit/swa-config.test.mjs` checks routes are unique exactly as written |
+| Routes match the decoded path | Legacy routes with spaces are written with spaces, not `%20`. Redirect targets are encoded. A unit test checks no route is percent-encoded |
 | Redirect targets cannot use wildcard captures. Wildcards only at the end of a route | Legacy upload paths get one generated route per file |
 | `trailingSlash: "never"`: `/about` serves `/about/index.html` with 200, `/about/` gets a 301 to `/about` | Live URLs stay identical |
-| `staticwebapp.config.json` is limited to 20 KB | Generated routes stay small. A test checks the size |
-| `azurestaticapps.net` already sends `strict-transport-security: max-age=10886400; includeSubDomains; preload` and `cache-control: public, must-revalidate, max-age=30` on HTML | Spec 08 sets both explicitly |
+| `staticwebapp.config.json` is limited to 20 KB | Generated routes stay small. A unit test checks the size |
+| `azurestaticapps.net` already sends `strict-transport-security: max-age=10886400; includeSubDomains; preload` and `cache-control: public, must-revalidate, max-age=30` on HTML | Spec 09 sets both explicitly |
+| On a custom domain SWA adds `strict-transport-security: max-age=10886400; includeSubDomains; preload` itself | A 5-minute HSTS only helps a rollback if our header replaces it. Spec 09 tests this on the `azurestaticapps.net` URL first |
 
-### Hugo 0.167.0
+### Eleventy 3.1.6
 
-| Fact |
-|---|
-| A front matter `url` without a trailing slash still publishes `{url}/index.html`. `.RelPermalink` ends with `/`, hence `href.html` |
-| A `slug` containing `/` is kept as is, so `slug: 456/x` under `/calendar/event/:slugorcontentbasename/` gives `/calendar/event/456/x/` |
-| `:sections[1:]` only sees a folder as a section when it has an `_index.md` |
-| A taxonomy value may be a single string. Term permalinks can be set per taxonomy (`[permalinks.term]`) |
-| A `markup = 'html'` cascade does not stop Goldmark parsing `.md` files. `.RawContent` passes the body through untouched |
-| Mounting `static/uploads` to `assets/uploads` lets `resources.Get "uploads/x.jpg"` process files that are also published as is. Processed files are published next to them as `/uploads/x_hu_<hash>.webp` |
-| `hugo --config <site.toml>,<extra.toml>` merges both. `[[module.mounts]]` entries targeting `data` in the extra file replace the default data mount. Mounting a fixture folder first and `site/data` second layers them: fixture files win, the rest come from `site/data` |
+| Fact | Consequence |
+|---|---|
+| `fileSlug` drops a date prefix: `2026-01-05-dated.md` gives `dated` | Not used. `itemPermalink` keeps the whole file name, so the URL is `/notices/notice/2026-01-05-dated`, as Hugo built it |
+| Front matter times are read as UTC. A `Date` from `2026-10-17T19:30:00` is 19:30 UTC | Times are London wall-clock times. Display uses UTC getters (`config/dates.js`), anything compared with "now" goes through `londonInstant` |
+| A time without seconds (`2026-10-17T19:30`) is not a YAML timestamp and stays a string | `eventEnd` reads such an `end`. A `date` like that fails the build in the date filters, so Pages CMS formats keep seconds |
+| `layout` front matter names a file in `site/_includes/` (`layout: base.njk`) | Content gets `layout: content.njk` as global data, which picks `sections/{section}-list.njk` or `-item.njk`. A content file that sets its own `layout` skips that dispatch |
+| A computed `layout` did not work in the spike | `layout` is plain global data, never in `eleventyComputed` |
+| Global `eleventyComputed` also applies to virtual templates (`addTemplate`) | The computed `section`, `isIndex`, `topic` and `permalink` act only on `.md` inputs. Site pages set their own `permalink` and `layout` |
+| A front matter `url` without a trailing slash is published at `{url}/index.html`, and `item.url` ends with `/` | Hence the `href` filter. A `url` with several segments (`/calendar/event/456/x`) is kept whole |
+| Collections are sorted by `date`, oldest first | Lists use `newestFirst`. Nunjucks' own `reverse` reverses in place, so it is not used on a collection |
+| Inside `asyncEach`, a plain `{% if %}` around the async `picture` shortcode drops its output | Use `{% ifAsync %}` around any `picture` call that can run inside a list |
+| `item.templateContent` of a content item is the raw body | Feeds take their fallback description from it with `excerpt` |
+| A template error fails the whole build | No `--panicOnWarning` equivalent is needed |
+| Topic pages come from `site/data/topics.yaml`, not from the values found in content | A topic not in the list gets no page and no link. Hugo built a page for any value |
+
+Accepted differences from the Hugo build (checked with `scripts/compare-hugo.mjs`, 2026-10-18):
+
+| Difference | Why |
+|---|---|
+| Feed `<link>` and `<guid>` are absolute (`https://stpaulswarton.co.uk/...`) | RSS readers need them. Hugo wrote site-relative links |
+| Feed descriptions put a space where a tag was | Words in neighbouring blocks stay apart. Hugo joined them |
+| Topic index title `Topics`, term titles from `topics.yaml` (`Church Events`), 404 title `Page Not Found` | Readable titles. Hugo used `Blogtopics`, `Church-Events`, `404 Page not found` |
+| No generator meta tag | Tool marker, not content |
+| Every section and topic in `topics.yaml` has a page, "Nothing here yet." when empty | Fixed set of topic URLs |
 
 ### Pages CMS (docs at `pages-cms/website`, `docs/configuration/`)
 
@@ -129,7 +199,7 @@ Behaviour the specs rely on, checked on 2026-10-17. Re-check if a version change
 | `rich-text` takes `format: html` or `markdown` |
 | `type: file` edits one data file. `type: group` with `items` groups entries in the sidebar |
 | `select` takes `values` as strings or `{ name, label }`, optionally with `multiple` |
-| `date` takes `time: true` and a date-fns `format`, for example `yyyy-MM-dd'T'HH:mm:ss`. Hugo rejects a date with no seconds |
+| `date` takes `time: true` and a date-fns `format`, for example `yyyy-MM-dd'T'HH:mm:ss`. Without seconds the value reaches Eleventy as a string |
 | `operations` can turn off `create`, `rename` or `delete` per entry |
 | `filename` tokens include `{year}`, `{month}`, `{day}`, `{primary}` and `{fields.<name>}` |
 
@@ -141,13 +211,13 @@ Behaviour the specs rely on, checked on 2026-10-17. Re-check if a version change
 | `email` sets reply-to. `subject` and `from_name` set the email subject and sender name |
 | `redirect` must be an absolute URL on the same domain on the free plan, and works only for a plain HTML form without script |
 | `botcheck` is a hidden checkbox honeypot. Marked as less effective than a captcha |
-| hCaptcha needs the `web3forms.com` client script. Not used, see spec 07 |
+| hCaptcha needs the `web3forms.com` client script. Not used, see spec 08 |
 
 ---
 
 ## Site contract
 
-Names later specs rely on. **Spec** is where each name is introduced.
+Names later specs rely on. **Spec** is where each name is introduced. Specs 00 to 03 were built in Hugo and ported to Eleventy on 2026-10-18.
 
 ### Content
 
@@ -160,9 +230,11 @@ Names later specs rely on. **Spec** is where each name is introduced.
 | `page/_index.md` | Pages root, not rendered | | 04 |
 | `page/{type}/_index.md` | Page type: menu label and order, not rendered | | 04 |
 | `page/{type}/{name}.md` | Page | `/page/{type}/{name}` | 04 |
-| `page/about/contact-us.md` | Contact page, `url: /contact`, `layout: contact` | `/contact` | 04, 08 |
+| `page/about/contact-us.md` | Contact page, `url: /contact`, `layout: contact.njk` | `/contact` | 04, 08 |
 | `contact-thanks.md` | Thanks page after the form, `url: /contact/thanks` | `/contact/thanks` | 08 |
-| `sitemap.md` | HTML site map, `layout: sitemap` | `/sitemap` | 04 |
+| `sitemap.md` | HTML site map, `layout: sitemap.njk` | `/sitemap` | 04 |
+
+`{name}` is the whole file name without `.md`, date prefix included. Until spec 04, only `blog/`, `calendar/` and `notices/` are published, and `/` is `site/pages/home.njk`, a stub that `staticwebapp.config.json` redirects to `/notices/`.
 
 Page types: `about`, `services`, `groups`, `gallery`, `forms`, `links`, `community`, `safeguarding`.
 
@@ -174,8 +246,8 @@ New items from Pages CMS are named `{year}-{month}-{day}-{primary}.md` for blog,
 |---|---|---|---|
 | `title` | all | `string`, required | |
 | `date` | article, notice | `date` | Publish date |
-| `date` | event | `date`, `time: true` | Start, Europe/London |
-| `end` | event | `date`, `time: true` | End |
+| `date` | event | `date`, `time: true` | Start, Europe/London wall time |
+| `end` | event | `date`, `time: true` | End. Read with `eventEnd`, falls back to the start |
 | `summary` | all | `string` | Lists and meta description. Nothing shown when empty |
 | `location` | event, notice | `string` | |
 | `image`, `image_alt` | article, event, page | `image`, `string` | `/uploads/...` path |
@@ -185,68 +257,122 @@ New items from Pages CMS are named `{year}-{month}-{day}-{primary}.md` for blog,
 | `embed`, `embed_src` | page | `select`, `string` | Spec 06. `google-calendar` or `facebook-album` |
 | `url` | article, event, notice, page | `string`, `hidden` | Migrated items only |
 | `lead`, `hero_image`, `hero_alt` | home | `string`, `image`, `string` | |
-| `layout` | contact, sitemap | `string`, `hidden` on page collections | |
+| `layout` | contact, sitemap | `string`, `hidden` on page collections | A file in `site/_includes/` |
 
-### Taxonomies
+Computed by `config/content.js` for every `.md` input, never written in front matter:
 
-| Front matter key | Term URL | Spec |
-|---|---|---|
-| `blogtopics` | `/blog/topic/{slug}` | 03 |
-| `eventtopics` | `/calendar/topic/{slug}` | 03 |
-| `noticetopics` | `/notices/topic/{slug}` | 03 |
+| Key | Value |
+|---|---|
+| `section` | The folder under the content folder (`blog`, `notices`, later `page/about`), `''` at its root |
+| `isIndex` | `true` for `_index.md` |
+| `topic` | The section's topic field, first value, trimmed and lower-cased, or `''` |
+| `permalink` | From `itemPermalink`, or `false` |
 
-Slugs and labels are in `site/data/topics.yaml`: `website` (Website), `church-services` (Church Services), `church-events` (Church Events), `other-events` (Other Events).
+### Topics
+
+| Front matter key | Term URL | Index URL | Spec |
+|---|---|---|---|
+| `blogtopics` | `/blog/topic/{slug}` | `/blog/topic` | 03 |
+| `eventtopics` | `/calendar/topic/{slug}` | `/calendar/topic` | 03 |
+| `noticetopics` | `/notices/topic/{slug}` | `/notices/topic` | 03 |
+
+Slugs and labels are in `site/data/topics.yaml`: `website` (Website), `church-services` (Church Services), `church-events` (Church Events), `other-events` (Other Events). `config/topics.js` builds one page per section and slug (`site/pages/topics.njk`) and one index per section (`site/pages/topic-index.njk`).
 
 ### Data files in `site/data/`
 
+Each file is a global named after it (`topics.yaml` is `topics`).
+
 | File | Owner | Contents | Spec |
 |---|---|---|---|
+| `site.yaml` | Maintainer | `title`. Later site-wide values, see Site data | 02 |
 | `topics.yaml` | Maintainer | Topic slug to label | 03 |
+| `menus.yaml` | Maintainer | `main` (`{ name, url }` or `{ name, children }`) and `footer` (`{ title, links }`). Replaced by menus computed from content | 02, removed 04 |
 | `embeds.yaml` | Maintainer | Embed type to allowed host, title and aspect ratio | 06 |
 | `legacy.yaml` | Maintainer | `rewrites` and `redirects` lists of `{ from, to }` for `staticwebapp.config.json` | 05, 07 |
 | `settings.yaml` | Paul, through Pages CMS | Contact form key and footer details | 08 |
 
-### Partials in `site/layouts/_partials/`
+### Includes in `site/_includes/`
 
-| Partial | Takes | Returns | Spec |
+| Include | Takes | Renders | Spec |
 |---|---|---|---|
-| `href.html` | URL string | The URL without a trailing slash, except `/` | 02 |
-| `menu-items.html` | site | Slice of `{ name, url, children }`, `children` a slice of `{ name, url }` | 02, rewritten 04 |
-| `footer-groups.html` | site | Slice of `{ title, links }`, `links` a slice of `{ name, url }` | 02, rewritten 04 |
-| `body.html` | page | Body HTML from `.RawContent`, images rewritten (06), `noopener` added (09), marked safe | 03 |
-| `date.html` | `time.Time` | `02-Jan-06` | 03 |
-| `event-status.html` | page | `Expired`, `Active`, `Soon` or `Future` | 03 |
-| `picture.html` | dict `{ src, alt, sizes, eager, fill }` | `<picture>` for asset and `/uploads/` raster images, plain `<img>` otherwise | 02, `fill` 04, uploads 06 |
-| `card.html` | page | `<article class="card">` for lists and term pages | 03 |
-| `blog-aside.html` | site | Blog topics and the 7 latest articles | 03 |
-| `embed.html` | page | Sandboxed responsive iframe, or nothing | 06 |
+| `base.njk` | `content` | Page shell: head, skip link, header, `<main>`, footer | 02 |
+| `content.njk` | `section`, `isIndex` | Layout for content. Includes `sections/{section}-list.njk` or `sections/{section}-item.njk` | 03 |
+| `sections/{blog,calendar,notices}-{list,item}.njk` | Page data | Section index and item pages | 03 |
+| `partials/head.njk` | `title`, `summary`, `assets` | `<title>`, meta description, stylesheet and script with `integrity` | 02 |
+| `partials/header.njk` | `menus.main`, `page.url` | Brand, menu button, `<details>` dropdowns, `aria-current` | 02, rewritten 04 |
+| `partials/footer.njk` | `menus.footer`, `site`, `build.year` | Footer groups, Find Us map and address, copyright | 02, rewritten 04, 08 |
+| `partials/card.njk` | `item` | `<article class="card">` for lists and topic pages. Render inside `asyncEach` | 03 |
+| `partials/blog-aside.njk` | `topics`, `collections.blog` | Blog topics and the 7 latest articles | 03 |
+| `partials/image.njk` | `imageSrc`, `imageAlt` | `picture` for a file under `site/assets/`, plain `<img>` otherwise | 03, uploads 06 |
+| `partials/topic-link.njk` | `topicSlug`, `topicSection` | Topic link, or nothing for a topic not in `topics.yaml` | 03 |
+| `partials/embed.njk` | Page data | Sandboxed responsive iframe, or nothing | 06 |
+
+### Functions in `config/`
+
+Filters unless marked. Named exports are importable by `tests/unit/`.
+
+| Name | Module | Takes | Returns | Spec |
+|---|---|---|---|---|
+| `href` | `filters.js` | URL string | The URL without a trailing slash, except `/` and absolute URLs | 02 |
+| `newestFirst` | `filters.js` | Collection | A reversed copy | 03 |
+| `plainText` | `filters.js` | HTML | Visible text, entities decoded once, whitespace collapsed | 03 |
+| `excerpt` | `filters.js` | HTML, max (300) | `plainText` cut at max code points, with `…` when cut | 03 |
+| `date` | `dates.js` | Date | `02-Jan-06` | 03 |
+| `time`, `month`, `day` | `dates.js` | Date | `7:30 PM`, `January`, `5` | 03 |
+| `isoLondon` | `dates.js` | Date | RFC 3339 with London's offset, `Z` in winter | 03 |
+| `rfc822London` | `dates.js` | Date | RSS `pubDate` with London's offset | 03 |
+| `eventEnd` | `dates.js` | Item data | End as a Date, or the start when missing, empty, unreadable or not after it | 03 |
+| `eventStatus` | `dates.js` | Item data, now | `Expired`, `Active`, `Soon` (within 168 hours) or `Future` | 03 |
+| `upcoming` | `dates.js` | Collection, now | Items whose end has not passed, soonest first | 03 |
+| `londonInstant` | `dates.js`, export only | Wall-time Date | The real instant | 03 |
+| `withTopic` | `topics.js` | Collection, slug | Items with that `topic` | 03 |
+| `topicOf` | `content.js`, export only | Section, data | Topic slug or `''` | 03 |
+| `itemPermalink` | `content.js`, export only | Input path, data | Output path or `false` | 03, extended 04 |
+| `assetPath` | `images.js` | Front matter image path | Path under `site/assets/`, or `''` | 03 |
+| `picture` (async shortcode) | `images.js` | `{ src, alt, sizes, eager }`, `src` under `site/assets/` | `<picture>` with WebP and the original format at 480, 800, 1200, 1600 (up to the source width), `width`, `height`, lazy unless `eager` | 02, `fill` 04, uploads 06 |
+| `buildSwaConfig` | `swa.js`, export only | Output folder | Writes and returns `staticwebapp.config.json` | 00, routes 05, headers 09 |
+| `buildAssets` | `assets.js`, export only | Output folder | `{ css, js }`, each `{ url, integrity }` | 02 |
+
+Globals: `site`, `topics`, `menus` and every other data file; `assets` (`assets.css.url`, `assets.css.integrity`, same for `js`); `build.year`; `topicPages`, `topicSections`. Collections: `blog`, `calendar`, `notices`, items only, oldest first.
+
+The body is printed as `{{ content | safe }}`. Spec 06 (body images) and spec 09 (`noopener`) add their rewrites as filters or a transform in `config/`.
 
 ### Assets
 
 | Path | What | Spec |
 |---|---|---|
-| `site/assets/css/*.css` | Concatenated in file name order into `css/site.css`, minified, fingerprinted | 02 |
-| `site/assets/js/site.js` | The only script. Menu toggle (02), hiding expired events (03), contact subject (08) | 02 |
-| `site/assets/images/` | Layout images: map (02), hero (04) | 02 |
-| `site/static/uploads/` | Pages CMS media folder, also mounted as `assets/uploads` | 00, 05 |
+| `site/assets/css/*.css` | Concatenated in file name order, minified with clean-css, written to `/css/site.<hash>.css` with `integrity` | 02 |
+| `site/assets/js/site.js` | The only script. Menu toggle (02), hiding expired events (03), contact subject (08). Minified with terser to `/js/site.<hash>.js` | 02 |
+| `site/assets/images/` | Layout images through `picture`: map (02), hero (04). Written to `/images/{name}-{width}.<hash>.{ext}` | 02 |
+| `.cache/images/` | Resized image cache, keyed on source bytes, width, format and quality. Not committed | 02, CI cache 06 |
+| `site/static/` | Copied to the root: `favicon.ico`, `fonts/` | 02 |
+| `site/static/uploads/` | Pages CMS media folder, published at `/uploads/` | 00, 06 |
+
+Asset names change only when the bytes do, so spec 09 can cache them `immutable`.
 
 ### Tests
 
 | Name | What | Spec |
 |---|---|---|
-| `tests/serve.js <content dir> <port>` | Builds the site from a fixture folder with `--minify --panicOnWarning` and serves it like Static Web Apps. Spec 06 adds an uploads folder option and spec 08 a data folder option, and `playwright.config.js` gets a server per content set | 03 |
+| `tests/serve.js <content dir> <port>` | Builds the site with `npx @11ty/eleventy` and `CONTENT=<content dir>` into a temp folder and serves it like Static Web Apps. Spec 06 adds an uploads folder option and spec 08 a data folder option, and `playwright.config.js` gets a server per content set | 03 |
+| `tests/playwright.config.js` | One server per content set: `fixtures/content` on 1313, `fixtures/empty` on 1314 | 03 |
 | `tests/features/*.feature` | One feature per area: `menu`, `layout`, `notices`, `blog`, `calendar`, `feeds`, `editor` (Pages CMS config and the real content build) | 03 |
 | `tests/steps/*.js` | Shared steps. `fixtures.js` holds the `ui` world (current page, feed, config) | 03 |
-| Image fixtures | Small committed PNGs, or written by a step with `node:zlib`. Spec 06 | 06 |
+| `tests/unit/*.test.mjs` | `node:test`: `dates`, `filters`, `images`, `topics`, `swa-config`, `workflow`, `roles` | 03 |
+| Image fixtures | Small committed PNGs, or written by a step or unit test with `sharp` or `node:zlib`. Spec 06 | 06 |
 | `tests/fixtures/content/` | One fixture tree for every section | 00 onwards |
 | `tests/fixtures/empty/` | Every section with no items | 00 onwards |
 | `tests/fixtures/live/` | Trimmed snapshots of live pages for the migration tests | 07 |
-| `scripts/check_urls.py` | Compares a built or deployed site with `tests/fixtures/live-urls.txt`. Run by hand, never in the workflow | 05 |
-| `scripts/screenshots.py` | Side-by-side screenshots with Playwright. Sandbox only | 02 |
-| `scripts/migrate.py` | Re-runnable migration from the live site | 07 |
+| `scripts/check-urls.mjs` | Compares a built or deployed site with `tests/fixtures/live-urls.txt`. Run by hand, never in the workflow | 05 |
+| `scripts/screenshots.mjs` | Side-by-side screenshots with Playwright. Hand-run | 02 |
+| `scripts/compare-hugo.mjs` | Hugo against Eleventy, page by page. Used once for the switch | Switch |
+| `scripts/migrate.mjs` | Re-runnable migration from the live site | 07 |
 
-### Hugo params
+### Site data
 
-| Param | What | Spec |
+Values in `site/data/site.yaml`, read as `site.<key>` in templates and by `config/` modules.
+
+| Key | What | Spec |
 |---|---|---|
+| `title` | `St Paul's Warton`. Page titles, brand, feeds, copyright | 02 |
 | `hsts_max_age` | Seconds for `Strict-Transport-Security`. `300` until the old site is gone, then `31536000` | 09, 12 |
