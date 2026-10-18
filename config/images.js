@@ -2,8 +2,8 @@
 // copies at several widths into the output folder and returns a <picture>.
 // Resized files are cached in .cache/images/, keyed on the source bytes, width, format and quality.
 import sharp from 'sharp';
-import { createHash } from 'node:crypto';
-import { access, copyFile, mkdir, readFile } from 'node:fs/promises';
+import { createHash, randomBytes } from 'node:crypto';
+import { access, copyFile, mkdir, readFile, rename } from 'node:fs/promises';
 import path from 'node:path';
 
 const CACHE = '.cache/images';
@@ -22,7 +22,10 @@ async function variant(input, srcHash, name, width, format, out) {
   if (!(await exists(cached))) {
     await mkdir(CACHE, { recursive: true });
     const img = sharp(input).resize({ width, withoutEnlargement: true });
-    await (format === 'webp' ? img.webp({ quality: QUALITY.webp }) : format === 'png' ? img.png({ compressionLevel: 9 }) : img.jpeg({ quality: QUALITY.jpeg })).toFile(cached);
+    // Write beside the final file, then rename: a concurrent build never sees a half-written image.
+    const tmp = `${cached}.${process.pid}.${randomBytes(4).toString('hex')}.tmp`;
+    await (format === 'webp' ? img.webp({ quality: QUALITY.webp }) : format === 'png' ? img.png({ compressionLevel: 9 }) : img.jpeg({ quality: QUALITY.jpeg })).toFile(tmp);
+    await rename(tmp, cached);
   }
   const url = `/images/${name}-${width}.${key.slice(0, 8)}.${ext}`;
   const dest = path.join(out, url);

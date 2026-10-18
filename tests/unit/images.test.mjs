@@ -45,3 +45,21 @@ test('eager drops lazy loading', async () => {
   assert.doesNotMatch(html, /loading=/);
   assert.match(html, /decoding="async"/);
 });
+
+test('concurrent builds of the same source both get complete images', async () => {
+  const out2 = mkdtempSync(join(tmpdir(), 'pic-out2-'));
+  try {
+    const opts = { src: 'images/t.png', alt: 'T' };
+    const [a, b] = await Promise.all([
+      pictureHtml(opts, { assets: tmp, out }),
+      pictureHtml(opts, { assets: tmp, out: out2 }),
+    ]);
+    for (const [html, dir] of [[a, out], [b, out2]]) {
+      for (const [, file, w] of html.matchAll(/(\/images\/[^ ",]*\.(?:png|webp)) (\d+)w/g)) {
+        assert.equal((await sharp(join(dir, file)).metadata()).width, Number(w));
+      }
+    }
+  } finally {
+    rmSync(out2, { recursive: true, force: true });
+  }
+});
