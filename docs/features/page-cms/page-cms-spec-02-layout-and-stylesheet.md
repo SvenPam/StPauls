@@ -8,6 +8,8 @@ status: done
 
 _One session. Replaces the copied Bootstrap 3 and legacy CSS with one small stylesheet that keeps the live look, and builds the shared shell every later page uses: header, menu, footer, typography, cards. Applied to Notices and the 404 page. See the [design](page-cms-feature.md) and [conventions](page-cms-spec-conventions.md)._
 
+_Built in Hugo, ported to Eleventy on 2026-10-18, see [the switch plan](page-cms-plan-eleventy-switch.md)._
+
 ---
 
 ## Goal

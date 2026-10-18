@@ -1,0 +1,12 @@
+{
+  "Name": "StPauls template deployer",
+  "IsCustom": true,
+  "Description": "Run ARM and Bicep deployments in the St Paul's resource group. Grants no rights over the resources themselves.",
+  "Actions": [
+    "Microsoft.Resources/deployments/*"
+  ],
+  "NotActions": [],
+  "DataActions": [],
+  "NotDataActions": [],
+  "AssignableScopes": ["/subscriptions/<SUB>/resourceGroups/<RG>"]
+}

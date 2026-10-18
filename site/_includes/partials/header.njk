@@ -1,0 +1,23 @@
+{%- set here = page.url | href -%}
+<header class="site-header">
+  <div class="site-header__bar">
+    <a class="site-brand" href="/">{{ site.title }}</a>
+    <a class="menu-toggle" href="#site-nav"><span class="menu-toggle__icon" aria-hidden="true"></span>Menu</a>
+  </div>
+  <nav id="site-nav" class="site-nav" aria-label="Main">
+    <ul class="site-nav__list">
+      {%- for item in menus.main %}
+      {%- if item.children %}
+      <li><details class="site-nav__group" name="site-nav"><summary>{{ item.name }}</summary>
+        <ul>
+          {%- for child in item.children %}
+          <li><a href="{{ child.url }}"{% if child.url == here %} aria-current="page"{% endif %}>{{ child.name }}</a></li>
+          {%- endfor %}
+        </ul></details></li>
+      {%- else %}
+      <li><a href="{{ item.url }}"{% if item.url == here %} aria-current="page"{% endif %}>{{ item.name }}</a></li>
+      {%- endif %}
+      {%- endfor %}
+    </ul>
+  </nav>
+</header>

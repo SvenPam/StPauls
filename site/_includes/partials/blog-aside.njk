@@ -1,0 +1,14 @@
+<aside class="blog-aside">
+  <h2>Blog Topics</h2>
+  <ul>
+    {%- for slug, label in topics | dictsort %}
+    <li><a href="/blog/topic/{{ slug }}">{{ label }}</a></li>
+    {%- endfor %}
+  </ul>
+  <h2>Latest</h2>
+  <ul>
+    {%- for item in collections.blog | newestFirst %}{% if loop.index <= 7 %}
+    <li><a href="{{ item.url | href }}">{{ item.data.title }}</a></li>
+    {%- endif %}{% endfor %}
+  </ul>
+</aside>

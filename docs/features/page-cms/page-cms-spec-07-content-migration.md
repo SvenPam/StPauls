@@ -1,12 +1,14 @@
 ---
-date: 2026-10-17
+date: 2026-10-18
 tags: [spec, plan, stpauls]
 status: agreed
 ---
 
 # Spec 07: content migration
 
-_One session. A re-runnable script extracts every article, event, notice and page from the live site into Markdown with front matter, copies uploads and hot-linked images into the repo, moves embeds into fields, and writes a report for the maintainer and the church. It is run again on cutover day. See the [design](page-cms-feature.md) and [conventions](page-cms-spec-conventions.md)._
+_One session. A re-runnable script extracts every article, event, notice and page from the live site into front matter plus an HTML body, copies uploads and hot-linked images into the repo, moves embeds into fields, and writes a report for the maintainer and the church. It is run again on cutover day. See the [design](page-cms-feature.md) and [conventions](page-cms-spec-conventions.md)._
+
+_Rewritten for Eleventy on 2026-10-18._
 
 ---
 
@@ -16,8 +18,11 @@ _One session. A re-runnable script extracts every article, event, notice and pag
 
 ## Starting point
 
-- Specs 02 to 06 on `main`. Seed notices from spec 00 (`news-pew-sheets.md`, `safeguarding.md`, `latest-parish-magazine.md`) with invented dates.
-- `scripts/check_urls.py` and `tests/fixtures/live-urls.txt` (spec 05). `body.html` turns `/uploads/` images into `<picture>` (spec 06).
+- Specs 00 to 06 on `main`, on Eleventy. Seed notices from spec 00 (`news-pew-sheets.md`, `safeguarding.md`, `latest-parish-magazine.md`) with invented dates.
+- `scripts/check-urls.mjs` and `tests/fixtures/live-urls.txt` (spec 05). `buildSwaConfig` gives every file under `uploads/legacy/` a 301 from each `upload_prefixes` entry in `site/data/legacy.yaml` (spec 05). The `images` transform turns body `<img src="/uploads/...">` into `<picture>` (spec 06). `embedFor` and `site/data/embeds.yaml` (spec 06).
+- Bodies are published byte for byte (`config/content.js` registers `.md` raw), so `{{`, `{%` and `---` inside a body are safe.
+- Topic pages and links exist only for the slugs in `site/data/topics.yaml`. A topic value outside that list gets no page and no link (see [Eleventy facts](page-cms-spec-conventions.md#eleventy-316)).
+- `scripts/screenshots.mjs` for side-by-side screenshots. No migration script yet.
 - Live facts (crawl of 2026-10-17):
 
 | Item | Where its data is on live |
@@ -35,9 +40,10 @@ _One session. A re-runnable script extracts every article, event, notice and pag
 
 ## In scope
 
-- `scripts/migrate.py` and its unit tests on saved HTML snapshots in `tests/fixtures/live/`.
+- `scripts/migrate.mjs` and its `node:test` unit tests on saved HTML snapshots in `tests/fixtures/live/`.
+- `cheerio` `1.2.0` as an exact-pinned dev dependency, audited like the rest.
 - Dates from a maintainer export of the legacy database (`scripts/legacy-dates.csv`), with inferred and flagged fallbacks.
-- Running it: migrated content, uploads in `site/static/uploads/`, upload routes appended to `site/data/legacy.yaml`, `docs/features/page-cms/page-cms-migration-report.md`.
+- Running it: migrated content, uploads in `site/static/uploads/`, extra legacy upload spellings appended to `site/data/legacy.yaml`, `docs/features/page-cms/page-cms-migration-report.md`.
 - Seed notices from spec 00 removed (their migrated versions replace them).
 
 ## Out of scope
@@ -54,13 +60,15 @@ Rewording any content. The privacy and cookie policy decisions (cookie policy: s
 |---|---|---|
 | `/blog/article/{slug}` | `site/content/blog/{slug}.md` | `title`, `date`, `summary`, `blogtopics`, `image`, `image_alt` (when on the home page) |
 | `/calendar/event/{id}/{slug}` | `site/content/calendar/{id}-{slug}.md` | `title`, `date` (start), `end`, `summary`, `location` (when shown), `eventtopics`, `url: /calendar/event/{id}/{slug}` |
-| `/notices/notice/{id}/{slug}` | `site/content/notices/{id}-{slug}.md` | `title`, `date`, `summary` (first 300 characters of the plain body), `noticetopics`, `url: /notices/notice/{id}/{slug}` |
+| `/notices/notice/{id}/{slug}` | `site/content/notices/{id}-{slug}.md` | `title`, `date`, `summary` (first 300 characters of the plain body, through the site's `excerpt`), `noticetopics`, `url: /notices/notice/{id}/{slug}` |
 | `/page/{type}/{slug}` | `site/content/page/{type}/{slug}.md` | `title`, `header`, `footer`, `weight` (from live menus), `embed`, `embed_src` (when the body had a known iframe) |
 | Home hero | `site/content/_index.md` | `lead` only, other keys kept |
 
-Every value is written as a JSON-style double-quoted string, booleans and numbers bare, keys in the order above, so the files are valid YAML with no YAML library and diffs stay stable. Body is HTML, one block element per line, no leading indentation, no blank lines.
+Front matter is written with `yaml` (`2.9.1`, already a dependency), keys in the order above, so the files parse the way Eleventy reads them and diffs stay stable. Dates are written as Pages CMS writes them: events `yyyy-MM-dd'T'HH:mm:ss` (`2015-12-01T19:30:00`), articles and notices `yyyy-MM-dd`, as plain scalars, so Eleventy reads a `Date` and Pages CMS shows the same value in its date field. Body is HTML, one block element per line, no leading indentation, no blank lines.
 
-`site/content/page/about/contact-us.md`, `_index.md` files and anything the script did not write are never touched.
+Topics are written as slugs: the live topic label is looked up among the labels in `site/data/topics.yaml` (`Other Events` gives `other-events`). A label that is not there is left out of the front matter and listed in the report under "Unknown topics", because the site builds no page and no link for a topic outside that list.
+
+`site/content/page/about/contact-us.md`, `site/content/sitemap.md`, `_index.md` files and anything the script did not write are never touched, except `lead` in the root `_index.md`.
 
 ### Dates
 
@@ -79,38 +87,41 @@ notice,46,2024-03-10T00:00,
 | Notice not in the CSV | A date one day apart per id step, counting back from 2026-10-01, so order matches live | Yes |
 | Article | From the `/blog` list | Only if missing |
 
+All times are London wall-clock times, as the site reads them (`config/dates.js`).
+
 ### Body rewriting
 
 | Found | Becomes |
 |---|---|
 | Links and images on `http://` or `https://`, with or without `www.`, `stpaulswarton.co.uk` | Root-relative path |
 | `/Calendar`, `/Notices`, `/Contact`, `/Blog` (any case) | Lower case |
-| `/Areas/st_pauls/Uploads/{path}` (any case, `\` as `/`) | `/uploads/{path with the first folder lower-cased}`, file downloaded to `site/static/uploads/{same}` |
-| `/Areas/st_pauls/Content/Image/{path}` | `/uploads/legacy/{path with / as -}`, downloaded |
+| `/Areas/st_pauls/Uploads/{path}` (any case of the prefix, `\` as `/`) | `/uploads/legacy/{path}`, downloaded to `site/static/uploads/legacy/{path}`. `{path}` keeps the spelling of its first occurrence in crawl order, so spec 05's generated routes match the live address |
+| `/Areas/st_pauls/Content/Image/{path}` | `/uploads/content/{path with / as -}`, downloaded. Not under `legacy/`, so it gets no legacy upload routes |
 | `<img>` on `media.acny.uk` or `achurchnearyou.com` | `/uploads/acny/{last path segment}` without query string, downloaded. On a name clash, prefix the first 8 hex characters of the SHA-256 of the URL |
-| `<iframe>` on `calendar.google.com` or `embedsocial.com` | Removed from the body; `embed` and `embed_src` set on the page |
+| `<iframe>` on `calendar.google.com` or `embedsocial.com` | Removed from the body; `embed` and `embed_src` set on the page, checked with `embedFor` |
 | Any other `<iframe>` | Kept, and flagged |
 | `<script>`, `on*=` attributes, Disqus or share blocks | Removed, and flagged |
 | Trailing `<br>` runs and empty paragraphs | Removed |
 
-Each downloaded upload also gets a `legacy.yaml` rewrite from its exact live path (and the `St_Pauls` spelling) to its new path. Entries are appended once, sorted, under a comment `# uploads (spec 07)`, keeping the existing entries.
+Spec 05 routes every file in `uploads/legacy/` from `/Areas/st_pauls/Uploads/` and `/Areas/St_Pauls/Uploads/` with the file's own spelling. Any other spelling of the same file seen in live markup (another case of a folder or file name) gets a `redirects` entry in `site/data/legacy.yaml` to the encoded new path, appended once, sorted, under a comment `# uploads (spec 07)`, keeping the existing entries and comments (`yaml`'s document API).
 
 ### Report (`docs/features/page-cms/page-cms-migration-report.md`)
 
-Front matter and title per the docs conventions. Tables: counts per type; items with inferred dates; failed downloads; iframes kept; removed scripts; files in content folders the script did not write (practice content or Paul's real additions, for the maintainer to keep or delete on cutover day); policy text that no longer applies (any of `Google Analytics`, `Disqus`, `register`, `log in`, `login`, `account`, `subscribe` in a page body, with the page and the sentence).
+Front matter and title per the docs conventions. Tables: counts per type; items with inferred dates; unknown topics; failed downloads; iframes kept; removed scripts; files in content folders the script did not write (practice content or Paul's real additions, for the maintainer to keep or delete on cutover day); policy text that no longer applies (any of `Google Analytics`, `Disqus`, `register`, `log in`, `login`, `account`, `subscribe` in a page body, with the page and the sentence).
 
 ### CLI
 
 ```
-python3 scripts/migrate.py [--live http://stpaulswarton.co.uk] [--dates scripts/legacy-dates.csv] [--site site] [--check]
+node scripts/migrate.mjs [--live http://stpaulswarton.co.uk] [--dates scripts/legacy-dates.csv] [--site site] [--check]
 ```
 
 | | |
 |---|---|
 | Default | Fetch, write files, download missing uploads, update `legacy.yaml`, write the report |
 | `--check` | Write nothing. Print each file that would change and exit 1 if any would. Used on cutover day before the real run |
-| Network | `urllib.request`, a `User-Agent` naming the script, one request at a time, 3 retries with a pause, 30 second timeout |
+| Network | Node's `fetch`, a `User-Agent` naming the script, one request at a time, 3 retries with a pause, 30 second timeout (`AbortSignal.timeout`). Behind the sandbox proxy, run with `NODE_USE_ENV_PROXY=1` |
 | Idempotent | A second run with the same live site changes no file |
+| Not in CI | Hand-run only. Never called from the workflow or `npm test`; the unit tests call its functions with a fake `fetch` |
 
 ---
 
@@ -124,10 +135,11 @@ python3 scripts/migrate.py [--live http://stpaulswarton.co.uk] [--dates scripts/
 
 ## Acceptance
 
-- [ ] `npm test` in `tests/` passes.
-- [ ] `python3 scripts/check_urls.py --list tests/fixtures/live-urls.txt --built <build>` reports 0 failed against a build of the migrated content.
+- [ ] `npm test` passes, and `npm audit` reports 0 vulnerabilities with `cheerio` added.
+- [ ] `node scripts/check-urls.mjs --list tests/fixtures/live-urls.txt --built _site` reports 0 failed against a build of the migrated content.
 - [ ] No content file references `stpaulswarton.co.uk`, `/Areas/`, `media.acny.uk` or `achurchnearyou.com/...` images.
-- [ ] `python3 scripts/migrate.py --check` straight after a run reports no changes.
+- [ ] Every migrated item's topic is one of the slugs in `site/data/topics.yaml`, and the report's "Unknown topics" table is empty or each entry is decided with the maintainer.
+- [ ] `node scripts/migrate.mjs --check` straight after a run reports no changes.
 - [ ] Seed notices from spec 00 are gone and their migrated versions exist.
 - [ ] The report exists and the maintainer has reviewed it.
 
@@ -139,189 +151,241 @@ python3 scripts/migrate.py [--live http://stpaulswarton.co.uk] [--dates scripts/
 
 **Goal:** A tested, re-runnable migration from the live site, and its first real run.
 
-**Architecture:** Pure functions parse saved HTML into plain dicts and rewrite bodies into a list of planned downloads; a thin CLI fetches, calls them, and writes files deterministically. Tests run the functions on trimmed snapshots of real live pages, never on the network.
+**Architecture:** Pure functions parse saved HTML with cheerio into plain objects and rewrite bodies into new HTML plus a list of planned downloads; a thin CLI fetches, calls them, and writes files deterministically with `yaml`. Tests run the functions on trimmed snapshots of real live pages, never on the network, and finish by building the migrated fixture with Eleventy.
 
-**Tech Stack:** Python 3 standard library (`html.parser`, `urllib`, `csv`, `hashlib`, `re`, `json`), Hugo for the check build.
+**Tech Stack:** Node 26 (`fetch`, `node:crypto`, `node:util` `parseArgs`), `cheerio` 1.2.0, `yaml` 2.9.1, Eleventy for the check build, `node:test`.
 
 **Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](page-cms-spec-conventions.md).
 
 ### Global Constraints
 
 - Everything in [conventions: global constraints](page-cms-spec-conventions.md#global-constraints).
-- Standard library only. Python 3.12 compatible.
+- `cheerio` pinned exactly at `1.2.0` in `devDependencies`, `npm audit` at 0 after adding it. No other new dependency.
 - The test suite never touches the network. Snapshots live in `tests/fixtures/live/` and are trimmed to the `<main>` element plus the header and footer navs, with the maintainer's name and links removed.
 - Output front matter keys and file names exactly as in the Output table.
-- The script never writes outside `--site`, `scripts/legacy-dates.csv` excepted (read only), and `docs/features/page-cms/page-cms-migration-report.md`.
+- The script never writes outside `--site` and `docs/features/page-cms/page-cms-migration-report.md`. `scripts/legacy-dates.csv` is read only.
 
 ### Review Focus
 
-1. A body with mixed-case and backslash legacy upload paths and an `http://www.` own-domain link in the same paragraph. Expected: all rewritten, each file downloaded once. Pinned by `test_rewrite_legacy_links`.
-2. Two hot-linked images with the same file name from different ACNY folders. Expected: distinct local names. Pinned by `test_acny_name_clash`.
-3. An event with no year anywhere and no CSV row, between two anchored events. Expected: an inferred year that keeps id order, and a report line. Pinned by `test_infer_event_year`.
-4. Re-running after Paul edited a migrated file in Pages CMS during practice. Expected: the live version wins (live is the source of truth until cutover), and `--check` lists the file first. Pinned by `test_check_mode_lists_changes`.
-5. A live page body with characters YAML or Hugo dislike: `:`, `#`, quotes, `---` on its own line, `{{`. Expected: front matter still parses and Hugo builds. Pinned by `test_front_matter_escaping` and the build in `test_migrated_fixture_builds`.
+1. A body with mixed-case and backslash legacy upload paths and an `http://www.` own-domain link in the same paragraph. Expected: all rewritten, each file downloaded once. Pinned by "legacy links are rewritten and each file is downloaded once".
+2. Two hot-linked images with the same file name from different ACNY folders. Expected: distinct local names. Pinned by "an ACNY name clash gets distinct names".
+3. An event with no year anywhere and no CSV row, between two anchored events. Expected: an inferred year that keeps id order, and a report line. Pinned by "an event year is inferred from its neighbours".
+4. Re-running after Paul edited a migrated file in Pages CMS during practice. Expected: the live version wins (live is the source of truth until cutover), and `--check` lists the file first. Pinned by "check mode lists a changed file".
+5. A live page body with characters YAML dislikes in the title or summary (`:`, `#`, quotes) and template syntax in the body (`{{`, `---` on its own line). Expected: front matter still parses and Eleventy builds and shows the body as written. Pinned by "front matter survives awkward values" and "the migrated fixture builds".
+6. A live topic label the site does not know. Expected: no topic in the file and a report line, never a topic value that has no page. Pinned by "every written topic is a site topic" and "the written files only use site topics".
 
 ---
 
 ### Task 1: Snapshots and page parsers
 
 **Files:**
+- Modify: `package.json`, `package-lock.json` (`cheerio` `1.2.0`, exact)
 - Create: `tests/fixtures/live/` with `article.html` (`church-roof-completed`), `blog-index.html` (`/blog`), `event.html` (`/calendar/event/16/mu-advent-carol-service`), `notice.html` (`/notices/notice/46/news-pew-sheets`), `page-diary.html` (`/page/about/church-diary`), `page-gallery.html` (`/page/gallery/church-gallery`), `home.html` (`/`)
-- Create: `scripts/migrate.py` (parsers only)
-- Create: `tests/test_migrate.py`
+- Create: `scripts/migrate.mjs` (parsers only)
+- Create: `tests/unit/migrate.test.mjs`
 
 **Interfaces:**
-- Produces in `scripts/migrate.py`:
-  - `classify(path: str) -> tuple[str, dict] | None`: `("article", {"slug"})`, `("event", {"id", "slug"})`, `("notice", {"id", "slug"})`, `("page", {"type", "slug"})`, else `None`.
-  - `parse_blog_index(html: str) -> dict[str, dict]`: slug to `{"date": date, "topic": str | None}`.
-  - `parse_article(html: str) -> dict` with `title`, `summary`, `body`.
-  - `parse_event(html: str) -> dict` with `title`, `topic_label`, `start` (`(hour, minute, month, day)`), `end` (same), `summary`, `location`, `body`, `text_years: list[int]`.
-  - `parse_notice(html: str) -> dict` with `title`, `topic_label`, `body`.
-  - `parse_page(html: str) -> dict` with `title`, `body`.
-  - `parse_menus(html: str) -> dict[str, dict]`: page path to `{"header": bool, "footer": bool, "weight": int}`.
-  - `parse_home(html: str) -> dict` with `lead`, `cards: dict[str, dict]` (article slug to `{"image", "alt"}`), `notice_order: list[int]`.
+- Produces, as named exports of `scripts/migrate.mjs`:
+  - `classify(path: string): [kind, info] | null`: `['article', { slug }]`, `['event', { id, slug }]`, `['notice', { id, slug }]`, `['page', { type, slug }]`, else `null`. `id` is a number.
+  - `parseBlogIndex(html): Record<slug, { date: 'YYYY-MM-DD', topic: string | null }>` (`topic` is the live label).
+  - `parseArticle(html): { title, summary, body }`.
+  - `parseEvent(html): { title, topicLabel, start: [hour, minute, month, day], end, summary, location, body, textYears: number[] }`.
+  - `parseNotice(html): { title, topicLabel, body }`.
+  - `parsePage(html): { title, body }`.
+  - `parseMenus(html): Record<path, { header: boolean, footer: boolean, weight: number }>`.
+  - `parseHome(html): { lead, cards: Record<slug, { image, alt }>, noticeOrder: number[] }`.
 
-- [ ] **Step 1: Save and trim the snapshots** with `curl`, then strip personal details (name, `ste-pam.com`, LinkedIn) from each file.
+- [ ] **Step 1: Add `cheerio`, then audit**
 
-- [ ] **Step 2: Write the failing tests**
+Run: `npm install --save-dev --save-exact cheerio@1.2.0 && npm audit`
+Expected: `found 0 vulnerabilities`. If not, stop and tell the maintainer before going on.
 
-```python
-def test_classify(self):
-    self.assertEqual(m.classify("/calendar/event/16/mu-advent-carol-service"),
-                     ("event", {"id": 16, "slug": "mu-advent-carol-service"}))
-    self.assertEqual(m.classify("/page/about/church-diary"), ("page", {"type": "about", "slug": "church-diary"}))
-    self.assertIsNone(m.classify("/blog/topic/website"))
+- [ ] **Step 2: Save and trim the snapshots** with `curl`, then strip personal details (name, `ste-pam.com`, LinkedIn) from each file.
 
-def test_blog_index_dates_and_topics(self):
-    idx = m.parse_blog_index(snap("blog-index.html"))
-    self.assertEqual(idx["st-pauls-churchyard-in-bloom"], {"date": date(2022, 3, 2), "topic": "website"})
+- [ ] **Step 3: Write the failing tests**
 
-def test_event_fields(self):
-    e = m.parse_event(snap("event.html"))
-    self.assertEqual(e["title"], "MU Advent Carol Service")
-    self.assertEqual(e["topic_label"], "Other Events")
-    self.assertEqual(e["start"], (19, 30, 12, 1))
-    self.assertEqual(e["end"], (21, 0, 12, 1))
-    self.assertEqual(e["text_years"], [2015])
-    self.assertNotIn("Paul Barfoot", e["body"])
+```js
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import * as m from '../../scripts/migrate.mjs';
 
-def test_notice_fields(self):
-    n = m.parse_notice(snap("notice.html"))
-    self.assertEqual(n["title"], "News / Pew Sheets")
-    self.assertEqual(n["topic_label"], "Church Services")
+const snap = (name) => readFileSync(`tests/fixtures/live/${name}`, 'utf8');
 
-def test_menus(self):
-    menus = m.parse_menus(snap("home.html"))
-    self.assertEqual(menus["/page/groups/church-groups"]["header"], True)
-    self.assertEqual(menus["/page/about/privacy-policy"]["footer"], True)
-    self.assertLess(menus["/page/about/about-us"]["weight"], menus["/page/about/privacy-policy"]["weight"])
+test('classify', () => {
+  assert.deepEqual(m.classify('/calendar/event/16/mu-advent-carol-service'), ['event', { id: 16, slug: 'mu-advent-carol-service' }]);
+  assert.deepEqual(m.classify('/page/about/church-diary'), ['page', { type: 'about', slug: 'church-diary' }]);
+  assert.equal(m.classify('/blog/topic/website'), null);
+});
 
-def test_home(self):
-    h = m.parse_home(snap("home.html"))
-    self.assertEqual(h["lead"], "Serving Christ - Serving the Community")
-    self.assertEqual(h["notice_order"][:3], [46, 44, 43])
-    self.assertIn("church-roof-completed", h["cards"])
+test('the blog index gives dates and topics', () => {
+  assert.deepEqual(m.parseBlogIndex(snap('blog-index.html'))['st-pauls-churchyard-in-bloom'], { date: '2022-03-02', topic: 'Website' });
+});
+
+test('event fields, without the author', () => {
+  const e = m.parseEvent(snap('event.html'));
+  assert.equal(e.title, 'MU Advent Carol Service');
+  assert.equal(e.topicLabel, 'Other Events');
+  assert.deepEqual(e.start, [19, 30, 12, 1]);
+  assert.deepEqual(e.end, [21, 0, 12, 1]);
+  assert.deepEqual(e.textYears, [2015]);
+  assert.doesNotMatch(e.body, /Paul Barfoot/);
+});
+
+test('notice fields', () => {
+  const n = m.parseNotice(snap('notice.html'));
+  assert.equal(n.title, 'News / Pew Sheets');
+  assert.equal(n.topicLabel, 'Church Services');
+});
+
+test('menus', () => {
+  const menus = m.parseMenus(snap('home.html'));
+  assert.equal(menus['/page/groups/church-groups'].header, true);
+  assert.equal(menus['/page/about/privacy-policy'].footer, true);
+  assert.ok(menus['/page/about/about-us'].weight < menus['/page/about/privacy-policy'].weight);
+});
+
+test('home', () => {
+  const h = m.parseHome(snap('home.html'));
+  assert.equal(h.lead, 'Serving Christ - Serving the Community');
+  assert.deepEqual(h.noticeOrder.slice(0, 3), [46, 44, 43]);
+  assert.ok('church-roof-completed' in h.cards);
+});
 ```
 
-- [ ] **Step 3: Run them and watch them fail**
+- [ ] **Step 4: Run them and watch them fail**
 
-Run: `npm test -- migrate.feature` in `tests/`
+Run: `npm run test:unit`
+Expected: FAIL, `scripts/migrate.mjs` not found.
 
-- [ ] **Step 4: Write the parsers** on `html.parser.HTMLParser`: one small tree builder that keeps raw inner HTML for chosen elements, then per-type functions that pick elements by tag and class. No regex over whole documents except for the date and time text.
+- [ ] **Step 5: Write the parsers** with `cheerio.load`, selecting by tag and class and keeping inner HTML with `.html()`. No regex over whole documents except for the date and time text. The module runs its CLI only when started directly, so importing it runs nothing.
 
-- [ ] **Step 5: Run the tests and watch them pass, then commit**
+- [ ] **Step 6: Run the tests and watch them pass, then commit**
+
+Run: `npm run test:unit`
+Expected: all pass, `migrate.test.mjs` included.
 
 ```bash
-git add scripts/migrate.py tests
+git add package.json package-lock.json scripts/migrate.mjs tests
 git commit -m "Add live page parsers for the migration script"
 ```
 
 ---
 
-### Task 2: Dates, body rewriting and front matter
+### Task 2: Dates, body rewriting, topics and front matter
 
 **Files:**
-- Modify: `scripts/migrate.py`
+- Modify: `scripts/migrate.mjs`
 - Create: `tests/fixtures/live/dates.csv` (three rows: event 16, notice 46, and one event that does not exist on live)
-- Modify: `tests/test_migrate.py`
+- Modify: `tests/unit/migrate.test.mjs`
 
 **Interfaces:**
 - Produces:
-  - `load_dates(path: Path | None) -> dict[tuple[str, int], tuple[datetime, datetime | None]]`.
-  - `infer_event_dates(events: list[dict], known: dict) -> dict[int, tuple[datetime, datetime, str]]` (id to start, end, reason).
-  - `infer_notice_dates(order: list[int], known: dict) -> dict[int, tuple[datetime, str]]`.
-  - `rewrite_body(html: str) -> tuple[str, list[Download], dict | None, list[str]]`: new HTML, planned downloads, embed `{"embed", "embed_src"}` or `None`, report notes.
-  - `Download` is a `NamedTuple(url: str, dest: str, legacy_paths: tuple[str, ...])`, `dest` relative to `site/static/`.
-  - `front_matter(fields: dict) -> str`: the YAML block with `---` lines.
+  - `loadDates(file: string | null): Map<'event:16', { start: string, end: string | null }>` (wall-clock `YYYY-MM-DDTHH:mm:ss`).
+  - `inferEventDates(events, known): Map<id, { start, end, reason }>` (`reason` `''` when from the CSV).
+  - `inferNoticeDates(order: number[], known): Map<id, { date, reason }>`.
+  - `rewriteBody(html): { html, downloads: Download[], embed: { embed, embed_src } | null, notes: string[] }`, where `Download` is `{ url, dest, legacyPaths: string[] }` and `dest` is relative to `site/static/` (`uploads/legacy/Gallery/EasterPoster.jpg`).
+  - `topicSlug(label, topics): string` (`''` when the label is not a value in `topics`).
+  - `frontMatter(fields): string`: the YAML block between `---` lines, keys in the given order.
 
 - [ ] **Step 1: Write the failing tests**
 
-```python
-def test_rewrite_legacy_links(self):
-    html, dl, embed, notes = m.rewrite_body(
-        '<p><a href="http://www.stpaulswarton.co.uk/Areas/st_pauls/Uploads/Gallery\\EasterPoster.jpg">x</a>'
-        ' <a href="/Areas/St_Pauls/Uploads/baptism-form.pdf">form</a> <a href="http://stpaulswarton.co.uk/Calendar">c</a></p>')
-    self.assertIn('href="/uploads/gallery/EasterPoster.jpg"', html)
-    self.assertIn('href="/uploads/baptism-form.pdf"', html)
-    self.assertIn('href="/calendar"', html)
-    self.assertEqual(sorted(d.dest for d in dl), ["uploads/baptism-form.pdf", "uploads/gallery/EasterPoster.jpg"])
+```js
+import { parse } from 'yaml';
 
-def test_acny_images_are_localised(self):
-    html, dl, _, _ = m.rewrite_body('<img src="https://media.acny.uk/media/thumbs/e0/60/e0602c.jpg?h=300&w=350&mode=crop" width="1024">')
-    self.assertIn('src="/uploads/acny/e0602c.jpg"', html)
-    self.assertEqual(dl[0].url, "https://media.acny.uk/media/thumbs/e0/60/e0602c.jpg")
+test('legacy links are rewritten and each file is downloaded once', () => {
+  const { html, downloads } = m.rewriteBody(
+    '<p><a href="http://www.stpaulswarton.co.uk/Areas/st_pauls/Uploads/Gallery\\EasterPoster.jpg">x</a>' +
+    ' <a href="/Areas/St_Pauls/Uploads/baptism-form.pdf">form</a> <a href="/areas/st_pauls/uploads/gallery/EasterPoster.jpg">again</a>' +
+    ' <a href="http://stpaulswarton.co.uk/Calendar">c</a></p>');
+  assert.match(html, /href="\/uploads\/legacy\/Gallery\/EasterPoster\.jpg">x/);
+  assert.match(html, /href="\/uploads\/legacy\/baptism-form\.pdf"/);
+  assert.match(html, /href="\/uploads\/legacy\/Gallery\/EasterPoster\.jpg">again/);
+  assert.match(html, /href="\/calendar"/);
+  assert.deepEqual(downloads.map((d) => d.dest).sort(), ['uploads/legacy/Gallery/EasterPoster.jpg', 'uploads/legacy/baptism-form.pdf']);
+  assert.ok(downloads.find((d) => d.dest.endsWith('EasterPoster.jpg')).legacyPaths.includes('/areas/st_pauls/uploads/gallery/EasterPoster.jpg'));
+});
 
-def test_acny_name_clash(self):
-    _, dl, _, _ = m.rewrite_body('<img src="https://media.acny.uk/a/IMG_1.jpg"><img src="https://media.acny.uk/b/IMG_1.jpg">')
-    self.assertEqual(len({d.dest for d in dl}), 2)
+test('ACNY images are localised without their query string', () => {
+  const { html, downloads } = m.rewriteBody('<img src="https://media.acny.uk/media/thumbs/e0/60/e0602c.jpg?h=300&w=350&mode=crop" width="1024">');
+  assert.match(html, /src="\/uploads\/acny\/e0602c\.jpg"/);
+  assert.equal(downloads[0].url, 'https://media.acny.uk/media/thumbs/e0/60/e0602c.jpg');
+});
 
-def test_iframe_becomes_embed(self):
-    html, _, embed, _ = m.rewrite_body(snap_body("page-diary.html"))
-    self.assertNotIn("<iframe", html)
-    self.assertEqual(embed["embed"], "google-calendar")
-    self.assertTrue(embed["embed_src"].startswith("https://calendar.google.com/"))
+test('an ACNY name clash gets distinct names', () => {
+  const { downloads } = m.rewriteBody('<img src="https://media.acny.uk/a/IMG_1.jpg"><img src="https://media.acny.uk/b/IMG_1.jpg">');
+  assert.equal(new Set(downloads.map((d) => d.dest)).size, 2);
+});
 
-def test_scripts_and_handlers_removed(self):
-    html, _, _, notes = m.rewrite_body('<p onclick="x()">a</p><script>alert(1)</script>')
-    self.assertEqual(html, "<p>a</p>")
-    self.assertTrue(notes)
+test('a calendar iframe becomes an embed', () => {
+  const { html, embed } = m.rewriteBody(m.parsePage(snap('page-diary.html')).body);
+  assert.doesNotMatch(html, /<iframe/);
+  assert.equal(embed.embed, 'google-calendar');
+  assert.match(embed.embed_src, /^https:\/\/calendar\.google\.com\//);
+});
 
-def test_no_indent_no_blank_lines(self):
-    html, _, _, _ = m.rewrite_body("<div>\n    <p>a</p>\n\n    <p>b</p>\n</div><br /><br />")
-    self.assertNotRegex(html, r"(?m)^\s+\S")
-    self.assertNotIn("\n\n", html)
+test('scripts and handlers are removed and noted', () => {
+  const { html, notes } = m.rewriteBody('<p onclick="x()">a</p><script>alert(1)</script>');
+  assert.equal(html, '<p>a</p>');
+  assert.ok(notes.length);
+});
 
-def test_infer_event_year(self):
-    events = [{"id": 10, "start": (19, 0, 11, 1), "end": (20, 0, 11, 1), "text_years": [2018]},
-              {"id": 11, "start": (19, 0, 2, 3), "end": (20, 0, 2, 3), "text_years": []},
-              {"id": 12, "start": (19, 0, 6, 1), "end": (20, 0, 6, 1), "text_years": [2019]}]
-    got = m.infer_event_dates(events, known={})
-    self.assertEqual(got[11][0], datetime(2019, 2, 3, 19, 0))
-    self.assertIn("inferred", got[11][2])
+test('no indentation and no blank lines', () => {
+  const { html } = m.rewriteBody('<div>\n    <p>a</p>\n\n    <p>b</p>\n</div><br /><br />');
+  assert.doesNotMatch(html, /^\s+\S/m);
+  assert.doesNotMatch(html, /\n\n/);
+});
 
-def test_csv_dates_win(self):
-    known = m.load_dates(FIX / "live/dates.csv")
-    got = m.infer_event_dates([{"id": 16, "start": (19, 30, 12, 1), "end": (21, 0, 12, 1), "text_years": []}], known)
-    self.assertEqual(got[16][0], datetime(2015, 12, 1, 19, 30))
+test('an event year is inferred from its neighbours', () => {
+  const events = [
+    { id: 10, start: [19, 0, 11, 1], end: [20, 0, 11, 1], textYears: [2018] },
+    { id: 11, start: [19, 0, 2, 3], end: [20, 0, 2, 3], textYears: [] },
+    { id: 12, start: [19, 0, 6, 1], end: [20, 0, 6, 1], textYears: [2019] },
+  ];
+  const got = m.inferEventDates(events, new Map());
+  assert.equal(got.get(11).start, '2019-02-03T19:00:00');
+  assert.match(got.get(11).reason, /inferred/);
+});
 
-def test_front_matter_escaping(self):
-    fm = m.front_matter({"title": 'A: "quoted" # not a comment', "header": True, "weight": 3})
-    self.assertEqual(fm, '---\ntitle: "A: \\"quoted\\" # not a comment"\nheader: true\nweight: 3\n---\n')
+test('CSV dates win', () => {
+  const known = m.loadDates('tests/fixtures/live/dates.csv');
+  const got = m.inferEventDates([{ id: 16, start: [19, 30, 12, 1], end: [21, 0, 12, 1], textYears: [] }], known);
+  assert.equal(got.get(16).start, '2015-12-01T19:30:00');
+});
+
+test('every written topic is a site topic', () => {
+  const topics = parse(readFileSync('site/data/topics.yaml', 'utf8'));
+  assert.equal(m.topicSlug('Other Events', topics), 'other-events');
+  assert.equal(m.topicSlug('Harvest', topics), '');
+});
+
+test('front matter survives awkward values and keeps dates as Pages CMS writes them', () => {
+  const fm = m.frontMatter({ title: 'A: "quoted" # not a comment', date: '2015-12-01T19:30:00', header: true, weight: 3 });
+  assert.match(fm, /^---\n[\s\S]*\n---\n$/);
+  assert.match(fm, /^date: 2015-12-01T19:30:00$/m);
+  assert.deepEqual(parse(fm.slice(4, -4)), { title: 'A: "quoted" # not a comment', date: '2015-12-01T19:30:00', header: true, weight: 3 });
+});
 ```
+
+`yaml`'s default schema reads `2015-12-01T19:30:00` as a string, so the round trip compares strings; Eleventy's front matter parser reads the same line as a `Date`, which "the migrated fixture builds" in Task 3 proves.
 
 - [ ] **Step 2: Run them and watch them fail**
 
-Run: `npm test -- migrate.feature` in `tests/`
+Run: `npm run test:unit`
+Expected: FAIL, the functions are not exported yet.
 
 - [ ] **Step 3: Implement the functions**
 
-`front_matter` uses `json.dumps(value, ensure_ascii=False)` for strings, so the output is valid YAML.
+`frontMatter` builds a `yaml` `Document` from the fields in order and writes date values as plain scalars. `rewriteBody` walks the body with cheerio, collects downloads keyed on the lower-cased legacy path, and records every spelling seen in `legacyPaths`.
 
 - [ ] **Step 4: Run the tests and watch them pass, then commit**
 
+Run: `npm run test:unit`
+Expected: all pass.
+
 ```bash
-git add scripts/migrate.py tests
-git commit -m "Add date inference, body rewriting and front matter writer"
+git add scripts/migrate.mjs tests
+git commit -m "Add date inference, body rewriting, topics and front matter writer"
 ```
 
 ---
@@ -329,64 +393,81 @@ git commit -m "Add date inference, body rewriting and front matter writer"
 ### Task 3: Writer, CLI and report
 
 **Files:**
-- Modify: `scripts/migrate.py` (`main`, writer, report, `legacy.yaml` update)
+- Modify: `scripts/migrate.mjs` (`main`, writer, report, `legacy.yaml` update)
 - Modify: `scripts/README.md`
-- Modify: `tests/test_migrate.py`
+- Modify: `tests/unit/migrate.test.mjs`
 
 **Interfaces:**
-- Produces: `write_site(items: list[dict], site: Path, check: bool) -> list[Path]` (changed files), `update_legacy(path: Path, downloads: list[Download], check: bool) -> bool`, `write_report(path: Path, report: dict) -> None`, `main(argv: list[str] | None = None, fetch=None) -> int` (`fetch` injectable for tests: `Callable[[str], bytes]`).
+- Produces: `writeSite(items, site: string, { check }): Promise<string[]>` (changed files), `updateLegacy(file: string, downloads: Download[], { check }): Promise<boolean>`, `writeReport(file: string, report): Promise<void>`, `main(argv: string[], { fetch } = {}): Promise<number>` (`fetch` injectable for tests: `(url) => Promise<Response>`).
 
 - [ ] **Step 1: Write the failing tests**
 
-Use a fake `fetch` that serves the snapshots for their paths, a two-line sitemap XML listing them, and fixed bytes for image and PDF URLs. Run `main` into a temp copy of `site/` (copy `site/hugo.toml`, `site/layouts`, `site/assets`, `site/data`, empty `site/content` with the structural `_index.md` files and `contact-us.md`).
+`before` builds a temporary `site/` with `content/` holding the structural `page/**/_index.md` files, `contact-us.md` and the root `_index.md`, `static/uploads/`, and `data/legacy.yaml` copied from the repo. A fake `fetch` serves the snapshots for their paths, a sitemap XML listing them, and fixed bytes for image and PDF URLs. `main([...argv, '--site', site], { fetch })` runs once.
 
-```python
-def test_writes_expected_files(self):
-    self.assertTrue((self.site / "content/calendar/16-mu-advent-carol-service.md").is_file())
-    self.assertTrue((self.site / "content/notices/46-news-pew-sheets.md").is_file())
-    self.assertTrue((self.site / "content/page/about/church-diary.md").is_file())
-    self.assertTrue((self.site / "static/uploads/acny").is_dir())
+```js
+test('writes the expected files', () => {
+  for (const f of ['content/calendar/16-mu-advent-carol-service.md', 'content/notices/46-news-pew-sheets.md', 'content/page/about/church-diary.md'])
+    assert.ok(existsSync(join(site, f)), f);
+  assert.ok(statSync(join(site, 'static/uploads/acny')).isDirectory());
+});
 
-def test_url_fields(self):
-    fm = (self.site / "content/calendar/16-mu-advent-carol-service.md").read_text()
-    self.assertIn('url: "/calendar/event/16/mu-advent-carol-service"', fm)
+test('migrated items keep their live URL', () => {
+  assert.match(readFileSync(join(site, 'content/calendar/16-mu-advent-carol-service.md'), 'utf8'), /^url: \/calendar\/event\/16\/mu-advent-carol-service$/m);
+});
 
-def test_second_run_changes_nothing(self):
-    self.assertEqual(m.main(self.argv + ["--check"], fetch=self.fetch), 0)
+test('the written files only use site topics', () => { /* every blogtopics, eventtopics, noticetopics value in the written files is a key of topics.yaml */ });
 
-def test_check_mode_lists_changes(self):
-    p = self.site / "content/notices/46-news-pew-sheets.md"
-    p.write_text(p.read_text() + "<p>Edited in practice</p>\n")
-    out = io.StringIO()
-    with contextlib.redirect_stdout(out):
-        self.assertEqual(m.main(self.argv + ["--check"], fetch=self.fetch), 1)
-    self.assertIn("content/notices/46-news-pew-sheets.md", out.getvalue())
+test('a second run changes nothing', async () => {
+  assert.equal(await m.main([...argv, '--check'], { fetch }), 0);
+});
 
-def test_legacy_routes_appended(self):
-    text = (self.site / "data/legacy.yaml").read_text()
-    self.assertIn("# uploads (spec 07)", text)
-    self.assertIn("/Areas/st_pauls/Uploads/baptism-form.pdf", text)
-    self.assertIn("{ from: /Calendar, to: /calendar/index.html }", text)
+test('check mode lists a changed file', async () => {
+  const p = join(site, 'content/notices/46-news-pew-sheets.md');
+  writeFileSync(p, readFileSync(p, 'utf8') + '<p>Edited in practice</p>\n');
+  const lines = [];
+  const log = console.log;
+  console.log = (s) => lines.push(s);
+  try { assert.equal(await m.main([...argv, '--check'], { fetch }), 1); } finally { console.log = log; }
+  assert.ok(lines.some((l) => l.includes('content/notices/46-news-pew-sheets.md')));
+});
 
-def test_untouched_files(self):
-    self.assertEqual((self.site / "content/page/about/contact-us.md").read_text(), CONTACT_BEFORE)
+test('extra legacy upload spellings are appended once, existing routes kept', () => {
+  const text = readFileSync(join(site, 'data/legacy.yaml'), 'utf8');
+  assert.match(text, /# uploads \(spec 07\)/);
+  assert.match(text, /\{ from: \/Calendar, to: \/calendar \}/);
+  assert.equal(text.match(/# uploads \(spec 07\)/g).length, 1);
+});
 
-def test_report_lists_policy_text_and_inferred_dates(self):
-    rep = (self.report).read_text()
-    self.assertIn("## Policy text that no longer applies", rep)
-    self.assertIn("## Inferred dates", rep)
+test('files the script did not write are untouched', () => {
+  assert.equal(readFileSync(join(site, 'content/page/about/contact-us.md'), 'utf8'), CONTACT_BEFORE);
+});
 
-def test_migrated_fixture_builds(self):
-    build_site(self.out, self.site / "content")
+test('the report lists policy text, inferred dates and unknown topics', () => {
+  const rep = readFileSync(report, 'utf8');
+  for (const h of ['## Policy text that no longer applies', '## Inferred dates', '## Unknown topics']) assert.ok(rep.includes(h), h);
+});
+
+test('the migrated fixture builds', () => {
+  execFileSync('npx', ['eleventy', `--output=${out}`], {
+    env: { ...process.env, CONTENT: join(site, 'content'), UPLOADS: join(site, 'static/uploads') }, stdio: 'pipe',
+  });
+  assert.ok(existsSync(join(out, 'calendar/event/16/mu-advent-carol-service/index.html')));
+});
 ```
+
+`report` points `main` at a temporary file (`--report`, default `docs/features/page-cms/page-cms-migration-report.md`), so tests never write into `docs/`.
 
 - [ ] **Step 2: Run them and watch them fail**
 
-Run: `npm test -- migrate.feature` in `tests/`
+Run: `npm run test:unit`
+Expected: FAIL, `main` is not exported yet.
 
-- [ ] **Step 3: Implement `main`, the writer, the report and the legacy update**
+- [ ] **Step 3: Implement `main`, the writer, the report and the legacy update**, and add the README row (`Never` in the CI column).
 
 - [ ] **Step 4: Run the full suite, then commit**
+
+Run: `npm test`
+Expected: all pass. Nothing under `site/content/` or `docs/` changed (`git status`).
 
 ```bash
 git add scripts tests
@@ -407,16 +488,16 @@ git commit -m "Add migration CLI, report and legacy route update"
 
 - [ ] **Step 2: Run the migration**
 
-Run: `python3 scripts/migrate.py --dates scripts/legacy-dates.csv`
+Run: `NODE_USE_ENV_PROXY=1 node scripts/migrate.mjs --dates scripts/legacy-dates.csv`
 Expected: summary of counts (7 articles, 69 events, 5 notices, 14 pages), downloads, and report path.
 
 - [ ] **Step 3: Check it**
 
-Run: `python3 scripts/migrate.py --dates scripts/legacy-dates.csv --check` (expect exit 0), the full test suite, then a build and `python3 scripts/check_urls.py --list tests/fixtures/live-urls.txt --built <build>` (expect `0 failed`), and `grep -rlE 'stpaulswarton\.co\.uk|/Areas/|media\.acny\.uk' site/content` (expect nothing).
+Run: `node scripts/migrate.mjs --dates scripts/legacy-dates.csv --check` (expect exit 0), `npm test`, then `npm run build && node scripts/check-urls.mjs --list tests/fixtures/live-urls.txt --built _site` (expect `0 failed`), `grep -rlE 'stpaulswarton\.co\.uk|/Areas/|media\.acny\.uk' site/content` (expect nothing), and check the report's "Unknown topics" table is empty. Check `_site/staticwebapp.config.json` is under 20,480 bytes with the upload routes in.
 
-- [ ] **Step 4: Screenshots** of five pages side by side (home, an article with images, the gallery page, the church diary, an expired event) with `scripts/screenshots.py`, sent to the maintainer.
+- [ ] **Step 4: Screenshots** of five pages side by side (home, an article with images, the gallery page, the church diary, an expired event) with `node scripts/screenshots.mjs`, sent to the maintainer.
 
-- [ ] **Step 5: Commit and push**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add -A site docs scripts

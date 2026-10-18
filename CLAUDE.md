@@ -9,11 +9,11 @@ Do not reopen these without being asked.
 | Topic | Decision |
 |---|---|
 | Direction | Static site, not Umbraco. Umbraco 17 is the fallback only if the editor trial (spec 00) fails |
-| Generator | Hugo, extended, version pinned. No npm in the Hugo build |
-| Tests | Playwright with Gherkin scenarios (`playwright-bdd`) in `tests/`, npm. Behaviour only, never docs or Markdown. Run on every pull request and before every deploy (2026-10-18, replaces uncommitted Python tests) |
+| Generator | Eleventy 3.x, exact-pinned, Node 26. npm allowed with `npm audit` and Dependabot (2026-10-18, replaces Hugo) |
+| Tests | Playwright with Gherkin scenarios (`playwright-bdd`) in `tests/`, plus `node:test` in `tests/unit/`. Root `npm ci && npm test`. Behaviour only, never docs or Markdown. Run on every pull request and before every deploy (2026-10-18, replaces uncommitted Python tests) |
 | Editor | Pages CMS (hosted, `app.pagescms.org`), editors invited by email. No self-hosted Postgres |
 | Hosting | Azure Static Web Apps, Free plan. Maintainer has Azure credits |
-| Infrastructure | Bicep in `infra/`. GitHub Actions with OIDC sign in to Azure. No long-lived deployment token stored as a secret |
+| Infrastructure | Bicep in `infra/`, run by the deploy job. OIDC sign-in in the deploy job only, with two custom roles: Static Web App deployer on the resource, template deployer on the resource group. No long-lived token stored as a secret |
 | DNS | Cloudflare Free for DNS and caching only. Church controls the domain registrar side |
 | Branch | `main` is the default and deploy branch. Umbraco code is archived on `archive/umbraco-2019` and must not be merged back |
 | Comments | Disqus removed |
@@ -49,9 +49,8 @@ Do not reopen these without being asked.
 
 Committed, and run by `.github/workflows/deploy.yml` on every pull request and before every deploy. Rules in `docs/features/page-cms/page-cms-spec-conventions.md#tests`.
 
-- Gherkin features in `tests/features/`, JavaScript steps in `tests/steps/`, fixtures in `tests/fixtures/`. Run with `npm ci && npm test` in `tests/`.
+- Gherkin features in `tests/features/`, JavaScript steps in `tests/steps/`, `node:test` unit tests in `tests/unit/`, fixtures in `tests/fixtures/`. Run with `npm ci && npm test` at the repo root (`npm run test:unit`, `npm run test:bdd` for one half).
 - Test behaviour in a real browser: what a page shows, where links go, what `site.js` does, what the feeds and `.pages.yml` produce. No tests on docs or Markdown.
-- Specs 04 to 12 show Python `unittest` examples. Write them as scenarios instead; the Python only describes the behaviour.
 - Every spec adds scenarios for what it builds and keeps the whole suite green. Reuse existing steps where they fit.
 
 ## When the maintainer gives final approval on a spec
@@ -73,21 +72,23 @@ Do all of these on the spec's branch before it merges:
 | `docs/features/page-cms/page-cms-spec-NN-*.md` | One spec per working session, 00 to 12 |
 | `docs/features/page-cms/page-cms-spec-conventions.md` | Shared rules and the names specs pass between each other |
 | `.claude/skills/` | Imported obra/superpowers skills, see `.claude/skills/SUPERPOWERS.md` |
-| `site/` | Hugo site |
-| `infra/` | Bicep for the Static Web App |
+| `site/` | Eleventy site: `content/` (Paul's), `_includes/`, `pages/`, `data/`, `assets/`, `static/` |
+| `config/` | Eleventy modules loaded by `eleventy.config.js`: content (URLs and collections), data, pages, assets, images, dates, filters, topics, `staticwebapp.config.json` |
+| `infra/` | Bicep for the Static Web App, custom role definitions in `infra/roles/` |
 | `.pages.yml` | Pages CMS config |
-| `tests/` | Playwright and Gherkin tests, fixtures, `serve.js` (builds a fixture folder and serves it) |
+| `tests/` | Playwright and Gherkin tests, `node:test` unit tests, fixtures, `serve.js` (builds a fixture folder and serves it) |
 | `scripts/` | Hand-run tools (screenshots, URL check, migration). Never run in CI |
-| `.github/workflows/deploy.yml` | Test, deploy Bicep, build and deploy the site |
+| `package.json` | The one npm project: build, tests, scripts. Exact pins |
+| `.github/workflows/deploy.yml` | Build and test, audit, then deploy Bicep and the built site |
 
 The legacy CSS, images and views needed for reference are on `archive/umbraco-2019` under `StPauls.Web/` (`Content/`, `Views/`). Read them with `git show archive/umbraco-2019:StPauls.Web/Content/Site.less` or check the branch out into a worktree.
 
 ## Environment notes (cloud sandbox, checked 2026-10-17)
 
-- `hugo`, `az` and `bicep` were not installed. `node` was.
+- `az` and `bicep` were not installed. The sandbox `node` is 22, too old: install Node 26 outside the repo with `npm i --prefix <dir> node@26` and put `<dir>/node_modules/.bin` first on `PATH` (2026-10-18).
 - Downloads from `github.com/.../releases` returned 403 through the sandbox proxy, and `pagescms.org` did not resolve. PyPI and the npm registry were reachable.
-- Install tools outside the repo. Hugo and actionlint from PyPI: `python3 -m venv <dir> && <dir>/bin/pip install hugo==0.167.0 actionlint-py`. Bicep 0.48.1 from NuGet: `https://api.nuget.org/v3-flatcontainer/azure.bicep.commandline.linux-x64/0.48.1/azure.bicep.commandline.linux-x64.0.48.1.nupkg`, extract `tools/bicep` with `python3 -m zipfile -e`, `chmod +x`.
-- Tests: Chromium is preinstalled at `/opt/pw-browsers` and matches `@playwright/test` 1.56.1, so do not run `playwright install`. Set `HUGO=<venv>/bin/hugo` or put the venv on `PATH`, then `npm ci && npm test` in `tests/`.
+- Install tools outside the repo. actionlint from PyPI: `python3 -m venv <dir> && <dir>/bin/pip install actionlint-py`. Hugo (`hugo==0.167.0`, same venv) is needed only for the one-off `scripts/compare-hugo.mjs`. Bicep 0.48.1 from NuGet: `https://api.nuget.org/v3-flatcontainer/azure.bicep.commandline.linux-x64/0.48.1/azure.bicep.commandline.linux-x64.0.48.1.nupkg`, extract `tools/bicep` with `python3 -m zipfile -e`, `chmod +x`.
+- Tests: Chromium is preinstalled at `/opt/pw-browsers` and matches `@playwright/test` 1.56.1, so do not run `playwright install`. With Node 26 on `PATH`, run `npm ci && npm test` at the repo root.
 - `az`, Azure and Pages CMS cannot be reached from the sandbox. Say plainly what was not run locally.
 - The live site `http://stpaulswarton.co.uk` was reachable with `curl`. `www.stpaulswarton.co.uk` did not resolve (the sandbox resolver only answers `A` for some names). It does exist: see the DNS how-to.
 - Later on 2026-10-17: GitHub release downloads and `git ls-remote` worked, and `raw.githubusercontent.com` served docs sources (Pages CMS, Static Web Apps, Hugo, Web3Forms). The test site `brave-coast-006318103.5.azurestaticapps.net` was reachable. `calendar.google.com`, `embedsocial.com`, `web3forms.com` and DNS-over-HTTPS were blocked. Details in `docs/features/page-cms/page-cms-spec-conventions.md`.

@@ -8,6 +8,8 @@ status: agreed
 
 _One session, mostly writing. Gets the domain's DNS onto Cloudflare early, still pointing at the old site, so cutover day (spec 11) is a record change and not a hunt for registrar logins. See the [design](page-cms-feature.md) and [conventions](page-cms-spec-conventions.md)._
 
+_Built in Hugo, ported to Eleventy on 2026-10-18, see [the switch plan](page-cms-plan-eleventy-switch.md)._
+
 ---
 
 ## Goal

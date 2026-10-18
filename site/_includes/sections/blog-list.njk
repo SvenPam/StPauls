@@ -1,0 +1,16 @@
+<div class="with-aside">
+<div>
+<h1>{{ title }}</h1>
+{%- set items = collections.blog | newestFirst %}
+{%- if items.length %}
+<div class="card-list">
+  {%- asyncEach item in items %}
+  {% include "partials/card.njk" %}
+  {%- endeach %}
+</div>
+{%- else %}
+<p>Could not find any articles.</p>
+{%- endif %}
+</div>
+{% include "partials/blog-aside.njk" %}
+</div>

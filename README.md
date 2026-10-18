@@ -1,6 +1,6 @@
 # St Paul's Warton website
 
-Source for `stpaulswarton.co.uk`: a static site built with Hugo, edited through Pages CMS and hosted on Azure Static Web Apps.
+Source for `stpaulswarton.co.uk`: a static site built with Eleventy, edited through Pages CMS and hosted on Azure Static Web Apps.
 
 ## Status
 
@@ -20,7 +20,7 @@ Rebuild in progress. The live site still runs on the legacy CMS.
 1. Editor trial ([spec 00](docs/features/page-cms/page-cms-spec-00-editor-trial.md)): done, go for the static site.
 2. Build specs 01 to 12 from the [plan](docs/features/page-cms/page-cms-feature.md), one per session.
 
-Context for working in this repo is in [CLAUDE.md](CLAUDE.md).
+Build and test with Node 26: `npm ci && npm test`. Context for working in this repo is in [CLAUDE.md](CLAUDE.md).
 
 ## History
 

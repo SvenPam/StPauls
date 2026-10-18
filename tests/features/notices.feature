@@ -9,6 +9,8 @@ Feature: Notices
       | Fixture older    |
       | Fixture migrated |
       | Fixture wide content with a very long title that has to wrap on a phone screen without pushing the page sideways |
+      | Fixture dated    |
+      | Fixture syntax   |
     And the "Fixture newer" link goes to "/notices/notice/newer"
     And the "Fixture newer" card shows "01-Feb-26"
     And the "Fixture newer" card shows "Newer summary"
@@ -20,6 +22,14 @@ Feature: Notices
     Then "/notices/notice/46/news-pew-sheets" exists
     When I open "/notices"
     And the "Fixture migrated" link goes to "/notices/notice/46/news-pew-sheets"
+
+  Scenario: A Pages CMS file name keeps its date in the URL
+    Then "/notices/notice/2026-01-05-dated" exists
+    And "/notices/notice/dated" does not exist
+
+  Scenario: Template syntax in a body is shown as written
+    When I open "/notices/notice/syntax"
+    Then I see "Braces {{ site.title }} and {% include \"base.njk\" %} stay"
 
   Scenario: A notice page
     When I open "/notices/notice/newer"
@@ -51,3 +61,8 @@ Feature: Notices
   Scenario: No notices
     When I open "/notices" on the empty site
     Then I see "Could not find any notices."
+
+  Scenario: A stray content file publishes no page and does not fail the build
+    Then "/stray" does not exist
+    And "/notices/sub/x" does not exist
+    And "/notices/notice/x" does not exist

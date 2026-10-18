@@ -8,6 +8,8 @@ status: agreed
 
 _One session. Sets up the static site foundations and proves that a non-technical editor can publish through Pages CMS. See [way forward](page-cms-discovery-way-forward.md). The spec comes first; the [implementation plan](#implementation-plan) follows it._
 
+_Built in Hugo, ported to Eleventy on 2026-10-18, see [the switch plan](page-cms-plan-eleventy-switch.md)._
+
 ---
 
 ## Goal

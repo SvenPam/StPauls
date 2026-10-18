@@ -1,7 +1,7 @@
-# Hugo
-site/public/
-site/resources/_gen/
-.hugo_build.lock
+# Eleventy and npm
+node_modules/
+_site/
+.cache/
 
 # OS and editors
 .DS_Store

@@ -1,0 +1,21 @@
+<div class="with-aside">
+<article>
+  <h1>{{ title }}</h1>
+  <div class="meta">
+    <span class="date-time">Published {{ date | date }}</span>
+    {%- set topicSlug = topic %}{% set topicSection = section %}
+    {%- set topicLink %}{% include "partials/topic-link.njk" %}{% endset %}
+    {%- if topicLink | trim %}
+    <p class="topic-line">Topic: {{ topicLink | safe }}</p>
+    {%- endif %}
+  </div>
+  {%- if summary %}
+  <p class="lead">{{ summary }}</p>
+  {%- endif %}
+  {% set imageSrc = image %}{% set imageAlt = image_alt %}{% include "partials/image.njk" %}
+  <div class="prose">
+    {{ content | safe }}
+  </div>
+</article>
+{% include "partials/blog-aside.njk" %}
+</div>

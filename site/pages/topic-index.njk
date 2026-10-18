@@ -1,0 +1,15 @@
+---
+layout: base.njk
+pagination:
+  data: topicSections
+  size: 1
+  alias: topicSection
+permalink: "/{{ topicSection }}/topic/index.html"
+title: Topics
+---
+<h1>Topics</h1>
+<ul class="topic-list">
+  {%- for slug, label in topics | dictsort %}
+  <li><a href="/{{ topicSection }}/topic/{{ slug }}">{{ label }}</a></li>
+  {%- endfor %}
+</ul>

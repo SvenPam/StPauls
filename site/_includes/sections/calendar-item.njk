@@ -1,0 +1,32 @@
+{%- set data = { date: date, end: end } -%}
+{%- set endsAt = data | eventEnd -%}
+<article>
+  <h1>{{ title }}</h1>
+  <div class="meta">
+    <span class="status">{{ data | eventStatus }}</span>
+    {%- set topicSlug = topic %}{% set topicSection = section %}
+    {%- set topicLink %}{% include "partials/topic-link.njk" %}{% endset %}
+    {%- if topicLink | trim %}
+    <p class="topic-line">Topic: {{ topicLink | safe }}</p>
+    {%- endif %}
+  </div>
+  <dl class="event-when">
+    {%- for when in [{ label: 'Start', t: date }, { label: 'End', t: endsAt }] %}
+    <div>
+      <dt>{{ when.label }}</dt>
+      <dd><time datetime="{{ when.t | isoLondon }}"><span class="event-time">{{ when.t | time }}</span> <span class="event-month">{{ when.t | month }}</span> <span class="event-day">{{ when.t | day }}</span></time></dd>
+    </div>
+    {%- endfor %}
+  </dl>
+  {%- if location %}
+  <address class="event-location">{{ location }}</address>
+  {%- endif %}
+  {%- if summary %}
+  <p class="lead">{{ summary }}</p>
+  {%- endif %}
+  {% set imageSrc = image %}{% set imageAlt = image_alt %}{% include "partials/image.njk" %}
+  <div class="prose">
+    {{ content | safe }}
+  </div>
+  <p><a href="/calendar">Back to the calendar</a></p>
+</article>

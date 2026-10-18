@@ -1,0 +1,5 @@
+---
+layout: base.njk
+---
+{#- ifAsync, not if: a plain if around an include that runs the async picture shortcode drops its output. A content file outside the three sections renders nothing, and has no permalink. -#}
+{% ifAsync section == "blog" or section == "calendar" or section == "notices" %}{% include "sections/" + section + ("-list" if isIndex else "-item") + ".njk" %}{% endif %}

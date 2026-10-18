@@ -1,20 +1,20 @@
-// Builds the site from a fixture content folder and serves it the way Static Web Apps does:
+// Builds the site from a fixture content folder with Eleventy and serves it the way Static Web Apps does:
 // /path and /path/ both serve /path/index.html, anything else missing gets 404.html.
 // Usage: node serve.js <content dir> <port>
 import { execFileSync } from 'node:child_process';
 import { createReadStream, existsSync, mkdtempSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
-import { extname, join, resolve } from 'node:path';
+import { extname, join, relative, resolve } from 'node:path';
 
+const REPO = resolve(import.meta.dirname, '..');
 const [content, port] = process.argv.slice(2);
 const out = mkdtempSync(join(tmpdir(), 'stpauls-'));
-execFileSync(process.env.HUGO ?? 'hugo', [
-  '--source', resolve('../site'),
-  '--contentDir', resolve(content),
-  '--destination', out,
-  '--minify', '--panicOnWarning', '--quiet',
-], { stdio: 'inherit' });
+execFileSync('npx', ['@11ty/eleventy', `--output=${out}`, '--quiet'], {
+  cwd: REPO,
+  env: { ...process.env, CONTENT: relative(REPO, resolve(content)) },
+  stdio: 'inherit',
+});
 
 const types = {
   '.html': 'text/html; charset=utf-8', '.xml': 'application/xml', '.css': 'text/css',

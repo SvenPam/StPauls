@@ -43,6 +43,11 @@ Feature: Calendar
       | Fixture backwards |
     And I do not see "Could not find any events."
 
+  Scenario: An event is hidden from its London end time in summer
+    Given it is "2099-06-01T12:30:00+01:00"
+    When I open "/calendar"
+    Then I do not see "Fixture future"
+
   Scenario: When every event has ended since the last build, the page says so
     Given it is "2100-01-01T00:00:00Z"
     When I open "/calendar"

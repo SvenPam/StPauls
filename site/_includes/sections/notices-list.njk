@@ -1,0 +1,11 @@
+<h1>{{ title }}</h1>
+{%- set items = collections.notices | newestFirst %}
+{%- if items.length %}
+<div class="card-list">
+  {%- asyncEach item in items %}
+  {% include "partials/card.njk" %}
+  {%- endeach %}
+</div>
+{%- else %}
+<p>Could not find any notices.</p>
+{%- endif %}

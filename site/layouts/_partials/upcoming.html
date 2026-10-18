@@ -1,7 +1,0 @@
-{{/* Events that have not ended at build time, soonest first. */}}
-{{- $now := now -}}
-{{- $out := slice -}}
-{{- range .ByDate -}}
-  {{- if not ((partial "event-end.html" .).Before $now) }}{{ $out = $out | append . }}{{ end -}}
-{{- end -}}
-{{- return $out -}}

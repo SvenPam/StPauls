@@ -8,6 +8,8 @@ status: done
 
 _One session. Builds the three dated sections on the new shell: blog articles, calendar events and notices, with topic listings, RSS feeds, live URL patterns, a nightly rebuild, and Pages CMS collections for each. See the [design](page-cms-feature.md) and [conventions](page-cms-spec-conventions.md)._
 
+_Built in Hugo, ported to Eleventy on 2026-10-18, see [the switch plan](page-cms-plan-eleventy-switch.md)._
+
 ---
 
 ## Goal

@@ -1,0 +1,18 @@
+<article>
+  <h1>{{ title }}</h1>
+  <div class="meta">
+    <span class="date-time notice-date">{{ date | date }}</span>
+    {%- if location %}
+    <address class="notice-location">{{ location }}</address>
+    {%- endif %}
+    {%- set topicSlug = topic %}{% set topicSection = section %}
+    {%- set topicLink %}{% include "partials/topic-link.njk" %}{% endset %}
+    {%- if topicLink | trim %}
+    <p class="topic-line">Topic: {{ topicLink | safe }}</p>
+    {%- endif %}
+  </div>
+  <div class="prose">
+    {{ content | safe }}
+  </div>
+  <p><a href="/notices">Back to notices</a></p>
+</article>

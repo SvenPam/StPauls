@@ -1,0 +1,10 @@
+{#- An item's image, from `imageSrc` and `imageAlt`. Assets go through picture; anything else (uploads, until spec 06) is a plain img.
+    ifAsync, not if: a plain if around the async picture shortcode drops its output inside asyncEach. -#}
+{%- ifAsync imageSrc -%}
+{%- set asset = imageSrc | assetPath -%}
+{%- ifAsync asset -%}
+{% picture { src: asset, alt: imageAlt or '', sizes: '(min-width: 48rem) 48rem, 100vw' } %}
+{%- else -%}
+<img src="{{ imageSrc }}" alt="{{ imageAlt or '' }}" loading="lazy" decoding="async">
+{%- endif -%}
+{%- endif -%}
