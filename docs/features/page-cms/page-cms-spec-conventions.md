@@ -36,6 +36,7 @@ Every task in every spec includes these.
 | `terser` | `5.51.2` | Script minify |
 | `yaml` | `2.9.1` | `site/data/*.yaml` |
 | `entities` | `6.0.1` | Entity decoding in feed text |
+| `cheerio` | `1.2.0` | HTML parsing in `scripts/migrate.mjs` only. Added by spec 07 |
 | `@playwright/test` | `1.56.1` | Browser tests. Matches the sandbox Chromium |
 | `playwright-bdd` | `9.2.1` | Gherkin scenarios. The 8.x line had audit findings with no fix |
 | `overrides` | `chokidar` `4.0.3`, `argparse` `2.0.1` | Without them `npm audit` reports 1 high, 1 moderate |
@@ -390,7 +391,7 @@ Asset names change only when the bytes do, so spec 09 can cache them `immutable`
 | `tests/fixtures/live-urls.txt` | Live sitemap paths plus the known variants, with the fetch date | 05 |
 | `scripts/screenshots.mjs` | Side-by-side screenshots with Playwright. Hand-run | 02 |
 | `scripts/compare-hugo.mjs` | Hugo against Eleventy, page by page. Used once for the switch | Switch |
-| `scripts/migrate.mjs` | Re-runnable migration from the live site | 07 |
+| `scripts/migrate.mjs` | Re-runnable migration from the live site, `--check` for a dry run. Writes `/uploads/legacy/{live path}`, `/uploads/content/...` and `/uploads/acny/...`, topics as `topics.yaml` slugs. Hand-run, never in the workflow | 07 |
 
 ### Site data
 
