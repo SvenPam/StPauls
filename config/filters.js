@@ -32,9 +32,18 @@ export function excerpt(html, max = 300) {
   return chars.length > max ? `${chars.slice(0, max).join('')}…` : chars.join('');
 }
 
+// Pages for sitemap.xml: HTML pages only (their URL ends with /, so not feeds or 404.html), without
+// `sitemap: false`, sorted by their address as written.
+export function sitemapPages(all) {
+  return [...(all ?? [])]
+    .filter((p) => typeof p.url === 'string' && p.url.endsWith('/') && p.data.sitemap !== false)
+    .sort((a, b) => (href(a.url) < href(b.url) ? -1 : href(a.url) > href(b.url) ? 1 : 0));
+}
+
 export default function (eleventyConfig) {
   eleventyConfig.addFilter('href', href);
   eleventyConfig.addFilter('newestFirst', newestFirst);
   eleventyConfig.addFilter('plainText', plainText);
   eleventyConfig.addFilter('excerpt', excerpt);
+  eleventyConfig.addFilter('sitemapPages', sitemapPages);
 }

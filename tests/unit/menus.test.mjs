@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { menuItems, footerGroups } from '../../config/menus.js';
+import { menuItems, footerGroups, pagesByType } from '../../config/menus.js';
 
 const type = (t, title, weight) => ({ data: { section: `page/${t}`, title, weight } });
 const page = (t, name, data) => ({ url: data.url ? `${data.url}/` : `/page/${t}/${name}/`, data: { section: `page/${t}`, ...data } });
@@ -56,4 +56,10 @@ test('footer: Links first with the about pages, then each type with footer pages
   const groups = footerGroups(collections);
   assert.deepEqual(groups.map((g) => g.title), ['Links', 'Services', 'Groups']);
   assert.deepEqual(groups[0].links.map((l) => l.url), ['/blog', '/calendar', '/notices', '/sitemap', '/contact', '/page/about/privacy-policy']);
+});
+
+test('pagesByType lists every page of every type, menu flags ignored', () => {
+  const groups = pagesByType(collections);
+  assert.deepEqual(groups.map((g) => g.title), ['About', 'Services', 'Groups', 'Forms']);
+  assert.deepEqual(groups.at(-1).pages, [{ name: 'Hidden', url: '/page/forms/hidden' }]);
 });

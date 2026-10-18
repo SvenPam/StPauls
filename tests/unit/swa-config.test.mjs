@@ -7,6 +7,7 @@ import { mkdtemp, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { buildSwaConfig } from '../../config/swa.js';
+import { readData } from '../../config/data.js';
 
 let out;
 let raw;
@@ -34,7 +35,6 @@ test('staticwebapp.config.json is built, parses and is under 20 KB', async () =>
 
 test('the root is served, not redirected', () => {
   assert.deepEqual(config.routes.filter((r) => r.route === '/'), []);
-  assert.deepEqual(config.routes, []);
   assert.deepEqual(config.responseOverrides, { 404: { rewrite: '/404.html', statusCode: 404 } });
 });
 
@@ -74,9 +74,48 @@ test('buildSwaConfig writes the file into the folder it is given and returns the
   try {
     await mkdir(path.join(dir, 'x'));
     await writeFile(path.join(dir, '404.html'), '');
-    const returned = await buildSwaConfig(dir);
+    const returned = await buildSwaConfig(dir, readData());
     assert.deepEqual(JSON.parse(await readFile(path.join(dir, 'staticwebapp.config.json'), 'utf8')), returned);
     assert.deepEqual(returned, config);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+const matches = (route, path) => (route.endsWith('*') ? path.startsWith(route.slice(0, -1)) : route === path);
+
+test('trailing slashes are never kept', () => {
+  assert.equal(config.trailingSlash, 'never');
+});
+
+test('mixed-case legacy links redirect to the lower-case page', () => {
+  const rd = Object.fromEntries(config.routes.filter((r) => r.redirect).map((r) => [r.route, [r.redirect, r.statusCode]]));
+  assert.deepEqual(rd['/Calendar'], ['/calendar', 301]);
+  assert.deepEqual(rd['/Contact'], ['/contact', 301]);
+  assert.deepEqual(rd['/account*'], ['/', 301]);
+  assert.deepEqual(rd['/Account*'], ['/', 301]);
+});
+
+test('no redirect can match its own target', () => {
+  assert.deepEqual(config.routes.filter((r) => r.redirect && matches(r.route, r.redirect)), []);
+});
+
+test('every local rewrite target exists in the build', () => {
+  assert.deepEqual(config.routes.filter((r) => r.rewrite && !existsSync(path.join(out, r.rewrite))).map((r) => r.route), []);
+});
+
+test('a new legacy upload gets a route from every prefix', async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'swa-up-'));
+  try {
+    await mkdir(path.join(dir, 'uploads/legacy/Gallery'), { recursive: true });
+    await writeFile(path.join(dir, 'uploads/legacy/Gallery/My Poster.pdf'), '');
+    await writeFile(path.join(dir, 'uploads/not-legacy.pdf'), '');
+    const legacy = { rewrites: [], redirects: [], upload_prefixes: ['/Areas/st_pauls/Uploads', '/Areas/St_Pauls/Uploads'] };
+    const { routes } = await buildSwaConfig(dir, { legacy });
+    assert.deepEqual(routes, [
+      { route: '/Areas/st_pauls/Uploads/Gallery/My Poster.pdf', redirect: '/uploads/legacy/Gallery/My%20Poster.pdf', statusCode: 301 },
+      { route: '/Areas/St_Pauls/Uploads/Gallery/My Poster.pdf', redirect: '/uploads/legacy/Gallery/My%20Poster.pdf', statusCode: 301 },
+    ]);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

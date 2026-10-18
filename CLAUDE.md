@@ -96,7 +96,7 @@ The legacy CSS, images and views needed for reference are on `archive/umbraco-20
 
 ## Next steps
 
-1. Spec 03 is done. Next is spec 04, `docs/features/page-cms/page-cms-spec-04-pages-home-and-menus.md`. Build the rest in order, one per session. Read `docs/features/page-cms/page-cms-spec-conventions.md` first.
+1. Spec 05 is done. Next is spec 06, `docs/features/page-cms/page-cms-spec-06-images-and-embeds.md`. Build the rest in order, one per session. Read `docs/features/page-cms/page-cms-spec-conventions.md` first.
 2. Each spec ends with the maintainer's manual steps. Say plainly when blocked on one.
 3. After spec 12, phase 2 (design options) gets its own design.
 

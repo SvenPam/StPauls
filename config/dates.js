@@ -69,6 +69,9 @@ export const isoLondon = (v) => {
   return `${wallClock(d)}${offset === '+00:00' ? 'Z' : offset}`;
 };
 
+// The wall date as YYYY-MM-DD.
+export const isoDay = (v) => isoLondon(v).slice(0, 10);
+
 export const rfc822London = (v) => {
   const d = wall(v);
   return `${DAYS[d.getUTCDay()]}, ${pad(d.getUTCDate())} ${MONTHS[d.getUTCMonth()].slice(0, 3)} ${d.getUTCFullYear()} ` +
@@ -102,7 +105,7 @@ export function upcoming(items, now = Date.now()) {
 }
 
 export default function (eleventyConfig) {
-  for (const [name, fn] of Object.entries({ date, time, month, day, isoLondon, rfc822London, eventEnd, eventStatus, upcoming })) {
+  for (const [name, fn] of Object.entries({ date, time, month, day, isoLondon, isoDay, rfc822London, eventEnd, eventStatus, upcoming })) {
     eleventyConfig.addFilter(name, fn);
   }
 }

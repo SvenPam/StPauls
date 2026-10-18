@@ -11,6 +11,12 @@ Feature: Layout and delivery
     And the script is under 2048 bytes, deferred and carries an integrity hash
     And the page has no inline script, style or event handler
 
+  Scenario: Every page names its address on the real domain
+    When I open "/notices/notice/newer"
+    Then the canonical address is "https://stpaulswarton.co.uk/notices/notice/newer"
+    When I open "/"
+    Then the canonical address is "https://stpaulswarton.co.uk/"
+
   Scenario: Internal links have no trailing slash
     When I open "/blog/article/a8"
     Then no link in the page ends with a slash

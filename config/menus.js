@@ -24,14 +24,21 @@ const byWeight = (a, b) =>
 
 const link = (item) => ({ name: item.data.title, url: href(item.url) });
 
-// Page types in order, each with its pages that have `flag` set. A page in a folder with no _index.md is left out.
-function flagged(collections, flag) {
-  const pages = [...(collections.pages ?? [])].filter((p) => p.data[flag] === true).sort(byWeight);
+// Page types in order, each with its pages that pass `keep`. A page in a folder with no _index.md is left out.
+function typesWith(collections, keep = () => true) {
+  const pages = [...(collections.pages ?? [])].filter(keep).sort(byWeight);
   return [...(collections.pageTypes ?? [])].sort(byWeight).map((t) => ({
     type: typeOf(t),
     title: t.data.title,
     pages: pages.filter((p) => typeOf(p) === typeOf(t)),
   }));
+}
+
+const flagged = (collections, flag) => typesWith(collections, (p) => p.data[flag] === true);
+
+// Every page type with every page in it, menu flags ignored. The /sitemap page lists these.
+export function pagesByType(collections) {
+  return typesWith(collections).map((t) => ({ title: t.title, pages: t.pages.map(link) }));
 }
 
 export function menuItems(collections) {
@@ -53,4 +60,5 @@ export function footerGroups(collections) {
 export default function (eleventyConfig) {
   eleventyConfig.addFilter('menuItems', menuItems);
   eleventyConfig.addFilter('footerGroups', footerGroups);
+  eleventyConfig.addFilter('pagesByType', pagesByType);
 }

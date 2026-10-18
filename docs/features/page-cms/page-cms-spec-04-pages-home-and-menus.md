@@ -1,7 +1,7 @@
 ---
 date: 2026-10-18
 tags: [spec, plan, stpauls]
-status: agreed
+status: done
 ---
 
 # Spec 04: pages, home and menus
@@ -166,13 +166,13 @@ Field labels: `header` "Show in the top menu", `footer` "Show in the footer", `w
 
 ## Acceptance
 
-- [ ] `npm test` passes.
-- [ ] Fixture pages render at `/page/{type}/{name}`, and `/page/about` and `/page` are not built.
-- [ ] Menus built from the fixture match the live menu shape: plain items for one-page types, dropdowns for several, in live order.
-- [ ] `/contact` renders the contact placeholder.
-- [ ] Home shows the hero, every notice, and the 3 newest articles with cropped WebP images.
-- [ ] `/` returns the home page with no redirect.
-- [ ] `site/data/menus.yaml` and `site/pages/home.njk` are gone.
+- [x] `npm test` passes.
+- [x] Fixture pages render at `/page/{type}/{name}`, and `/page/about` and `/page` are not built.
+- [x] Menus built from the fixture match the live menu shape: plain items for one-page types, dropdowns for several, in live order.
+- [x] `/contact` renders the contact placeholder.
+- [x] Home shows the hero, every notice, and the 3 newest articles with cropped WebP images.
+- [x] `/` returns the home page with no redirect.
+- [x] `site/data/menus.yaml` and `site/pages/home.njk` are gone.
 
 ---
 

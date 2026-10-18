@@ -1,7 +1,7 @@
 ---
 date: 2026-10-18
 tags: [spec, plan, stpauls]
-status: agreed
+status: done
 ---
 
 # Spec 05: URL parity
@@ -119,11 +119,11 @@ One path per line, sorted, no host, no trailing slash: every `<loc>` in the live
 
 ## Acceptance
 
-- [ ] `npm test` passes.
-- [ ] Built `staticwebapp.config.json` has `trailingSlash: "never"`, the legacy routes, a route per legacy upload file and prefix, and passes the guards.
-- [ ] `sitemap.xml` lists fixture URLs on the real domain with no trailing slashes. `robots.txt` points at it.
-- [ ] `/sitemap` lists sections and pages.
-- [ ] `check-urls.mjs --built` against a fixture build passes for fixture URLs and fails for a missing one.
+- [x] `npm test` passes.
+- [x] Built `staticwebapp.config.json` has `trailingSlash: "never"`, the legacy routes, a route per legacy upload file and prefix, and passes the guards.
+- [x] `sitemap.xml` lists fixture URLs on the real domain with no trailing slashes. `robots.txt` points at it.
+- [x] `/sitemap` lists sections and pages.
+- [x] `check-urls.mjs --built` against a fixture build passes for fixture URLs and fails for a missing one.
 - [ ] After merge, the variants and section URLs pass `check-urls.mjs --base` on the test URL, and `/notices/` returns 301 to `/notices`.
 
 ---

@@ -1,0 +1,14 @@
+# Static Web Apps matches routes case-sensitively, so each spelling seen on live has its own route.
+# Paths are written decoded (spaces as spaces). Targets are encoded.
+rewrites: []
+redirects:
+  - { from: /Calendar, to: /calendar }
+  - { from: /Notices, to: /notices }
+  - { from: /Contact, to: /contact }
+  - { from: /Blog, to: /blog }
+  - { from: "/account*", to: "/" }
+  - { from: "/Account*", to: "/" }
+# Each file under uploads/legacy/ in the build gets a 301 from every prefix below.
+upload_prefixes:
+  - /Areas/st_pauls/Uploads
+  - /Areas/St_Pauls/Uploads
