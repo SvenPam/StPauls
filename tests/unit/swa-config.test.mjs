@@ -121,3 +121,17 @@ test('a new legacy upload gets a route from every prefix', async () => {
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+test('HSTS follows hsts_max_age, with no subdomains or preload', () => {
+  assert.equal(config.globalHeaders['Strict-Transport-Security'], 'max-age=300');
+});
+
+test('no HSTS header when hsts_max_age is not set', async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'swa-hsts-'));
+  try {
+    const { globalHeaders } = await buildSwaConfig(dir, { ...readData(), site: { title: 'x' } });
+    assert.equal(globalHeaders?.['Strict-Transport-Security'], undefined);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});

@@ -35,8 +35,11 @@ export async function buildSwaConfig(outDir = '_site', data = readData()) {
       })),
     ),
   ];
+  const globalHeaders = {};
+  if (data.site?.hsts_max_age) globalHeaders['Strict-Transport-Security'] = `max-age=${data.site.hsts_max_age}`;
   const config = {
     trailingSlash: 'never',
+    globalHeaders,
     routes,
     responseOverrides: {
       404: { rewrite: '/404.html', statusCode: 404 },
