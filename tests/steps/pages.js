@@ -98,6 +98,12 @@ Then('the aside {string} link goes to {string}', async ({ ui }, name, href) => {
   await expect(ui.page.locator('aside').getByRole('link', { name, exact: true })).toHaveAttribute('href', href);
 });
 
+Then('{string} says {string}', async ({ request, baseURL }, path, text) => {
+  const res = await request.get(new URL(path, baseURL).href);
+  expect(res.status()).toBe(200);
+  expect(await res.text()).toContain(text);
+});
+
 Then('{string} exists', async ({ request, baseURL }, path) => {
   expect((await request.get(new URL(path, baseURL).href)).status()).toBe(200);
 });

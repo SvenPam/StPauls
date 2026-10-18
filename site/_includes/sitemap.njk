@@ -1,0 +1,40 @@
+---
+layout: base.njk
+---
+{#- The /sitemap page (layout: sitemap.njk): sections with their items, then every page type with all its pages. -#}
+<div class="prose sitemap">
+  <h1>{{ title }}</h1>
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/blog">Blog</a>
+      <ul>
+        {%- for item in collections.blog | newestFirst %}
+        <li><a href="{{ item.url | href }}">{{ item.data.title }}</a></li>
+        {%- endfor %}
+      </ul>
+    </li>
+    <li><a href="/calendar">Calendar</a>
+      <ul>
+        {%- for item in collections.calendar | upcoming %}
+        <li><a href="{{ item.url | href }}">{{ item.data.title }}</a></li>
+        {%- endfor %}
+      </ul>
+    </li>
+    <li><a href="/notices">Notices</a>
+      <ul>
+        {%- for item in collections.notices | newestFirst %}
+        <li><a href="{{ item.url | href }}">{{ item.data.title }}</a></li>
+        {%- endfor %}
+      </ul>
+    </li>
+    {%- for group in collections | pagesByType %}{% if group.pages.length %}
+    <li>{{ group.title }}
+      <ul>
+        {%- for p in group.pages %}
+        <li><a href="{{ p.url }}">{{ p.name }}</a></li>
+        {%- endfor %}
+      </ul>
+    </li>
+    {%- endif %}{% endfor %}
+  </ul>
+</div>

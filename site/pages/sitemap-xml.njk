@@ -1,0 +1,18 @@
+---
+permalink: /sitemap.xml
+layout: false
+eleventyExcludeFromCollections: true
+---
+{#- Pages from the sitemapPages filter. lastmod only where an item has its own date. -#}
+{%- set dated = ["blog", "calendar", "notices"] -%}
+<?xml version="1.0" encoding="utf-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{%- for p in collections.all | sitemapPages %}
+  <url>
+    <loc>{{ site.url }}{{ p.url | href }}</loc>
+    {%- if p.data.section in dated and not p.data.isIndex and p.data.date %}
+    <lastmod>{{ p.data.date | isoDay }}</lastmod>
+    {%- endif %}
+  </url>
+{%- endfor %}
+</urlset>

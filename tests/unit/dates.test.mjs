@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   londonOffset, londonInstant, eventEnd, eventStatus, upcoming,
-  date, time, month, day, isoLondon, rfc822London,
+  date, time, month, day, isoLondon, isoDay, rfc822London,
 } from '../../config/dates.js';
 
 test('London is +00:00 in winter and +01:00 in summer', () => {
@@ -82,4 +82,10 @@ test('eventStatus and upcoming accept quoted date strings', () => {
   assert.equal(eventStatus({ date: '2099-06-01T10:00:00' }, Date.parse('2099-05-01T10:00:00+01:00')), 'Future');
   const items = [{ data: { date: '2099-06-02T10:00' } }, { data: { date: new Date('2099-06-01T10:00:00Z') } }];
   assert.deepEqual(upcoming(items, Date.parse('2099-05-01T00:00:00Z')).map((i) => i.data.date), [items[1].data.date, '2099-06-02T10:00']);
+});
+
+test('isoDay is the London wall date, for site map lastmod', () => {
+  assert.equal(isoDay(new Date(Date.UTC(2026, 9, 25, 23, 30))), '2026-10-25');
+  assert.equal(isoDay('2026-02-01'), '2026-02-01');
+  assert.equal(isoDay('2026-10-17T19:30'), '2026-10-17');
 });
