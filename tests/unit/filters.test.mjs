@@ -16,6 +16,11 @@ test('plainText decodes entities once', () => {
   assert.equal(plainText("<p>Tea &amp; cake at St Paul&#39;s&nbsp;hall</p>"), "Tea & cake at St Paul's hall");
 });
 
+test('plainText decodes every named entity, as Hugo\'s htmlUnescape did', () => {
+  assert.equal(plainText('<p>St Paul&rsquo;s &ndash; tickets &pound;5&hellip;</p>'), 'St Paul\u2019s \u2013 tickets \u00a35\u2026');
+  assert.equal(plainText('&amp;rsquo; stays as text'), '&rsquo; stays as text');
+});
+
 test('excerpt cuts long text at 300 characters', () => {
   assert.equal([...excerpt(`<p>${'a'.repeat(400)}</p>`)].length, 301);
   assert.equal(excerpt('<p>short</p>'), 'short');

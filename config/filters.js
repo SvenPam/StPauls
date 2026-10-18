@@ -1,3 +1,5 @@
+import { decodeHTML } from 'entities';
+
 // Internal links are written without a trailing slash, except "/".
 export function href(url) {
   const s = String(url ?? '');
@@ -7,17 +9,10 @@ export function href(url) {
 // A copy of a collection, newest first. Nunjucks' own reverse filter reverses in place.
 export const newestFirst = (items) => [...(items ?? [])].reverse();
 
-const NAMED = { amp: '&', lt: '<', gt: '>', quot: '"', nbsp: ' ' };
-
-// Visible text of an HTML body: tags removed, entities decoded once, whitespace collapsed.
+// Visible text of an HTML body: tags removed, entities decoded once (every named entity, as Hugo's
+// htmlUnescape did), whitespace collapsed. A tag becomes a space so words in neighbouring blocks stay apart.
 export function plainText(html) {
-  const text = String(html ?? '')
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&(?:#(\d+)|#x([0-9a-f]+)|(amp|lt|gt|quot|nbsp));/gi, (m, dec, hex, name) => {
-      if (name) return NAMED[name.toLowerCase()];
-      const code = dec ? Number(dec) : parseInt(hex, 16);
-      return code === 160 ? ' ' : code <= 0x10ffff ? String.fromCodePoint(code) : m;
-    });
+  const text = decodeHTML(String(html ?? '').replace(/<[^>]*>/g, ' '));
   return text.replace(/\s+/g, ' ').trim();
 }
 

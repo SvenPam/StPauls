@@ -42,7 +42,11 @@ export const day = (d) => String(d.getUTCDate());
 const wallClock = (d) =>
   `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}T${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
 
-export const isoLondon = (d) => `${wallClock(d)}${londonOffset(d)}`;
+// RFC 3339 with London's offset, and Z for GMT, as Hugo's 2006-01-02T15:04:05Z07:00 wrote it.
+export const isoLondon = (d) => {
+  const offset = londonOffset(d);
+  return `${wallClock(d)}${offset === '+00:00' ? 'Z' : offset}`;
+};
 
 export const rfc822London = (d) =>
   `${DAYS[d.getUTCDay()]}, ${pad(d.getUTCDate())} ${MONTHS[d.getUTCMonth()].slice(0, 3)} ${d.getUTCFullYear()} ` +

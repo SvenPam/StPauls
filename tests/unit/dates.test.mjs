@@ -57,6 +57,7 @@ test('formats show the wall time and London offset', () => {
   assert.equal(month(summer), 'June');
   assert.equal(day(summer), '1');
   assert.equal(isoLondon(new Date('2099-06-01T12:00:00Z')), '2099-06-01T12:00:00+01:00');
-  assert.equal(isoLondon(new Date('2099-01-15T12:00:00Z')), '2099-01-15T12:00:00+00:00');
+  // GMT is written Z, as Hugo's time format wrote it.
+  assert.equal(isoLondon(new Date('2099-01-15T12:00:00Z')), '2099-01-15T12:00:00Z');
   assert.equal(rfc822London(summer), 'Mon, 01 Jun 2099 10:00:00 +0100');
 });
