@@ -1,0 +1,15 @@
+{
+  "Name": "StPauls Static Web App deployer",
+  "IsCustom": true,
+  "Description": "Deploy the St Paul's Static Web App: create or update it, manage its custom domains and read its deployment token.",
+  "Actions": [
+    "Microsoft.Web/staticSites/read",
+    "Microsoft.Web/staticSites/write",
+    "Microsoft.Web/staticSites/customDomains/*",
+    "Microsoft.Web/staticSites/listSecrets/action"
+  ],
+  "NotActions": [],
+  "DataActions": [],
+  "NotDataActions": [],
+  "AssignableScopes": ["/subscriptions/<SUB>/resourceGroups/<RG>"]
+}
