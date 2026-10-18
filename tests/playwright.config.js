@@ -8,8 +8,8 @@ const testDir = defineBddConfig({
 
 // Each content set is built with Eleventy and served as Static Web Apps serves it.
 const sites = [
-  ['fixtures/content', 1313],
-  ['fixtures/empty', 1314],
+  ['fixtures/content', 1313, '--uploads'],
+  ['fixtures/empty', 1314, ''],
 ];
 
 export default defineConfig({
@@ -24,8 +24,8 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
-  webServer: sites.map(([content, port]) => ({
-    command: `node serve.js ${content} ${port}`,
+  webServer: sites.map(([content, port, flags]) => ({
+    command: `node serve.js ${content} ${port} ${flags}`.trim(),
     url: `http://localhost:${port}/404.html`,
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,

@@ -1,6 +1,6 @@
-{#- The home page, from the root _index.md. A hero_image Pages CMS saved under /uploads falls back to the default hero
-    until spec 06 lets picture read uploads. An empty hero_alt makes the image decorative. -#}
-{%- set heroSrc = (hero_image | assetPath) or 'images/hero.jpg' %}
+{#- The home page, from the root _index.md. hero_image is an asset or an /uploads path; with none the default hero shows.
+    An empty hero_alt makes the image decorative. -#}
+{%- set heroSrc = (hero_image | assetPath) or hero_image or 'images/hero.jpg' %}
 <section class="hero">
   {% picture { src: heroSrc, alt: hero_alt or '', sizes: '100vw', eager: true } %}
   <div class="hero__text">

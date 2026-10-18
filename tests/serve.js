@@ -1,24 +1,29 @@
 // Builds the site from a fixture content folder with Eleventy and serves it the way Static Web Apps does:
 // /path and /path/ both serve /path/index.html, anything else missing gets 404.html.
-// Usage: node serve.js <content dir> <port>
+// Usage: node serve.js <content dir> <port> [--uploads]
+// --uploads writes the fixture uploads (tests/fixtures/uploads.mjs) into a temporary folder and builds with UPLOADS set to it.
 import { execFileSync } from 'node:child_process';
 import { createReadStream, existsSync, mkdtempSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { extname, join, relative, resolve } from 'node:path';
+import { parseArgs } from 'node:util';
+import { writeFixtureUploads } from './fixtures/uploads.mjs';
 
 const REPO = resolve(import.meta.dirname, '..');
-const [content, port] = process.argv.slice(2);
+const { values, positionals } = parseArgs({ allowPositionals: true, options: { uploads: { type: 'boolean' } } });
+const [content, port] = positionals;
 const out = mkdtempSync(join(tmpdir(), 'stpauls-'));
-execFileSync('npx', ['@11ty/eleventy', `--output=${out}`, '--quiet'], {
-  cwd: REPO,
-  env: { ...process.env, CONTENT: relative(REPO, resolve(content)) },
-  stdio: 'inherit',
-});
+const env = { ...process.env, CONTENT: relative(REPO, resolve(content)) };
+if (values.uploads) {
+  env.UPLOADS = mkdtempSync(join(tmpdir(), 'stpauls-uploads-'));
+  await writeFixtureUploads(env.UPLOADS);
+}
+execFileSync('npx', ['@11ty/eleventy', `--output=${out}`, '--quiet'], { cwd: REPO, env, stdio: 'inherit' });
 
 const types = {
   '.html': 'text/html; charset=utf-8', '.xml': 'application/xml', '.css': 'text/css',
-  '.js': 'text/javascript', '.png': 'image/png', '.webp': 'image/webp', '.jpg': 'image/jpeg',
+  '.js': 'text/javascript', '.png': 'image/png', '.gif': 'image/gif', '.webp': 'image/webp', '.jpg': 'image/jpeg',
   '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.woff2': 'font/woff2',
 };
 

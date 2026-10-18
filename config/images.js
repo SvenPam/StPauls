@@ -1,5 +1,6 @@
-// Layout pictures: {% picture { src: 'images/map.png', alt: '...' } %} writes WebP and original-format
-// copies at several widths into the output folder and returns a <picture>.
+// Pictures: {% picture { src: 'images/map.png', alt: '...' } %} writes WebP and original-format
+// copies at several widths into the output folder and returns a <picture>. `src` is a layout file under site/assets/
+// or an /uploads/ path from Pages CMS; GIFs, SVGs, missing uploads and other sites get a plain lazy <img>.
 // `fill: 'WxH'` crops to that aspect (cards). Resized files are cached in .cache/images/, keyed on the source bytes,
 // width, format, quality and fill.
 import sharp from 'sharp';
@@ -10,6 +11,7 @@ import path from 'node:path';
 
 const CACHE = '.cache/images';
 const ASSETS = 'site/assets';
+export const UPLOADS_DIR = process.env.UPLOADS ?? 'site/static/uploads';
 const WIDTHS = [480, 800, 1200, 1600];
 const QUALITY = { webp: 75, png: 90, jpeg: 80 };
 const FALLBACK_MAX = 800;
@@ -46,14 +48,56 @@ const parseFill = (fill) => {
   return m && Number(m[1]) > 0 && Number(m[2]) > 0 ? [Number(m[1]), Number(m[2])] : null;
 };
 
-export async function pictureHtml({ src, alt = '', sizes = '100vw', eager = false, fill }, { assets = ASSETS, out = '_site' } = {}) {
-  const file = path.join(assets, src);
-  if (!(await exists(file))) throw new Error(`picture: asset "${src}" not found in ${assets}`);
+const plainImg = (src, alt, size) =>
+  `<img src="${esc(src)}" alt="${esc(alt)}"${size ? ` width="${size.width}" height="${size.height}"` : ''} loading="lazy" decoding="async">`;
+
+// The file an /uploads/ path names inside the uploads folder, or null (malformed, an escape, or missing).
+async function uploadFile(src, uploads) {
+  let rel;
+  try {
+    rel = decodeURIComponent(src.slice('/uploads/'.length));
+  } catch {
+    return null;
+  }
+  const file = path.resolve(uploads, rel);
+  if (!file.startsWith(path.resolve(uploads) + path.sep)) return null;
+  try {
+    return statSync(file).isFile() ? file : null;
+  } catch {
+    return null;
+  }
+}
+
+// Width and height when sharp can read them, else null.
+const sizeOf = (file) => sharp(file).metadata().then(({ width, height }) => (width && height ? { width, height } : null), () => null);
+
+export async function pictureHtml({ src, alt = '', sizes = '100vw', eager = false, fill }, { assets = ASSETS, uploads = UPLOADS_DIR, out = '_site' } = {}) {
+  alt ??= '';
+  let file;
+  if (src.startsWith('/uploads/')) {
+    file = await uploadFile(src, uploads);
+    if (!file) return plainImg(src, alt);
+    if (/\.(gif|svg)$/i.test(file)) return plainImg(src, alt, await sizeOf(file));
+    if (!/\.(jpe?g|png|webp)$/i.test(file)) return plainImg(src, alt);
+  } else if (/^(\/|https?:)/i.test(src)) {
+    return plainImg(src, alt);
+  } else {
+    file = path.join(assets, src);
+    if (!(await exists(file))) throw new Error(`picture: asset "${src}" not found in ${assets}`);
+  }
   const input = await readFile(file);
-  const meta = await sharp(input).metadata();
-  const format = meta.format === 'jpeg' ? 'jpeg' : 'png';
+  let meta;
+  try {
+    meta = await sharp(input).metadata();
+  } catch (err) {
+    // A broken upload is Paul's file, not a maintainer mistake: show it as it is.
+    if (src.startsWith('/uploads/')) return plainImg(src, alt);
+    throw err;
+  }
+  const format = meta.format === 'jpeg' ? 'jpeg' : meta.format === 'webp' ? 'webp' : 'png';
   const srcHash = createHash('sha256').update(input).digest('hex');
-  const name = path.basename(src, path.extname(src));
+  // Lower case, and every run of other characters than a-z and 0-9 as '-', so srcset never holds a space.
+  const name = path.basename(file, path.extname(file)).toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
   const crop = parseFill(fill);
   if (fill && !crop) throw new Error(`picture: fill "${fill}" is not WxH`);
@@ -77,7 +121,7 @@ export async function pictureHtml({ src, alt = '', sizes = '100vw', eager = fals
 }
 
 // A front matter image path as a source for `picture`, or '' when it is not a file under site/assets
-// (an /uploads path, until spec 06). A leading slash is ignored.
+// (an /uploads path, which `picture` takes as it is). A leading slash is ignored.
 export function assetPath(src, { assets = ASSETS } = {}) {
   if (typeof src !== 'string' || !src.trim()) return '';
   const rel = src.trim().replace(/^\/+/, '');
@@ -93,6 +137,6 @@ export function assetPath(src, { assets = ASSETS } = {}) {
 export default function (eleventyConfig) {
   eleventyConfig.addFilter('assetPath', (src) => assetPath(src));
   eleventyConfig.addAsyncShortcode('picture', (opts) =>
-    pictureHtml(opts, { assets: ASSETS, out: eleventyConfig.directories.output }),
+    pictureHtml(opts, { assets: ASSETS, uploads: UPLOADS_DIR, out: eleventyConfig.directories.output }),
   );
 }

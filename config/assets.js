@@ -1,5 +1,6 @@
 // One stylesheet and one script, minified, content-hashed and written to the output folder.
 // Exposes global `assets` ({ css, js } each { url, integrity }), a `build.year`, and passes site/static through to the root.
+// When UPLOADS names another uploads folder (the tests), it is published at /uploads too.
 import CleanCSS from 'clean-css';
 import { minify } from 'terser';
 import { createHash } from 'node:crypto';
@@ -35,4 +36,5 @@ export default function (eleventyConfig) {
   eleventyConfig.addGlobalData('assets', () => current);
   eleventyConfig.addGlobalData('build', { year: new Date().getFullYear() });
   eleventyConfig.addPassthroughCopy({ 'site/static': '/' });
+  if (process.env.UPLOADS) eleventyConfig.addPassthroughCopy({ [process.env.UPLOADS]: '/uploads' });
 }

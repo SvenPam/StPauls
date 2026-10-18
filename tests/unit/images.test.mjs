@@ -5,8 +5,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import sharp from 'sharp';
 import { assetPath, pictureHtml } from '../../config/images.js';
+import { writeFixtureUploads } from '../fixtures/uploads.mjs';
 
-let tmp, out;
+let tmp, out, uploads;
 
 const make = (name, width, height) =>
   sharp({ create: { width, height, channels: 3, background: { r: 200, g: 30, b: 30 } } }).png().toFile(join(tmp, 'images', name));
@@ -17,11 +18,14 @@ before(async () => {
   mkdirSync(join(tmp, 'images'));
   await make('t.png', 1000, 500);
   await make('small.png', 300, 150);
+  uploads = mkdtempSync(join(tmpdir(), 'pic-uploads-'));
+  await writeFixtureUploads(uploads);
 });
 
 after(() => {
   rmSync(tmp, { recursive: true, force: true });
   rmSync(out, { recursive: true, force: true });
+  rmSync(uploads, { recursive: true, force: true });
 });
 
 test('picture offers WebP and PNG at every width up to the source', async () => {
@@ -87,4 +91,37 @@ test('a cropped and an uncropped copy of one source do not collide', async () =>
   const plain = await pictureHtml({ src: 'images/t.png', alt: 'T' }, { assets: tmp, out });
   const cropped = await pictureHtml({ src: 'images/t.png', alt: 'T', fill: '350x300' }, { assets: tmp, out });
   assert.notEqual(/src="([^"]+)"/.exec(plain)[1], /src="([^"]+)"/.exec(cropped)[1]);
+});
+
+const up = (src, extra = {}) => pictureHtml({ src, alt: 'A', ...extra }, { assets: tmp, uploads, out });
+
+test('an upload is a picture at every width up to the original', async () => {
+  const html = await up('/uploads/fixture-wide.png');
+  assert.deepEqual([...html.matchAll(/\.webp (\d+)w/g)].map((m) => m[1]), ['480', '800', '1200', '1600']);
+  assert.match(html, /<img src="\/images\/fixture-wide-800\.\w{8}\.png"[^>]* width="800" height="450"/);
+});
+
+test('a huge upload is capped at 1600', async () => {
+  const html = await up('/uploads/fixture-huge.png');
+  assert.match(html, /1600w"/);
+  assert.doesNotMatch(html, /(2400|3200|6000)w/);
+});
+
+test('a file name with spaces and capitals is processed under a safe name', async () => {
+  const html = await up('/uploads/Fixture%20Space.PNG');
+  assert.match(html, /srcset="\/images\/fixture-space-480\.\w{8}\.webp 480w/);
+});
+
+test('a GIF and an SVG are plain images with their size', async () => {
+  assert.equal(await up('/uploads/fixture.gif'), '<img src="/uploads/fixture.gif" alt="A" width="1" height="1" loading="lazy" decoding="async">');
+  assert.match(await up('/uploads/fixture.svg'), /^<img src="\/uploads\/fixture\.svg" alt="A"[^>]* loading="lazy" decoding="async">$/);
+});
+
+test('a missing upload or another site is a plain lazy image, never an error', async () => {
+  assert.equal(await up('/uploads/deleted.jpg'), '<img src="/uploads/deleted.jpg" alt="A" loading="lazy" decoding="async">');
+  assert.equal(await up('https://media.acny.uk/x.jpg'), '<img src="https://media.acny.uk/x.jpg" alt="A" loading="lazy" decoding="async">');
+});
+
+test('a missing layout asset is still an error', async () => {
+  await assert.rejects(up('images/missing.png'));
 });
