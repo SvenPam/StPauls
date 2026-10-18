@@ -13,9 +13,11 @@ const testDir = defineBddConfig({
 });
 
 // Each content set is built with Eleventy and served as Static Web Apps serves it.
+// Every server builds with fixture settings, never Paul's site/data/settings.yaml.
 const sites = [
-  ['fixtures/content', 1313, '--uploads'],
-  ['fixtures/empty', 1314, ''],
+  ['fixtures/content', 1313, '--uploads --data fixtures/data/no-key'],
+  ['fixtures/empty', 1314, '--data fixtures/data/no-key'],
+  ['fixtures/content', 1315, '--uploads --data fixtures/data/with-key'],
 ];
 
 export default defineConfig({

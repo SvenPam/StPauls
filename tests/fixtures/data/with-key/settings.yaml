@@ -1,0 +1,16 @@
+contact_access_key: "0f9c7a52-1d2e-4c3b-9a8f-6b5e4d3c2b1a"
+contact_subject: "Website enquiry"
+enquiry_types:
+  - General Enquiry
+  - Website Enquiry
+  - Weddings and Baptisms
+  - MU
+  - WI
+address:
+  - "St Paul's & Hall"
+  - Church Road
+  - Warton
+  - PR4 1BD
+facebook_url: "https://www.facebook.com/fixture"
+map_url: "https://www.google.co.uk/maps/place/Parish+Church+of+Saint+Paul+Warton/53.7513578,-2.8932638,16.25z/data=!4m2!3m1!1s0x487b6a5be3b39591:0x9e22ee85558d2d1d"
+directions_url: "https://www.google.com/maps/dir/?api=1&destination=53.7513578,-2.8932638"

@@ -51,4 +51,13 @@
   cards.forEach((c) => { if (Date.parse(c.dataset.end) < Date.now()) { c.hidden = true; left--; } });
   const empty = document.querySelector('.event-empty');
   if (empty && cards.length && !left) empty.hidden = false;
+
+  // The email subject names the enquiry type. Without script the type is still in the body.
+  const form = document.querySelector('.contact-form');
+  if (form) {
+    const { subject, enquiry_type: type } = form.elements;
+    const set = () => { subject.value = `${subject.dataset.subject}: ${type.value}`; };
+    set();
+    type.addEventListener('change', set);
+  }
 })();

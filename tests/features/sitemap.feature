@@ -16,6 +16,7 @@ Feature: Site maps
       | https://stpaulswarton.co.uk/sitemap    |
       | https://stpaulswarton.co.uk/page/about |
       | https://stpaulswarton.co.uk/blog/topic |
+      | https://stpaulswarton.co.uk/contact/thanks |
     And no address in it ends with a slash, except the home page
     And every address in it is listed once
 

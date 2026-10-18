@@ -220,6 +220,42 @@ content:
         label: Hero image description
         description: Leave empty if the picture is only decoration
         type: string
+  - name: settings
+    label: Site settings
+    type: file
+    path: site/data/settings.yaml
+    format: yaml
+    operations:
+      delete: false
+    fields:
+      - name: contact_access_key
+        label: Contact form key
+        description: From web3forms.com. Leave empty to hide the form.
+        type: string
+        pattern:
+          regex: "^$|^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+          message: Paste the whole key, or leave it empty
+      - name: contact_subject
+        label: Email subject
+        type: string
+        required: true
+      - name: enquiry_types
+        label: Enquiry types
+        type: string
+        list: true
+      - name: address
+        label: Address lines
+        type: string
+        list: true
+      - name: facebook_url
+        label: Facebook page
+        type: string
+      - name: map_url
+        label: Map link
+        type: string
+      - name: directions_url
+        label: Directions link
+        type: string
   - name: pages
     label: Pages
     type: group

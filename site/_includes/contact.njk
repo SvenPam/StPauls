@@ -1,10 +1,47 @@
 ---
 layout: base.njk
 ---
-{#- The contact page (layout: contact.njk). The address is copied from the footer; spec 08 moves both to settings and adds the form. -#}
+{#- The contact page (layout: contact.njk). The address comes from Site settings, as in the footer.
+    The form shows only when Site settings hold a whole Web3Forms key. -#}
 {% include "sections/page.njk" %}
+{%- set key = settings | contactKey %}
+{%- if key %}
+<form class="contact-form" action="https://api.web3forms.com/submit" method="POST">
+  <input type="hidden" name="access_key" value="{{ key }}">
+  <input type="hidden" name="subject" value="{{ settings.contact_subject }}" data-subject="{{ settings.contact_subject }}">
+  <input type="hidden" name="from_name" value="St Paul's Warton website">
+  <input type="hidden" name="redirect" value="{{ site.url }}/contact/thanks">
+  <input type="checkbox" name="botcheck" class="contact-form__trap" tabindex="-1" autocomplete="off" aria-hidden="true">
+  <p class="contact-form__field">
+    <label for="name">Name</label>
+    <input type="text" id="name" name="name" required autocomplete="name">
+  </p>
+  <p class="contact-form__field">
+    <label for="enquiry_type">Enquiry type</label>
+    <select id="enquiry_type" name="enquiry_type" required>
+      {%- for type in settings | enquiryTypes %}
+      <option>{{ type }}</option>
+      {%- endfor %}
+    </select>
+  </p>
+  <p class="contact-form__field">
+    <label for="message">Message</label>
+    <textarea id="message" name="message" rows="6" required></textarea>
+  </p>
+  <p class="contact-form__field">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" required autocomplete="email">
+  </p>
+  <p class="contact-form__field">
+    <label for="phone">Phone (optional)</label>
+    <input type="tel" id="phone" name="phone" autocomplete="tel">
+  </p>
+  <p>Your message is emailed to the church. See our <a href="/page/about/privacy-policy">privacy policy</a>.</p>
+  <button type="submit" class="button">Send</button>
+</form>
+{%- endif %}
 <section class="contact-details" aria-labelledby="contact-address">
   <h2 id="contact-address">Find us</h2>
-  <address>Church Road,<br>Warton,<br>Lancashire,<br>PR4 1BD</address>
+  {% include "partials/address.njk" %}
   <p><a href="/page/about/contact-list">Church contact list</a></p>
 </section>

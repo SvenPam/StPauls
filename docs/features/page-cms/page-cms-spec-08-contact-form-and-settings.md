@@ -118,7 +118,7 @@ Every field has a visible `<label for>` and an `id` equal to its `name`. Above t
 
 ### Script
 
-`site.js`: when `.contact-form` exists, on `change` of `enquiry_type`, set the hidden `subject` to `{contact_subject}: {type}`. Without script the subject stays `{contact_subject}` and the type is still in the email body. The minified script stays under 2048 bytes.
+`site.js`: when `.contact-form` exists, on load and on `change` of `enquiry_type`, set the hidden `subject` to `{contact_subject}: {type}`. Without script the subject stays `{contact_subject}` and the type is still in the email body. The minified script stays under 2048 bytes.
 
 ### Thanks page
 

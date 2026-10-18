@@ -58,10 +58,17 @@ Then('the {string} collection offers the site embeds as {string}', async ({ ui }
 });
 
 Then('a title of {string} is {word}', async ({ ui }, title, outcome) => {
-  for (const c of entries(ui.cfg)) {
+  // Every entry with a title; Site settings has none.
+  for (const c of entries(ui.cfg).filter((e) => field(ui.cfg, e.name, 'title'))) {
     const re = new RegExp(field(ui.cfg, c.name, 'title').pattern.regex);
     expect(re.test(title), `${c.name}: "${title}"`).toBe(outcome === 'allowed');
   }
+});
+
+// Pages CMS checks the key against this pattern; config/contact.js applies the same one to what gets saved.
+Then('a contact key of {string} is {word}', async ({ ui }, key, outcome) => {
+  const re = new RegExp(field(ui.cfg, 'settings', 'contact_access_key').pattern.regex);
+  expect(re.test(key.replace(/\\n/g, '\n')), JSON.stringify(key)).toBe(outcome === 'allowed');
 });
 
 Then('the {string} entry edits the file {string}', async ({ ui }, name, path) => {
