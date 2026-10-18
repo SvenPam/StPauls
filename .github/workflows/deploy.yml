@@ -37,7 +37,7 @@ jobs:
     if: github.event.schedule != '41 4 * * 1'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
 
@@ -76,7 +76,7 @@ jobs:
     runs-on: ubuntu-24.04
     continue-on-error: ${{ github.event.schedule != '41 4 * * 1' }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
 
@@ -101,7 +101,7 @@ jobs:
       contents: read
     steps:
       # Needed for infra/ only. No node, npm or npx runs in this job.
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
 
