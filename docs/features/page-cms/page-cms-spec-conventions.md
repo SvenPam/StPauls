@@ -36,7 +36,8 @@ Every task in every spec includes these.
 
 ### Tests
 
-- Python 3 standard library only, compatible with Python 3.12 (the CI runner). Run all with `python3 -m unittest discover -s tests -v` from the repo root.
+- Tests are verification only. They are written and run locally while a spec is built, never committed, and deleted before the branch is finished (see `CLAUDE.md`). The workflow has no test step.
+- Python 3 standard library only, compatible with Python 3.12. Run all with `python3 -m unittest discover -s tests -v` from the repo root.
 - Tests never assert on `site/content/` or `site/data/settings.yaml`. Paul edits and deletes those, and a failing test would block his publish. Tests build `tests/fixtures/` instead. Two exceptions: `RealContentTests` builds the real content and asserts only that the build succeeds, and spec 04's `test_real_page_types_exist` checks the structural `page/{type}/_index.md` files, which are hidden from Pages CMS.
 - Every spec adds or updates fixtures for what it builds, and keeps `test_no_personal_details_or_trackers` passing on every build it makes.
 - `.pages.yml` is checked with plain text and regex, as in `tests/test_cms_config.py`. There is no guaranteed YAML library on the runner.

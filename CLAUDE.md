@@ -44,6 +44,23 @@ Do not reopen these without being asked.
 - Do not create a pull request unless asked. Specs are built on a branch and merged to `main` when the maintainer says so.
 - Manual steps (Azure portal, Entra ID, GitHub secrets, Pages CMS app install) belong to the maintainer. Document them in the spec or a how-to, and say clearly when you are blocked on one.
 
+## Python tests
+
+Verification only. Not part of the repo or the workflow.
+
+- While building a spec, write its tests and fixtures under `tests/` as the spec says, and run them (`python3 -m unittest discover -s tests -v`) to prove the work.
+- Never commit `tests/`. Add `tests/` to `.git/info/exclude` at the start of the session.
+- Earlier specs' tests are in git history (`git archive f1adc44 tests | tar -x` has spec 00's). Restore only what the current spec needs.
+- When the branch is verified, delete `tests/` and any scratch workspace. Say in the final message what was run and its result.
+
+## When the maintainer gives final approval on a spec
+
+Do all of these on the spec's branch before it merges:
+
+1. Set the spec's front matter to `status: done` and tick its Acceptance boxes.
+2. Update "Next steps" below to name the next spec.
+3. Push.
+
 ## Repo layout
 
 | Path | Purpose |
@@ -75,7 +92,7 @@ The legacy CSS, images and views needed for reference are on `archive/umbraco-20
 
 ## Next steps
 
-1. Build the specs in `docs/features/page-cms/` in order, one per session, starting with spec 01. Read `docs/features/page-cms/page-cms-spec-conventions.md` first.
+1. Spec 03 is done. Next is spec 04, `docs/features/page-cms/page-cms-spec-04-pages-home-and-menus.md`. Build the rest in order, one per session. Read `docs/features/page-cms/page-cms-spec-conventions.md` first.
 2. Each spec ends with the maintainer's manual steps. Say plainly when blocked on one.
 3. After spec 12, phase 2 (design options) gets its own design.
 

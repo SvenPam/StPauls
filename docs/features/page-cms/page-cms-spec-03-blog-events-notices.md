@@ -1,7 +1,7 @@
 ---
 date: 2026-10-17
 tags: [spec, plan, stpauls]
-status: agreed
+status: done
 ---
 
 # Spec 03: blog, events and notices
@@ -127,13 +127,13 @@ All three `exclude: [_index.md]`. Top level `settings: { content: { merge: true 
 
 ## Acceptance
 
-- [ ] `python3 -m unittest discover -s tests -v` passes.
-- [ ] Fixture articles, events and notices render at `/blog/article/{name}`, `/calendar/event/{name}`, `/notices/notice/{name}`, and a fixture with `url` renders at that URL.
-- [ ] Term pages exist at `/blog/topic/{topic}`, `/calendar/topic/{topic}`, `/notices/topic/{topic}` with topic labels.
-- [ ] Past events are absent from `/calendar` and its RSS, present at their own URLs, and labelled Expired.
-- [ ] RSS feeds at `/blog/index.xml`, `/calendar/index.xml`, `/notices/index.xml` are valid XML.
-- [ ] `actionlint` passes on the workflow.
-- [ ] Pages CMS shows the three collections after merge (maintainer).
+- [x] `python3 -m unittest discover -s tests -v` passes.
+- [x] Fixture articles, events and notices render at `/blog/article/{name}`, `/calendar/event/{name}`, `/notices/notice/{name}`, and a fixture with `url` renders at that URL.
+- [x] Term pages exist at `/blog/topic/{topic}`, `/calendar/topic/{topic}`, `/notices/topic/{topic}` with topic labels.
+- [x] Past events are absent from `/calendar` and its RSS, present at their own URLs, and labelled Expired.
+- [x] RSS feeds at `/blog/index.xml`, `/calendar/index.xml`, `/notices/index.xml` are valid XML.
+- [x] `actionlint` passes on the workflow.
+- [x] Pages CMS shows the three collections after merge (maintainer).
 
 ---
 
