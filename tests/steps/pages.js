@@ -2,7 +2,7 @@ import { expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { parse } from 'yaml';
-import { EMPTY_SITE, Given, Then, When } from './fixtures.js';
+import { EMPTY_SITE, Given, KEYED_SITE, Then, When } from './fixtures.js';
 
 const REPO = resolve('..');
 
@@ -28,6 +28,10 @@ When('I open {string}', async ({ ui, baseURL }, path) => {
 
 When('I open {string} on the empty site', async ({ ui }, path) => {
   await ui.page.goto(EMPTY_SITE + path);
+});
+
+When('I open {string} on the site with a contact key', async ({ ui }, path) => {
+  await ui.page.goto(KEYED_SITE + path);
 });
 
 

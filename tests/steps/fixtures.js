@@ -10,3 +10,4 @@ export const test = base.extend({
 export const { Given, When, Then } = createBdd(test);
 
 export const EMPTY_SITE = 'http://localhost:1314';
+export const KEYED_SITE = 'http://localhost:1315';

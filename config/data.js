@@ -1,16 +1,19 @@
 // Each site/data/*.yaml file is a global named after the file: topics.yaml is `topics`.
-import { readdirSync, readFileSync } from 'node:fs';
+// DATA names an optional folder, relative to the repo root, whose files win over site/data by name (tests use it).
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { parse } from 'yaml';
 
-const DATA_DIR = 'site/data';
+const DATA_DIRS = ['site/data', process.env.DATA].filter((dir) => dir && existsSync(dir));
 
-// Every data file as { name: parsed }. Also read by config/swa.js, outside Eleventy.
+// Every data file as { name: parsed }, later folders winning. Also read by config/swa.js, outside Eleventy.
 export function readData() {
-  const data = {};
-  for (const file of readdirSync(DATA_DIR).filter((f) => f.endsWith('.yaml')).sort()) {
-    data[path.basename(file, '.yaml')] = parse(readFileSync(path.join(DATA_DIR, file), 'utf8'));
+  const files = {};
+  for (const dir of DATA_DIRS) {
+    for (const file of readdirSync(dir).filter((f) => f.endsWith('.yaml'))) files[path.basename(file, '.yaml')] = path.join(dir, file);
   }
+  const data = {};
+  for (const name of Object.keys(files).sort()) data[name] = parse(readFileSync(files[name], 'utf8'));
   return data;
 }
 

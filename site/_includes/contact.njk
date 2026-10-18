@@ -1,10 +1,10 @@
 ---
 layout: base.njk
 ---
-{#- The contact page (layout: contact.njk). The address is copied from the footer; spec 08 moves both to settings and adds the form. -#}
+{#- The contact page (layout: contact.njk). The address comes from Site settings, as in the footer. -#}
 {% include "sections/page.njk" %}
 <section class="contact-details" aria-labelledby="contact-address">
   <h2 id="contact-address">Find us</h2>
-  <address>Church Road,<br>Warton,<br>Lancashire,<br>PR4 1BD</address>
+  {% include "partials/address.njk" %}
   <p><a href="/page/about/contact-list">Church contact list</a></p>
 </section>
