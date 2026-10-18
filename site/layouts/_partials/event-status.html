@@ -1,0 +1,12 @@
+{{/* Expired, Active, Soon or Future, as at build time. */}}
+{{- $now := now -}}
+{{- $end := partial "event-end.html" . -}}
+{{- $status := "Future" -}}
+{{- if $end.Before $now -}}
+  {{- $status = "Expired" -}}
+{{- else if not (.Date.After $now) -}}
+  {{- $status = "Active" -}}
+{{- else if .Date.Before ($now.Add (time.ParseDuration "168h")) -}}
+  {{- $status = "Soon" -}}
+{{- end -}}
+{{- return $status -}}

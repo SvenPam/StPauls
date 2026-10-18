@@ -1,7 +1,7 @@
 ---
 date: 2026-10-17
 tags: [spec, plan, stpauls]
-status: agreed
+status: done
 ---
 
 # Spec 03: blog, events and notices
@@ -54,7 +54,7 @@ Home page, pages, contact page, computed menus (spec 04). Trailing slash rule, s
 | Key | Article | Event | Notice | Pages CMS |
 |---|---|---|---|---|
 | `title` | required | required | required | `string`, required |
-| `date` | publish date | start date and time | publish date | `date`. Event: `time: true`, `format: yyyy-MM-dd'T'HH:mm`, label "Starts" |
+| `date` | publish date | start date and time | publish date | `date`. Event: `time: true`, `format: yyyy-MM-dd'T'HH:mm:ss` (Hugo cannot read a front matter date without seconds), label "Starts" |
 | `end` | | required | | `date`, `time: true`, same format, label "Ends" |
 | `summary` | optional | optional | optional | `string` |
 | `location` | | optional | optional | `string` |
@@ -127,13 +127,15 @@ All three `exclude: [_index.md]`. Top level `settings: { content: { merge: true 
 
 ## Acceptance
 
-- [ ] `python3 -m unittest discover -s tests -v` passes.
-- [ ] Fixture articles, events and notices render at `/blog/article/{name}`, `/calendar/event/{name}`, `/notices/notice/{name}`, and a fixture with `url` renders at that URL.
-- [ ] Term pages exist at `/blog/topic/{topic}`, `/calendar/topic/{topic}`, `/notices/topic/{topic}` with topic labels.
-- [ ] Past events are absent from `/calendar` and its RSS, present at their own URLs, and labelled Expired.
-- [ ] RSS feeds at `/blog/index.xml`, `/calendar/index.xml`, `/notices/index.xml` are valid XML.
-- [ ] `actionlint` passes on the workflow.
-- [ ] Pages CMS shows the three collections after merge (maintainer).
+- [x] `npm test` in `tests/` passes.
+- [x] Fixture articles, events and notices render at `/blog/article/{name}`, `/calendar/event/{name}`, `/notices/notice/{name}`, and a fixture with `url` renders at that URL.
+- [x] Term pages exist at `/blog/topic/{topic}`, `/calendar/topic/{topic}`, `/notices/topic/{topic}` with topic labels.
+- [x] Past events are absent from `/calendar` and its RSS, present at their own URLs, and labelled Expired.
+- [x] RSS feeds at `/blog/index.xml`, `/calendar/index.xml`, `/notices/index.xml` are valid XML.
+- [x] `actionlint` passes on the workflow.
+- [x] Pages CMS shows the three collections after merge (maintainer).
+
+The plan below was built with Python `unittest`. On 2026-10-18 the tests were rewritten as Playwright scenarios in `tests/features/`, which also found and fixed a menu bug: on a phone, with one dropdown open, tapping another did nothing.
 
 ---
 
@@ -428,7 +430,7 @@ def test_url_field_is_hidden(self):
 def test_event_times(self):
     b = block("events")
     self.assertEqual(b.count("time: true"), 2)
-    self.assertEqual(b.count("format: yyyy-MM-dd'T'HH:mm"), 2)
+    self.assertEqual(b.count("format: yyyy-MM-dd'T'HH:mm:ss"), 2)
 
 def test_topic_values_match_data(self):
     slugs = re.findall(r"(?m)^([a-z-]+):", (REPO / "site/data/topics.yaml").read_text())

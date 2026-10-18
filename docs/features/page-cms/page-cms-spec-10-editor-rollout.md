@@ -108,7 +108,7 @@ Paul does tasks 2 to 8 on the test URL with made-up content, then deletes what h
 
 ## Acceptance
 
-- [ ] `python3 -m unittest discover -s tests -v` passes.
+- [ ] `npm test` in `tests/` passes.
 - [ ] Sidebar order, labels and descriptions as specified. Media renaming on.
 - [ ] Round-trip diffs reviewed, none lossy left unfixed.
 - [ ] The guide covers tasks 1 to 11, reads plainly, and has no em dash.
@@ -125,7 +125,7 @@ Paul does tasks 2 to 8 on the test URL with made-up content, then deletes what h
 
 **Architecture:** Config polish is tested as text. The round-trip check uses real Pages CMS commits on `main`, read back with `git`. The guide is a document, checked for plain language by review and for structure by a doc test.
 
-**Tech Stack:** Pages CMS config, Git, Markdown, Python 3 `unittest`.
+**Tech Stack:** Pages CMS config, Git, Markdown, Playwright with playwright-bdd (see [conventions: tests](page-cms-spec-conventions.md#tests)).
 
 **Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](page-cms-spec-conventions.md).
 
@@ -180,7 +180,7 @@ def test_media_rename_safe(self):
 
 - [ ] **Step 2: Run them and watch them fail**
 
-Run: `python3 -m unittest discover -s tests -p 'test_cms_config.py' -v`
+Run: `npm test -- cms_config.feature` in `tests/`
 
 - [ ] **Step 3: Reorder, label and describe**
 

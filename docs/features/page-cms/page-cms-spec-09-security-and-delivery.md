@@ -115,7 +115,7 @@ The site itself sets no cookies; a test checks that no template or script calls 
 
 ## Acceptance
 
-- [ ] `python3 -m unittest discover -s tests -v` passes.
+- [ ] `npm test` in `tests/` passes.
 - [ ] The generated config carries every header in the table, and `frame-src` lists exactly the `embeds.yaml` hosts.
 - [ ] Cache routes are present and come before the legacy routes.
 - [ ] Every `uses:` in the workflow is a 40-character SHA with a version comment. Hugo's checksum is checked. `actionlint` passes.
@@ -133,7 +133,7 @@ The site itself sets no cookies; a test checks that no template or script calls 
 
 **Architecture:** Headers live in the same generated config as the routes, with the CSP built from the embed list. Budgets are checks over a fixture build, so they hold without depending on Paul's content. Pinning is enforced by a workflow test.
 
-**Tech Stack:** Azure Static Web Apps config, Hugo templates, GitHub Actions, Dependabot, Python 3 `unittest`.
+**Tech Stack:** Azure Static Web Apps config, Hugo templates, GitHub Actions, Dependabot, Playwright with playwright-bdd (see [conventions: tests](page-cms-spec-conventions.md#tests)).
 
 **Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](page-cms-spec-conventions.md).
 
@@ -206,13 +206,13 @@ def test_config_size_with_many_uploads(self):
 
 - [ ] **Step 2: Run them and watch them fail**
 
-Run: `python3 -m unittest discover -s tests -p 'test_headers.py' -v`
+Run: `npm test -- headers.feature` in `tests/`
 
 - [ ] **Step 3: Extend the template**
 
 - [ ] **Step 4: Run the full suite**
 
-Run: `python3 -m unittest discover -s tests -v`
+Run: `npm test` in `tests/`
 
 - [ ] **Step 5: Commit**
 
@@ -268,13 +268,13 @@ Build `FIXTURES / "content"` minified with fixture uploads (`helpers.make_png`, 
 
 - [ ] **Step 2: Run them and watch them fail**
 
-Run: `python3 -m unittest discover -s tests -p 'test_budgets.py' -v`
+Run: `npm test -- budgets.feature` in `tests/`
 
 - [ ] **Step 3: Add `noopener` handling in `body.html` and templates, and fix anything the budget tests find**
 
 - [ ] **Step 4: Run the full suite**
 
-Run: `python3 -m unittest discover -s tests -v`
+Run: `npm test` in `tests/`
 
 - [ ] **Step 5: Commit**
 
@@ -316,7 +316,7 @@ Update `test_oidc_only` and `test_tests_and_build_run_before_deploy`, which look
 
 - [ ] **Step 2: Run them and watch them fail**
 
-Run: `python3 -m unittest discover -s tests -p 'test_workflow.py' -v`
+Run: `npm test -- workflow.feature` in `tests/`
 
 - [ ] **Step 3: Resolve SHAs with `git ls-remote --tags`, pin each action, add the checksum step and `dependabot.yml`**
 

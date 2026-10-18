@@ -1,0 +1,10 @@
+{{/* Link to the page's topic. A topic that is not in data/topics.yaml shows nothing. */}}
+{{- $tax := index (dict "blog" "blogtopics" "calendar" "eventtopics" "notices" "noticetopics") .Section -}}
+{{- with $tax -}}
+  {{- range first 1 ($.GetTerms .) -}}
+    {{- $term := . -}}
+    {{- with index hugo.Data.topics $term.Data.Term -}}
+<a class="topic" href="{{ partial "href.html" $term.RelPermalink }}">{{ . }}</a>
+    {{- end -}}
+  {{- end -}}
+{{- end -}}

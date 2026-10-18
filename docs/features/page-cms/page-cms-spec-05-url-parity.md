@@ -100,7 +100,7 @@ One path per line, sorted, no host, no trailing slash: every `<loc>` in the live
 
 ## Acceptance
 
-- [ ] `python3 -m unittest discover -s tests -v` passes.
+- [ ] `npm test` in `tests/` passes.
 - [ ] Built `staticwebapp.config.json` has `trailingSlash: "never"`, the legacy routes, and passes the guards.
 - [ ] `sitemap.xml` lists fixture URLs on the real domain with no trailing slashes. `robots.txt` points at it.
 - [ ] `/sitemap` lists sections and pages.
@@ -195,13 +195,13 @@ Build `FIXTURES / "content"`.
 
 - [ ] **Step 2: Run them and watch them fail**
 
-Run: `python3 -m unittest discover -s tests -p 'test_routes.py' -v`
+Run: `npm test -- routes.feature` in `tests/`
 
 - [ ] **Step 3: Write `legacy.yaml`, the output format, the template, the canonical link; delete the static config**
 
 - [ ] **Step 4: Run the full suite**
 
-Run: `python3 -m unittest discover -s tests -v`
+Run: `npm test` in `tests/`
 Expected: all pass. RSS link tests from spec 03 now see absolute `https://stpaulswarton.co.uk/...` links; tighten `test_rss` to assert that prefix.
 
 - [ ] **Step 5: Commit**
@@ -252,13 +252,13 @@ def test_html_sitemap(self):
 
 - [ ] **Step 2: Run them and watch them fail**
 
-Run: `python3 -m unittest discover -s tests -p 'test_sitemap.py' -v`
+Run: `npm test -- sitemap.feature` in `tests/`
 
 - [ ] **Step 3: Write the templates and content file**
 
 - [ ] **Step 4: Run the full suite**
 
-Run: `python3 -m unittest discover -s tests -v`
+Run: `npm test` in `tests/`
 
 - [ ] **Step 5: Commit**
 
@@ -322,13 +322,13 @@ def test_live_list_shape(self):
 
 - [ ] **Step 3: Run them and watch them fail**
 
-Run: `python3 -m unittest discover -s tests -p 'test_check_urls.py' -v`
+Run: `npm test -- check_urls.feature` in `tests/`
 
 - [ ] **Step 4: Write `scripts/check_urls.py` and its README row**
 
 - [ ] **Step 5: Run the full suite, then the script against a local build of the real content**
 
-Run: `python3 -m unittest discover -s tests -v`, then `hugo --source site --destination /tmp/<scratch>/public && python3 scripts/check_urls.py --list tests/fixtures/live-urls.txt --built /tmp/<scratch>/public`
+Run: `npm test` in `tests/`, then `hugo --source site --destination /tmp/<scratch>/public && python3 scripts/check_urls.py --list tests/fixtures/live-urls.txt --built /tmp/<scratch>/public`
 Expected: the suite passes. The script lists the content URLs not yet migrated and passes the variants and sections. Paste the summary line into the hand-off.
 
 - [ ] **Step 6: Commit and push**

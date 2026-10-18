@@ -1,0 +1,13 @@
+{
+  "name": "stpauls-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "bddgen && playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "playwright-bdd": "8.5.1",
+    "yaml": "2.9.1"
+  }
+}

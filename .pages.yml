@@ -2,7 +2,143 @@ media:
   input: site/static/uploads
   output: /uploads
 
+# Keep front matter keys the form does not show, such as the hidden url on migrated items.
+settings:
+  content:
+    merge: true
+
 content:
+  - name: blog
+    label: Blog
+    type: collection
+    path: site/content/blog
+    filename: "{year}-{month}-{day}-{primary}.md"
+    exclude: [_index.md]
+    view:
+      fields: [title, date]
+      primary: title
+      sort: [date, title]
+      default:
+        sort: date
+        order: desc
+    operations:
+      rename: false
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+        pattern:
+          regex: "^(?![Ii]ndex$).+"
+          message: Pick another title
+      - name: date
+        label: Date
+        type: date
+        required: true
+      - name: summary
+        label: Summary
+        description: Short text shown on the blog list and at the top of the article
+        type: string
+      - name: image
+        label: Image
+        type: image
+      - name: image_alt
+        label: Image description
+        type: string
+      - name: blogtopics
+        label: Topic
+        type: select
+        options:
+          values:
+            - name: website
+              label: Website
+            - name: church-services
+              label: Church Services
+            - name: church-events
+              label: Church Events
+            - name: other-events
+              label: Other Events
+      - name: url
+        type: string
+        hidden: true
+      - name: body
+        label: Article
+        type: rich-text
+        required: true
+        options:
+          format: html
+  - name: events
+    label: Events
+    type: collection
+    path: site/content/calendar
+    filename: "{year}-{month}-{day}-{primary}.md"
+    exclude: [_index.md]
+    view:
+      fields: [title, date, end]
+      primary: title
+      sort: [date, title]
+      default:
+        sort: date
+        order: desc
+    operations:
+      rename: false
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+        pattern:
+          regex: "^(?![Ii]ndex$).+"
+          message: Pick another title
+      - name: date
+        label: Starts
+        type: date
+        required: true
+        options:
+          time: true
+          format: yyyy-MM-dd'T'HH:mm:ss
+      - name: end
+        label: Ends
+        type: date
+        required: true
+        options:
+          time: true
+          format: yyyy-MM-dd'T'HH:mm:ss
+      - name: summary
+        label: Summary
+        description: Short text shown on the calendar and at the top of the event
+        type: string
+      - name: location
+        label: Location
+        type: string
+      - name: image
+        label: Image
+        type: image
+      - name: image_alt
+        label: Image description
+        type: string
+      - name: eventtopics
+        label: Topic
+        type: select
+        options:
+          values:
+            - name: website
+              label: Website
+            - name: church-services
+              label: Church Services
+            - name: church-events
+              label: Church Events
+            - name: other-events
+              label: Other Events
+      - name: url
+        type: string
+        hidden: true
+      - name: body
+        label: Event details
+        type: rich-text
+        required: true
+        options:
+          format: html
   - name: notices
     label: Notices
     type: collection
@@ -16,11 +152,16 @@ content:
       default:
         sort: date
         order: desc
+    operations:
+      rename: false
     fields:
       - name: title
         label: Title
         type: string
         required: true
+        pattern:
+          regex: "^(?![Ii]ndex$).+"
+          message: Pick another title
       - name: date
         label: Date
         type: date
@@ -32,7 +173,25 @@ content:
       - name: location
         label: Location
         type: string
+      - name: noticetopics
+        label: Topic
+        type: select
+        options:
+          values:
+            - name: website
+              label: Website
+            - name: church-services
+              label: Church Services
+            - name: church-events
+              label: Church Events
+            - name: other-events
+              label: Other Events
+      - name: url
+        type: string
+        hidden: true
       - name: body
         label: Notice
         type: rich-text
         required: true
+        options:
+          format: html

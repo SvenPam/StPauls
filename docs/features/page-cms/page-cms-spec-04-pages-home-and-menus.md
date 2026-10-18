@@ -132,7 +132,7 @@ Field labels: `header` "Show in the top menu", `footer` "Show in the footer", `w
 
 ## Acceptance
 
-- [ ] `python3 -m unittest discover -s tests -v` passes.
+- [ ] `npm test` in `tests/` passes.
 - [ ] Fixture pages render at `/page/{type}/{name}`, and `/page/about` and `/page` are not built.
 - [ ] Menus built from the fixture match the live menu shape: plain items for one-page types, dropdowns for several, in live order.
 - [ ] `/contact` renders the contact placeholder.
@@ -150,7 +150,7 @@ Field labels: `header` "Show in the top menu", `footer` "Show in the footer", `w
 
 **Architecture:** Page types are unrendered sections whose `_index.md` carries the menu label and order. Pages opt into the header and footer with booleans, and two partials turn that into the same slices the shell already renders. The home page reuses `card.html` and `picture.html`.
 
-**Tech Stack:** Hugo extended 0.167.0, Pages CMS config, Python 3 `unittest`.
+**Tech Stack:** Hugo extended 0.167.0, Pages CMS config, Playwright with playwright-bdd (see [conventions: tests](page-cms-spec-conventions.md#tests)).
 
 **Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](page-cms-spec-conventions.md).
 
@@ -218,13 +218,13 @@ def test_real_page_types_exist(self):
 
 - [ ] **Step 2: Run them and watch them fail**
 
-Run: `python3 -m unittest discover -s tests -p 'test_pages.py' -v`
+Run: `npm test -- pages.feature` in `tests/`
 
 - [ ] **Step 3: Write the structure files, permalink, `page/page.html` and `contact.html`**
 
 - [ ] **Step 4: Run the tests and watch them pass**
 
-Run: `python3 -m unittest discover -s tests -v`
+Run: `npm test` in `tests/`
 
 - [ ] **Step 5: Commit**
 
@@ -288,7 +288,7 @@ Remove `test_menu_matches_live`, `test_dropdowns_are_details` and `test_footer_g
 
 - [ ] **Step 2: Run them and watch them fail**
 
-Run: `python3 -m unittest discover -s tests -p 'test_menus.py' -v`
+Run: `npm test -- menus.feature` in `tests/`
 
 - [ ] **Step 3: Rewrite the two partials and delete the static menus**
 
@@ -296,7 +296,7 @@ Find page types with `site.GetPage "/page"` then `.Sections.ByWeight`. Pages per
 
 - [ ] **Step 4: Run the full suite**
 
-Run: `python3 -m unittest discover -s tests -v`
+Run: `npm test` in `tests/`
 
 - [ ] **Step 5: Commit**
 
@@ -359,7 +359,7 @@ In `test_layout.py`: `test_swa_config` asserts `cfg["routes"]` has no entry for 
 
 - [ ] **Step 2: Run them and watch them fail**
 
-Run: `python3 -m unittest discover -s tests -p 'test_home.py' -v`
+Run: `npm test -- home.feature` in `tests/`
 
 - [ ] **Step 3: Write the home content, copy the hero, add `fill`, write `home.html` and its CSS, drop the root redirect**
 
@@ -367,7 +367,7 @@ The hero image fills the section with `object-fit: cover` at about 50vh (live he
 
 - [ ] **Step 4: Run the full suite**
 
-Run: `python3 -m unittest discover -s tests -v`
+Run: `npm test` in `tests/`
 
 - [ ] **Step 5: Commit**
 
@@ -420,13 +420,13 @@ def test_every_page_collection_has_the_same_fields(self):
 
 - [ ] **Step 2: Run them and watch them fail**
 
-Run: `python3 -m unittest discover -s tests -p 'test_cms_config.py' -v`
+Run: `npm test -- cms_config.feature` in `tests/`
 
 - [ ] **Step 3: Write the entries in `.pages.yml`**
 
 - [ ] **Step 4: Run the full suite**
 
-Run: `python3 -m unittest discover -s tests -v`
+Run: `npm test` in `tests/`
 
 - [ ] **Step 5: Commit and push**
 

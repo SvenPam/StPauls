@@ -25,7 +25,7 @@ Every task in every spec includes these.
 
 ### Build
 
-- Hugo extended `0.167.0`, the same string everywhere. No npm, no `package.json`, no remote Hugo modules, no theme. Local `[[module.mounts]]` are fine.
+- Hugo extended `0.167.0`, the same string everywhere. No npm in the Hugo build: the only `package.json` is in `tests/`. No remote Hugo modules, no theme. Local `[[module.mounts]]` are fine.
 - Hugo config has no `languageCode` (deprecated since 0.158, it trips `--panicOnWarning`).
 - Templates use the 0.146+ layout: `site/layouts/baseof.html`, `site/layouts/_partials/`, `site/layouts/{section}/section.html`, `site/layouts/{section}/page.html`.
 - Content bodies are HTML. Templates render them through `_partials/body.html` (spec 03), never `.Content`. `.Content` runs Goldmark, which turns indented HTML after a blank line into a code block.
@@ -36,10 +36,13 @@ Every task in every spec includes these.
 
 ### Tests
 
-- Python 3 standard library only, compatible with Python 3.12 (the CI runner). Run all with `python3 -m unittest discover -s tests -v` from the repo root.
-- Tests never assert on `site/content/` or `site/data/settings.yaml`. Paul edits and deletes those, and a failing test would block his publish. Tests build `tests/fixtures/` instead. Two exceptions: `RealContentTests` builds the real content and asserts only that the build succeeds, and spec 04's `test_real_page_types_exist` checks the structural `page/{type}/_index.md` files, which are hidden from Pages CMS.
-- Every spec adds or updates fixtures for what it builds, and keeps `test_no_personal_details_or_trackers` passing on every build it makes.
-- `.pages.yml` is checked with plain text and regex, as in `tests/test_cms_config.py`. There is no guaranteed YAML library on the runner.
+- Playwright Test with `playwright-bdd`. Scenarios are Gherkin in `tests/features/*.feature`, steps are JavaScript in `tests/steps/*.js`. Run all with `npm test` in `tests/` (first time: `npm ci`). Committed, and run by the workflow on every pull request and before every deploy.
+- Tests assert behaviour a visitor or Paul would notice: what a page shows, where links go, what the script does in a real browser, what the feeds and the Pages CMS config produce. Never assert on docs, Markdown, or the wording of a file when its effect can be checked instead.
+- Steps are reusable and written in plain words ("When I open \"/calendar\"", "Then the cards are, in order:"). Add a step only when no existing one fits.
+- Time-dependent behaviour uses fixture dates far in the past (`2015-...`) or far in the future (`2099-...`), and Playwright's clock (`Given it is "..."`) for what the script does between builds.
+- Tests never assert on `site/content/` or `site/data/settings.yaml`. Paul edits and deletes those, and a failing test would block his publish. `tests/serve.js` builds a fixture folder (`tests/fixtures/content/`, `tests/fixtures/empty/`) and serves it as Static Web Apps does. Two exceptions: "Whatever Paul has saved builds" builds the real content and asserts only that it builds, and spec 04 may check the structural `page/{type}/_index.md` files, which are hidden from Pages CMS.
+- Every spec adds or updates fixtures and scenarios for what it builds, and keeps "No personal details or trackers" passing.
+- Specs 04 to 12 were written with Python `unittest` examples in their plans. Read each named test as the behaviour to cover and write it as a scenario in the matching feature file. `Run:` lines name the feature file the scenarios go in. Drop any test that only checks docs or Markdown.
 
 ### Content and editor
 
@@ -49,14 +52,14 @@ Every task in every spec includes these.
 
 ### Privacy and security
 
-- None of these anywhere in `site/`: the maintainer's name, `ste-pam.com`, LinkedIn, analytics, Disqus, social share links. `tests/helpers.py` `BANNED` enforces the list.
+- None of these anywhere in `site/`: the maintainer's name, `ste-pam.com`, LinkedIn, analytics, Disqus, social share links. `BANNED` in `tests/steps/site.js` enforces the list.
 - No secrets in the repo. The Web3Forms access key is public by design and is not a secret.
 
 ### Azure and GitHub
 
 - Static Web App `Microsoft.Web/staticSites@2025-03-01`, SKU `Free`, `location` default `westeurope`, name `swa-stpauls-web`.
 - Azure sign in by OIDC only. Secrets `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, variable `AZURE_RESOURCE_GROUP`. No client secret, no stored SWA token, no `environment:` on the job (it changes the OIDC subject away from `repo:SvenPam@3789646/StPauls@1423163125:ref:refs/heads/main`).
-- The deploy workflow runs only on `main`. Changes reach the test URL only after the maintainer merges.
+- The test job runs on every pull request, every push to `main` and the nightly schedule. The deploy job needs it and runs only on `main`. Changes reach the test URL only after the maintainer merges.
 
 ### Docs and commits
 
@@ -126,7 +129,7 @@ Behaviour the specs rely on, checked on 2026-10-17. Re-check if a version change
 | `rich-text` takes `format: html` or `markdown` |
 | `type: file` edits one data file. `type: group` with `items` groups entries in the sidebar |
 | `select` takes `values` as strings or `{ name, label }`, optionally with `multiple` |
-| `date` takes `time: true` and a date-fns `format`, for example `yyyy-MM-dd'T'HH:mm` |
+| `date` takes `time: true` and a date-fns `format`, for example `yyyy-MM-dd'T'HH:mm:ss`. Hugo rejects a date with no seconds |
 | `operations` can turn off `create`, `rename` or `delete` per entry |
 | `filename` tokens include `{year}`, `{month}`, `{day}`, `{primary}` and `{fields.<name>}` |
 
@@ -231,10 +234,12 @@ Slugs and labels are in `site/data/topics.yaml`: `website` (Website), `church-se
 
 | Name | What | Spec |
 |---|---|---|
-| `helpers.build_site(dest, content_dir=None, *, data_dir=None, uploads_dir=None, minify=False, strict=True)` | Builds the site. `uploads_dir` is mounted as the uploads folder, `data_dir` is layered over `site/data` | 00, `uploads_dir` 06, `data_dir` 08 |
-| `helpers.make_png(path, width, height)` | Writes a valid PNG with the standard library, so no binary fixtures are committed | 06 |
-| `helpers.find_banned(out)` | Banned terms in a built site | 00 |
+| `tests/serve.js <content dir> <port>` | Builds the site from a fixture folder with `--minify --panicOnWarning` and serves it like Static Web Apps. Spec 06 adds an uploads folder option and spec 08 a data folder option, and `playwright.config.js` gets a server per content set | 03 |
+| `tests/features/*.feature` | One feature per area: `menu`, `layout`, `notices`, `blog`, `calendar`, `feeds`, `editor` (Pages CMS config and the real content build) | 03 |
+| `tests/steps/*.js` | Shared steps. `fixtures.js` holds the `ui` world (current page, feed, config) | 03 |
+| Image fixtures | Small committed PNGs, or written by a step with `node:zlib`. Spec 06 | 06 |
 | `tests/fixtures/content/` | One fixture tree for every section | 00 onwards |
+| `tests/fixtures/empty/` | Every section with no items | 00 onwards |
 | `tests/fixtures/live/` | Trimmed snapshots of live pages for the migration tests | 07 |
 | `scripts/check_urls.py` | Compares a built or deployed site with `tests/fixtures/live-urls.txt`. Run by hand, never in the workflow | 05 |
 | `scripts/screenshots.py` | Side-by-side screenshots with Playwright. Sandbox only | 02 |

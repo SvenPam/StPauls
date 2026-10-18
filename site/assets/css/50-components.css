@@ -49,3 +49,22 @@
   color: var(--text);
   font-size: 0.875rem;
 }
+
+.card__summary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.card picture, .card img { display: block; margin-top: 0.5rem; max-width: 100%; height: auto; }
+
+.blog-aside h2 { font-size: 1.25rem; margin: 1.5rem 0 0.5rem; }
+.blog-aside ul { margin: 0; padding-left: 1.25rem; }
+.blog-aside li { margin: 0.25rem 0; }
+
+.event-list { display: grid; gap: 1rem; max-width: 48rem; margin: 0 0 1.5rem; }
+.event-when { display: flex; flex-wrap: wrap; gap: 0.5rem 2rem; margin: 0 0 1rem; }
+.event-when dt { font-weight: 600; }
+.event-when dd { margin: 0; }
+.event-location { margin: 0 0 1rem; font-style: normal; }

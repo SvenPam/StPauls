@@ -98,7 +98,7 @@ Two short messages in the runbook, humanised, no em dash: to Paul the day before
 
 ## Acceptance
 
-- [ ] `python3 -m unittest discover -s tests -v` passes, including the infra tests with Bicep on `PATH`.
+- [ ] `npm test` in `tests/` passes, including the infra tests with Bicep on `PATH`.
 - [ ] The runbook covers preparation, the day's order, checks, rollback and both messages, with no em dash.
 - [ ] On the day: `check_urls.py --base https://stpaulswarton.co.uk` reports `0 failed`, `http://` and `www` redirect as specified, the headers from spec 09 are present on the bare domain, and Paul publishes a notice through Pages CMS.
 
@@ -158,7 +158,7 @@ Update `test_static_web_app`: two resources now, the Static Web App found by typ
 
 - [ ] **Step 2: Run them and watch them fail** (Bicep on `PATH`, see [local tools](page-cms-spec-conventions.md#local-tools))
 
-Run: `python3 -m unittest discover -s tests -p 'test_infra.py' -v`
+Run: `npm test -- infra.feature` in `tests/`
 
 - [ ] **Step 3: Add the parameter and resource** exactly as in the Bicep table. Leave `main.bicepparam` without `customDomain` for now.
 

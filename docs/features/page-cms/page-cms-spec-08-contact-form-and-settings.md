@@ -125,7 +125,7 @@ Who does it (whoever will receive enquiries, with the maintainer), creating the 
 
 ## Acceptance
 
-- [ ] `python3 -m unittest discover -s tests -v` passes.
+- [ ] `npm test` in `tests/` passes.
 - [ ] With the real (empty) key, `/contact` has no `<form>` and shows the address and the contact list link.
 - [ ] With a fixture key, `/contact` has the form posting to Web3Forms with every field labelled and the honeypot hidden.
 - [ ] The footer address and Facebook link come from settings.
@@ -142,7 +142,7 @@ Who does it (whoever will receive enquiries, with the maintainer), creating the 
 
 **Architecture:** One YAML data file feeds the footer and the contact page. The contact template decides between form and placeholder from the key's shape. Tests swap the data file through a layered mount, never touching Paul's copy.
 
-**Tech Stack:** Hugo extended 0.167.0, Web3Forms (plain HTML form), Pages CMS file entry, Python 3 `unittest`.
+**Tech Stack:** Hugo extended 0.167.0, Web3Forms (plain HTML form), Pages CMS file entry, Playwright with playwright-bdd (see [conventions: tests](page-cms-spec-conventions.md#tests)).
 
 **Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](page-cms-spec-conventions.md).
 
@@ -197,7 +197,7 @@ def test_real_settings_file_shape(self):
 
 - [ ] **Step 2: Run them and watch them fail**
 
-Run: `python3 -m unittest discover -s tests -p 'test_settings.py' -v`
+Run: `npm test -- settings.feature` in `tests/`
 
 - [ ] **Step 3: Write `settings.yaml`, move the footer values into it, extend `build_site`**
 
@@ -205,7 +205,7 @@ Once the footer reads settings, the footer assertions in `test_layout.py` (`PR4 
 
 - [ ] **Step 4: Run the full suite**
 
-Run: `python3 -m unittest discover -s tests -v`
+Run: `npm test` in `tests/`
 
 - [ ] **Step 5: Commit**
 
@@ -284,13 +284,13 @@ def test_thanks_page_not_in_sitemap(self):
 
 - [ ] **Step 2: Run them and watch them fail**
 
-Run: `python3 -m unittest discover -s tests -p 'test_settings.py' -v`
+Run: `npm test -- settings.feature` in `tests/`
 
 - [ ] **Step 3: Write the template, thanks page, CSS and script change**
 
 - [ ] **Step 4: Run the full suite**
 
-Run: `python3 -m unittest discover -s tests -v`
+Run: `npm test` in `tests/`
 
 - [ ] **Step 5: Commit**
 
@@ -331,7 +331,7 @@ In `test_docs.py`: the how-to exists, has front matter, no em dash, mentions `Si
 
 - [ ] **Step 4: Run the full suite**
 
-Run: `python3 -m unittest discover -s tests -v`
+Run: `npm test` in `tests/`
 
 - [ ] **Step 5: Commit and push**
 

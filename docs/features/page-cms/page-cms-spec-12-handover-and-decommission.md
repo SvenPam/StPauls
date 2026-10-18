@@ -97,7 +97,7 @@ For the church, not technical, short: who looks after what (Paul edits, the main
 
 ## Acceptance
 
-- [ ] `python3 -m unittest discover -s tests -v` passes.
+- [ ] `npm test` in `tests/` passes.
 - [ ] The live site sends `Strict-Transport-Security: max-age=31536000`.
 - [ ] The subscriber note has been sent and the export deleted (maintainer).
 - [ ] The decommission checklist is complete and the legacy resources are gone (maintainer).
@@ -114,7 +114,7 @@ For the church, not technical, short: who looks after what (Paul edits, the main
 
 **Architecture:** One config change, three documents, and a checklist the maintainer runs in Azure and Cloudflare.
 
-**Tech Stack:** Hugo config, Markdown, Python 3 `unittest`.
+**Tech Stack:** Hugo config, Markdown, Playwright with playwright-bdd (see [conventions: tests](page-cms-spec-conventions.md#tests)).
 
 **Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](page-cms-spec-conventions.md).
 
