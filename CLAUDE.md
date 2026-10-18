@@ -9,7 +9,8 @@ Do not reopen these without being asked.
 | Topic | Decision |
 |---|---|
 | Direction | Static site, not Umbraco. Umbraco 17 is the fallback only if the editor trial (spec 00) fails |
-| Generator | Hugo, extended, version pinned. No npm in the build |
+| Generator | Hugo, extended, version pinned. No npm in the Hugo build |
+| Tests | Playwright with Gherkin scenarios (`playwright-bdd`) in `tests/`, npm. Behaviour only, never docs or Markdown. Run on every pull request and before every deploy (2026-10-18, replaces uncommitted Python tests) |
 | Editor | Pages CMS (hosted, `app.pagescms.org`), editors invited by email. No self-hosted Postgres |
 | Hosting | Azure Static Web Apps, Free plan. Maintainer has Azure credits |
 | Infrastructure | Bicep in `infra/`. GitHub Actions with OIDC sign in to Azure. No long-lived deployment token stored as a secret |
@@ -44,14 +45,14 @@ Do not reopen these without being asked.
 - Do not create a pull request unless asked. Specs are built on a branch and merged to `main` when the maintainer says so.
 - Manual steps (Azure portal, Entra ID, GitHub secrets, Pages CMS app install) belong to the maintainer. Document them in the spec or a how-to, and say clearly when you are blocked on one.
 
-## Python tests
+## Tests
 
-Verification only. Not part of the repo or the workflow.
+Committed, and run by `.github/workflows/deploy.yml` on every pull request and before every deploy. Rules in `docs/features/page-cms/page-cms-spec-conventions.md#tests`.
 
-- While building a spec, write its tests and fixtures under `tests/` as the spec says, and run them (`python3 -m unittest discover -s tests -v`) to prove the work.
-- Never commit `tests/`. Add `tests/` to `.git/info/exclude` at the start of the session.
-- Earlier specs' tests are in git history (`git archive f1adc44 tests | tar -x` has spec 00's). Restore only what the current spec needs.
-- When the branch is verified, delete `tests/` and any scratch workspace. Say in the final message what was run and its result.
+- Gherkin features in `tests/features/`, JavaScript steps in `tests/steps/`, fixtures in `tests/fixtures/`. Run with `npm ci && npm test` in `tests/`.
+- Test behaviour in a real browser: what a page shows, where links go, what `site.js` does, what the feeds and `.pages.yml` produce. No tests on docs or Markdown.
+- Specs 04 to 12 show Python `unittest` examples. Write them as scenarios instead; the Python only describes the behaviour.
+- Every spec adds scenarios for what it builds and keeps the whole suite green. Reuse existing steps where they fit.
 
 ## When the maintainer gives final approval on a spec
 
@@ -75,6 +76,7 @@ Do all of these on the spec's branch before it merges:
 | `site/` | Hugo site |
 | `infra/` | Bicep for the Static Web App |
 | `.pages.yml` | Pages CMS config |
+| `tests/` | Playwright and Gherkin tests, fixtures, `serve.js` (builds a fixture folder and serves it) |
 | `scripts/` | Hand-run tools (screenshots, URL check, migration). Never run in CI |
 | `.github/workflows/deploy.yml` | Test, deploy Bicep, build and deploy the site |
 
@@ -85,6 +87,7 @@ The legacy CSS, images and views needed for reference are on `archive/umbraco-20
 - `hugo`, `az` and `bicep` were not installed. `node` was.
 - Downloads from `github.com/.../releases` returned 403 through the sandbox proxy, and `pagescms.org` did not resolve. PyPI and the npm registry were reachable.
 - Install tools outside the repo. Hugo and actionlint from PyPI: `python3 -m venv <dir> && <dir>/bin/pip install hugo==0.167.0 actionlint-py`. Bicep 0.48.1 from NuGet: `https://api.nuget.org/v3-flatcontainer/azure.bicep.commandline.linux-x64/0.48.1/azure.bicep.commandline.linux-x64.0.48.1.nupkg`, extract `tools/bicep` with `python3 -m zipfile -e`, `chmod +x`.
+- Tests: Chromium is preinstalled at `/opt/pw-browsers` and matches `@playwright/test` 1.56.1, so do not run `playwright install`. Set `HUGO=<venv>/bin/hugo` or put the venv on `PATH`, then `npm ci && npm test` in `tests/`.
 - `az`, Azure and Pages CMS cannot be reached from the sandbox. Say plainly what was not run locally.
 - The live site `http://stpaulswarton.co.uk` was reachable with `curl`. `www.stpaulswarton.co.uk` did not resolve (the sandbox resolver only answers `A` for some names). It does exist: see the DNS how-to.
 - Later on 2026-10-17: GitHub release downloads and `git ls-remote` worked, and `raw.githubusercontent.com` served docs sources (Pages CMS, Static Web Apps, Hugo, Web3Forms). The test site `brave-coast-006318103.5.azurestaticapps.net` was reachable. `calendar.google.com`, `embedsocial.com`, `web3forms.com` and DNS-over-HTTPS were blocked. Details in `docs/features/page-cms/page-cms-spec-conventions.md`.

@@ -116,7 +116,7 @@ Before the build step, `actions/cache` restores `site/resources/_gen` with key `
 
 ## Acceptance
 
-- [ ] `python3 -m unittest discover -s tests -v` passes.
+- [ ] `npm test` in `tests/` passes.
 - [ ] A 1600 by 900 upload in a body becomes `<picture>` with WebP at 480, 800, 1200 and 1600, and `width="800" height="450"` on the fallback.
 - [ ] A hot-linked image keeps its `src`, gains `loading="lazy"`, and fits the column.
 - [ ] A missing upload, a GIF and an SVG render as plain images without failing the build.
@@ -134,7 +134,7 @@ Before the build step, `actions/cache` restores `site/resources/_gen` with key `
 
 **Architecture:** Uploads are mounted twice, as static files and as assets, so the original URL keeps working while Hugo makes WebP copies next to it. One partial decides between `<picture>` and a plain image. The body partial rewrites `<img>` tags into that partial. Embeds are validated against a host list in data.
 
-**Tech Stack:** Hugo extended 0.167.0 image processing and module mounts, GitHub Actions cache, Python 3 `unittest`.
+**Tech Stack:** Hugo extended 0.167.0 image processing and module mounts, GitHub Actions cache, Playwright with playwright-bdd (see [conventions: tests](page-cms-spec-conventions.md#tests)).
 
 **Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](page-cms-spec-conventions.md).
 
@@ -197,13 +197,13 @@ def test_no_upload_means_plain_image(self):
 
 - [ ] **Step 2: Run them and watch them fail**
 
-Run: `python3 -m unittest discover -s tests -p 'test_images.py' -v`
+Run: `npm test -- images.feature` in `tests/`
 
 - [ ] **Step 3: Add the mounts and imaging config, extend `picture.html`, extend the helpers**
 
 - [ ] **Step 4: Run the full suite**
 
-Run: `python3 -m unittest discover -s tests -v`
+Run: `npm test` in `tests/`
 Expected: all pass once two older test classes get the same temp uploads through `uploads_dir`: spec 03's `BlogTests` (`test_article_image_is_picture`) and spec 04's `HomeTests` (`test_three_latest_articles_cropped`), since `a8.md` now points at `/uploads/fixture-wide.png`.
 
 - [ ] **Step 5: Commit**
@@ -274,7 +274,7 @@ Match Hugo's real escaping of `"` in attributes (`&#34;` or `&quot;`) and of spa
 
 - [ ] **Step 2: Run them and watch them fail**
 
-Run: `python3 -m unittest discover -s tests -p 'test_images.py' -v`
+Run: `npm test -- images.feature` in `tests/`
 
 - [ ] **Step 3: Write the rewrite in `body.html`**
 
@@ -282,7 +282,7 @@ Use `findRE` to collect tags, `findRESubmatch` with `(?i)\bsrc\s*=\s*(?:"([^"]*)
 
 - [ ] **Step 4: Run the full suite**
 
-Run: `python3 -m unittest discover -s tests -v`
+Run: `npm test` in `tests/`
 
 - [ ] **Step 5: Commit**
 
@@ -333,13 +333,13 @@ In `tests/test_cms_config.py`, extend the expected field list for every `page-*`
 
 - [ ] **Step 2: Run them and watch them fail**
 
-Run: `python3 -m unittest discover -s tests -p 'test_images.py' -v`
+Run: `npm test -- images.feature` in `tests/`
 
 - [ ] **Step 3: Write `embeds.yaml`, `embed.html`, the CSS, and the Pages CMS fields**
 
 - [ ] **Step 4: Run the full suite**
 
-Run: `python3 -m unittest discover -s tests -v`
+Run: `npm test` in `tests/`
 
 - [ ] **Step 5: Commit**
 
@@ -368,7 +368,7 @@ def test_processed_images_are_cached(self):
 
 - [ ] **Step 2: Run it and watch it fail**
 
-Run: `python3 -m unittest discover -s tests -p 'test_workflow.py' -v`
+Run: `npm test -- workflow.feature` in `tests/`
 
 - [ ] **Step 3: Add the cache step** (use the current major tag; spec 09 pins every action to a SHA)
 

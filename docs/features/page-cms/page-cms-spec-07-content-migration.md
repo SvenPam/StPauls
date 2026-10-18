@@ -124,7 +124,7 @@ python3 scripts/migrate.py [--live http://stpaulswarton.co.uk] [--dates scripts/
 
 ## Acceptance
 
-- [ ] `python3 -m unittest discover -s tests -v` passes.
+- [ ] `npm test` in `tests/` passes.
 - [ ] `python3 scripts/check_urls.py --list tests/fixtures/live-urls.txt --built <build>` reports 0 failed against a build of the migrated content.
 - [ ] No content file references `stpaulswarton.co.uk`, `/Areas/`, `media.acny.uk` or `achurchnearyou.com/...` images.
 - [ ] `python3 scripts/migrate.py --check` straight after a run reports no changes.
@@ -225,7 +225,7 @@ def test_home(self):
 
 - [ ] **Step 3: Run them and watch them fail**
 
-Run: `python3 -m unittest discover -s tests -p 'test_migrate.py' -v`
+Run: `npm test -- migrate.feature` in `tests/`
 
 - [ ] **Step 4: Write the parsers** on `html.parser.HTMLParser`: one small tree builder that keeps raw inner HTML for chosen elements, then per-type functions that pick elements by tag and class. No regex over whole documents except for the date and time text.
 
@@ -311,7 +311,7 @@ def test_front_matter_escaping(self):
 
 - [ ] **Step 2: Run them and watch them fail**
 
-Run: `python3 -m unittest discover -s tests -p 'test_migrate.py' -v`
+Run: `npm test -- migrate.feature` in `tests/`
 
 - [ ] **Step 3: Implement the functions**
 
@@ -382,7 +382,7 @@ def test_migrated_fixture_builds(self):
 
 - [ ] **Step 2: Run them and watch them fail**
 
-Run: `python3 -m unittest discover -s tests -p 'test_migrate.py' -v`
+Run: `npm test -- migrate.feature` in `tests/`
 
 - [ ] **Step 3: Implement `main`, the writer, the report and the legacy update**
 

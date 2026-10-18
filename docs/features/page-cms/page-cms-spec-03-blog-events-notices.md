@@ -127,13 +127,15 @@ All three `exclude: [_index.md]`. Top level `settings: { content: { merge: true 
 
 ## Acceptance
 
-- [x] `python3 -m unittest discover -s tests -v` passes.
+- [x] `npm test` in `tests/` passes.
 - [x] Fixture articles, events and notices render at `/blog/article/{name}`, `/calendar/event/{name}`, `/notices/notice/{name}`, and a fixture with `url` renders at that URL.
 - [x] Term pages exist at `/blog/topic/{topic}`, `/calendar/topic/{topic}`, `/notices/topic/{topic}` with topic labels.
 - [x] Past events are absent from `/calendar` and its RSS, present at their own URLs, and labelled Expired.
 - [x] RSS feeds at `/blog/index.xml`, `/calendar/index.xml`, `/notices/index.xml` are valid XML.
 - [x] `actionlint` passes on the workflow.
 - [x] Pages CMS shows the three collections after merge (maintainer).
+
+The plan below was built with Python `unittest`. On 2026-10-18 the tests were rewritten as Playwright scenarios in `tests/features/`, which also found and fixed a menu bug: on a phone, with one dropdown open, tapping another did nothing.
 
 ---
 

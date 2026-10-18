@@ -32,7 +32,7 @@ The work comes in two phases:
 3. **Same look, better reading.** Same colours and general layout. Better text spacing, a bigger labelled menu button, images and embeds that never break out of the column.
 4. **Fast delivery.** Resized WebP images served with `<picture>` and `srcset`, small fingerprinted CSS, no script needed to read or navigate.
 5. **Secure by default.** HTTPS everywhere, security headers, no third-party scripts beyond the two embeds, a hardened build pipeline.
-6. **Low upkeep.** No server, database, npm or runtime to patch. The legacy Azure resources are removed at the end.
+6. **Low upkeep.** No server, database or runtime to patch. npm is used only for tests. The legacy Azure resources are removed at the end.
 
 ## Non-goals
 
@@ -197,7 +197,7 @@ Made by the maintainer in the design conversation on 2026-10-17, unless marked _
 
 ### Testing
 
-- Python standard library only, as today. Tests build `tests/fixtures/` and never assert on `site/content/`.
+- Playwright with Gherkin scenarios (`playwright-bdd`) in `tests/`, run on every pull request and before every deploy. Tests build `tests/fixtures/` and never assert on `site/content/`. Changed from Python on 2026-10-18 so the script and pages are tested in a real browser.
 - A separate URL check script compares a built site, or the deployed site, with a snapshot of the live sitemap. It is run by hand during migration and cutover, not in the deploy workflow, so Paul deleting an old event never blocks a publish.
 
 ---
