@@ -59,3 +59,13 @@ test('the weekly audit has its own concurrency group', () => {
     "${{ github.event.schedule == '41 4 * * 1' && 'audit' || 'deploy' }}-${{ github.ref }}",
   );
 });
+test('the build restores the image cache before it builds', () => {
+  const steps = wf.jobs.build.steps;
+  const cache = steps.findIndex((s) => /^actions\/cache@/.test(s.uses ?? ''));
+  assert.ok(cache >= 0, 'no actions/cache step');
+  assert.equal(steps[cache].with.path, '.cache/images');
+  assert.match(steps[cache].with.key, /hashFiles\('package-lock\.json', 'config\/images\.js'\)/);
+  assert.match(steps[cache].with['restore-keys'], /^images-/);
+  assert.ok(cache < steps.findIndex((s) => s.run === 'npm run build'));
+  assert.ok(!wf.jobs.deploy.steps.some((s) => /^actions\/cache@/.test(s.uses ?? '')));
+});

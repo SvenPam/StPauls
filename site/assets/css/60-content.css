@@ -7,3 +7,9 @@
 .prose th, .prose td { border: 1px solid var(--border); padding: 0.4rem 0.6rem; }
 .prose pre { max-width: 100%; overflow-x: auto; }
 .prose blockquote { border-left: 4px solid var(--gold); margin-left: 0; padding-left: 1rem; }
+
+/* Calendar and gallery embeds (site/data/embeds.yaml): full width, height from the embed's ratio. */
+.embed { width: 100%; }
+.embed iframe { width: 100%; height: 100%; border: 0; }
+.embed--google-calendar { aspect-ratio: 4 / 3; }
+.embed--facebook-album { aspect-ratio: 62 / 100; }

@@ -1,10 +1,6 @@
-{#- An item's image, from `imageSrc`, `imageAlt` and an optional `imageFill` crop. Assets go through picture; anything else (uploads, until spec 06) is a plain img.
+{#- An item's image, from `imageSrc`, `imageAlt` and an optional `imageFill` crop. Assets and uploads go through picture,
+    which falls back to a plain img for anything it cannot process.
     ifAsync, not if: a plain if around the async picture shortcode drops its output inside asyncEach. -#}
 {%- ifAsync imageSrc -%}
-{%- set asset = imageSrc | assetPath -%}
-{%- ifAsync asset -%}
-{% picture { src: asset, alt: imageAlt or '', sizes: '(min-width: 48rem) 48rem, 100vw', fill: imageFill } %}
-{%- else -%}
-<img src="{{ imageSrc }}" alt="{{ imageAlt or '' }}" loading="lazy" decoding="async">
-{%- endif -%}
+{% picture { src: (imageSrc | assetPath) or imageSrc, alt: imageAlt or '', sizes: '(min-width: 48rem) 48rem, 100vw', fill: imageFill } %}
 {%- endif -%}

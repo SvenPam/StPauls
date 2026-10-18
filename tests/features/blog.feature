@@ -22,7 +22,7 @@ Feature: Blog
     Then the page heading is "Fixture article 8"
     And I see "Published 01-Aug-15"
     And the summary "Article eight summary" is the lead
-    And the image is a responsive picture described as "Map"
+    And the image is a responsive picture described as "Wide"
     And I see "Body of article 8."
     And the "Website" link goes to "/blog/topic/website"
 
