@@ -6,7 +6,7 @@
   </div>
   <nav id="site-nav" class="site-nav" aria-label="Main">
     <ul class="site-nav__list">
-      {%- for item in menus.main %}
+      {%- for item in collections | menuItems %}
       {%- if item.children %}
       <li><details class="site-nav__group" name="site-nav"><summary>{{ item.name }}</summary>
         <ul>
