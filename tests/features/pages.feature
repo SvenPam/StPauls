@@ -61,3 +61,11 @@ Feature: Pages
     Then I see "Church Notices"
     And I see "Latest Blog Articles"
     And there are no cards
+
+  Scenario: A page saved with an empty layout keeps the site around it
+    When I open "/page/forms/blank-layout"
+    Then the page heading is "Blank Layout"
+    And the page has the site header and footer
+    When I open "/page/forms/null-layout"
+    Then the page heading is "Null Layout"
+    And the page has the site header and footer

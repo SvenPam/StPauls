@@ -71,6 +71,10 @@ export default function (eleventyConfig) {
 
   // Computed `layout` did not work in the spike, so it is plain global data. Site pages set their own.
   eleventyConfig.addGlobalData('layout', 'content.njk');
+  // An empty `layout` (a blank hidden field saved by Pages CMS) would publish the body with no site around it.
+  eleventyConfig.addPreprocessor('blank-layout', 'md', (data) => {
+    if (data.layout == null || !String(data.layout).trim()) data.layout = 'content.njk';
+  });
   eleventyConfig.addGlobalData('eleventyComputed', {
     section: (data) => (isContent(data.page.inputPath) ? sectionOf(data.page.inputPath) : undefined),
     isIndex: (data) => isContent(data.page.inputPath) && isIndex(data.page.inputPath),

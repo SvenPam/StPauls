@@ -158,3 +158,8 @@ Then('every image on the page has an alt attribute', async ({ ui }) => {
 Then('there are no cards', async ({ ui }) => {
   await expect(main(ui).locator('.card')).toHaveCount(0);
 });
+
+Then('the page has the site header and footer', async ({ ui }) => {
+  await expect(ui.page.locator('header.site-header')).toHaveCount(1);
+  await expect(ui.page.locator('footer.site-footer')).toHaveCount(1);
+});
