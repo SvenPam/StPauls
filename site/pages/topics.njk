@@ -1,0 +1,29 @@
+---
+layout: base.njk
+pagination:
+  data: topicPages
+  size: 1
+  alias: t
+permalink: "/{{ t.section }}/topic/{{ t.slug }}/index.html"
+eleventyComputed:
+  title: "{{ t.label }}"
+---
+{#- One section filtered to one topic. The heading is the section's own title, as on Hugo's term pages. -#}
+{%- set all = collections[t.section] | withTopic(t.slug) %}
+{%- if t.section == 'calendar' %}{% set items = all | upcoming %}{% else %}{% set items = all | newestFirst %}{% endif %}
+<div{% if t.section == 'blog' %} class="with-aside"{% endif %}>
+<div>
+<h1>{% for p in collections.all %}{% if p.data.isIndex and p.data.section == t.section %}{{ p.data.title }}{% endif %}{% endfor %}</h1>
+<p class="lead">Topic: {{ t.label }}</p>
+{%- if items.length %}
+<div class="card-list">
+  {%- asyncEach item in items %}
+  {% include "partials/card.njk" %}
+  {%- endeach %}
+</div>
+{%- else %}
+<p>Nothing here yet.</p>
+{%- endif %}
+</div>
+{%- if t.section == 'blog' %}{% include "partials/blog-aside.njk" %}{% endif %}
+</div>

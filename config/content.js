@@ -13,6 +13,20 @@ const ITEM_PATHS = {
   notices: '/notices/notice',
 };
 
+// The front matter field that holds each section's topic, as Hugo's taxonomies named them.
+export const TOPIC_FIELDS = {
+  blog: 'blogtopics',
+  calendar: 'eventtopics',
+  notices: 'noticetopics',
+};
+
+// An item's topic slug: the first value of its section's topic field, lowercased as Hugo did, or ''.
+export function topicOf(section, data) {
+  const value = data[TOPIC_FIELDS[section]];
+  const first = Array.isArray(value) ? value[0] : value;
+  return typeof first === 'string' ? first.trim().toLowerCase() : '';
+}
+
 const relativeToContent = (inputPath) => path.relative(CONTENT_DIR, inputPath).split(path.sep).join('/');
 
 // The folder under the content dir ('' at its root).
@@ -44,6 +58,7 @@ export default function (eleventyConfig) {
   eleventyConfig.addGlobalData('eleventyComputed', {
     section: (data) => (isContent(data.page.inputPath) ? sectionOf(data.page.inputPath) : undefined),
     isIndex: (data) => isContent(data.page.inputPath) && isIndex(data.page.inputPath),
+    topic: (data) => (isContent(data.page.inputPath) ? topicOf(sectionOf(data.page.inputPath), data) : undefined),
     permalink: (data) => (isContent(data.page.inputPath) ? itemPermalink(data.page.inputPath, data) : data.permalink),
   });
 

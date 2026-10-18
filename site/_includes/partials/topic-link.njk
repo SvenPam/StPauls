@@ -1,0 +1,4 @@
+{#- Link to the topic `topicSlug` in section `topicSection`. A missing topic, or one not in data/topics.yaml, shows nothing. -#}
+{%- if topicSlug and topics[topicSlug] -%}
+<a class="topic" href="/{{ topicSection }}/topic/{{ topicSlug }}">{{ topics[topicSlug] }}</a>
+{%- endif -%}

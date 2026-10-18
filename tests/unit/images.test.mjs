@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import sharp from 'sharp';
-import { pictureHtml } from '../../config/images.js';
+import { assetPath, pictureHtml } from '../../config/images.js';
 
 let tmp, out;
 
@@ -62,4 +62,14 @@ test('concurrent builds of the same source both get complete images', async () =
   } finally {
     rmSync(out2, { recursive: true, force: true });
   }
+});
+
+test('assetPath accepts files under site/assets and rejects uploads, folders and escapes', () => {
+  assert.equal(assetPath('images/map.png'), 'images/map.png');
+  assert.equal(assetPath('/images/map.png'), 'images/map.png');
+  assert.equal(assetPath('/uploads/2026/photo.jpg'), '');
+  assert.equal(assetPath('images'), '');
+  assert.equal(assetPath('../config/images.js'), '');
+  assert.equal(assetPath(''), '');
+  assert.equal(assetPath(undefined), '');
 });

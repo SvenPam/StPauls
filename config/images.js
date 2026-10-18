@@ -3,6 +3,7 @@
 // Resized files are cached in .cache/images/, keyed on the source bytes, width, format and quality.
 import sharp from 'sharp';
 import { createHash, randomBytes } from 'node:crypto';
+import { statSync } from 'node:fs';
 import { access, copyFile, mkdir, readFile, rename } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -61,7 +62,22 @@ export async function pictureHtml({ src, alt = '', sizes = '100vw', eager = fals
 </picture>`;
 }
 
+// A front matter image path as a source for `picture`, or '' when it is not a file under site/assets
+// (an /uploads path, until spec 06). A leading slash is ignored, as Hugo's resources.Get did.
+export function assetPath(src, { assets = ASSETS } = {}) {
+  if (typeof src !== 'string' || !src.trim()) return '';
+  const rel = src.trim().replace(/^\/+/, '');
+  const file = path.resolve(assets, rel);
+  if (!file.startsWith(path.resolve(assets) + path.sep)) return '';
+  try {
+    return statSync(file).isFile() ? rel : '';
+  } catch {
+    return '';
+  }
+}
+
 export default function (eleventyConfig) {
+  eleventyConfig.addFilter('assetPath', (src) => assetPath(src));
   eleventyConfig.addAsyncShortcode('picture', (opts) =>
     pictureHtml(opts, { assets: ASSETS, out: eleventyConfig.directories.output }),
   );
