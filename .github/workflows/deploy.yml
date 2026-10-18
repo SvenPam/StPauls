@@ -51,6 +51,13 @@ jobs:
           npm ci
           npx playwright install --with-deps chromium
 
+      # Resized images. A new sharp or new image settings start afresh; a new upload starts from the last cache.
+      - uses: actions/cache@v6
+        with:
+          path: .cache/images
+          key: images-${{ hashFiles('package-lock.json', 'config/images.js') }}-${{ hashFiles('site/static/uploads/**', 'site/assets/images/**') }}
+          restore-keys: images-${{ hashFiles('package-lock.json', 'config/images.js') }}-
+
       - name: Build
         run: npm run build
 
