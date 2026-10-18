@@ -14,7 +14,7 @@ _The manual steps for [spec 00](page-cms-spec-00-editor-trial.md): Azure, Entra 
 
 | | |
 |---|---|
-| Azure | Owner (or User Access Administrator) on the subscription, so you can assign a role |
+| Azure | Owner on the subscription, so you can create the resources and assign roles |
 | GitHub | Admin on `SvenPam/StPauls` |
 | Tools | Azure CLI signed in (`az login`), or the Azure portal and Cloud Shell. Run from the repo root, on `main` |
 | Branch | The spec 00 branch merged to `main`. The workflow only deploys from `main` |
@@ -54,7 +54,7 @@ az ad app federated-credential create --id $APP_ID --parameters '{
 }'
 ```
 
-The identity has no rights yet. Section 3 and 4 give it two narrow roles. It never gets `Contributor`.
+The identity has no rights yet. Sections 3 and 4 give it two narrow roles. It never gets `Contributor`.
 
 The subject must be exactly `repo:SvenPam@3789646/StPauls@1423163125:ref:refs/heads/main`. GitHub sends this repo's subject with the numeric owner and repo IDs, not the plain `owner/repo` form most guides show. The IDs stay the same if the repo is renamed. If sign in ever fails, copy the `subject claim` line from the azure/login step's log. It only trusts runs on `main`.
 
@@ -147,7 +147,7 @@ Then check Settings, Rules (and Branches): no ruleset or branch protection may r
 
 ## 6. Run the workflow
 
-Actions, Deploy, Run workflow, branch `main`. The first run creates the Static Web App `swa-stpauls-web`. The site URL (`https://<name>.azurestaticapps.net`) is in the run summary. Later runs leave the resource as it is.
+Actions, Deploy, Run workflow, branch `main`. The run updates the Static Web App `swa-stpauls-web` (section 3 created it) and uploads the site. The site URL (`https://<name>.azurestaticapps.net`) is in the run summary. Later runs leave the resource as it is.
 
 ## 7. Connect Pages CMS
 
@@ -184,7 +184,7 @@ Record go or no-go as a new row in the Decisions table of [way forward](page-cms
 | `AADSTS700213` or `AADSTS70021` at Azure sign in | The federated credential subject does not match. Check case and branch |
 | `AuthorizationFailed` on `Microsoft.Resources/deployments/write` | `StPauls template deployer` is missing, or assigned at the wrong resource group |
 | `AuthorizationFailed` on `Microsoft.Web/staticSites/write` or `listSecrets/action` | `StPauls Static Web App deployer` is missing, or assigned on the resource group instead of the Static Web App. Re-run the `az staticwebapp show` assignment |
-| `AuthorizationFailed` on a `.../operationResults/...` read while a custom domain is added (spec 11) | Azure polls the async result with an action the role lacks. Add that single action from the error to `infra/roles/stpauls-static-web-app-deployer.json`, update the role with `az role definition update`, and extend the test in `tests/unit/roles.test.mjs` |
+| `AuthorizationFailed` on a `.../operationResults/...` read while a custom domain is added (spec 11) | Azure polls the async result with an action the role lacks. Add that single action from the error to `infra/roles/stpauls-static-web-app-deployer.json`, fill in the `<SUB>` and `<RG>` placeholders with the `sed` command from section 4, update the role from the filled file with `az role definition update --role-definition @/tmp/<file>.json`, delete that file, and extend the test in `tests/unit/roles.test.mjs` |
 | Role not found when assigning | The new role definition has not replicated yet. Wait a minute and retry |
 | Pages CMS save fails | A branch rule blocks direct pushes to `main` |
 | Pages CMS shows a config error | It names the key to fix in `.pages.yml` |
