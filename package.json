@@ -14,9 +14,9 @@
   },
   "devDependencies": {
     "@11ty/eleventy": "3.1.6",
-    "@playwright/test": "1.56.1",
+    "@playwright/test": "1.64.1",
     "clean-css": "5.3.3",
-    "entities": "6.0.1",
+    "entities": "8.1.0",
     "playwright-bdd": "9.2.1",
     "sharp": "0.35.5",
     "terser": "5.51.2",
