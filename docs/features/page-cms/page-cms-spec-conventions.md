@@ -293,7 +293,7 @@ Slugs and labels are in `site/data/topics.yaml`: `website` (Website), `church-se
 
 ### Data files in `site/data/`
 
-Each file is a global named after it (`topics.yaml` is `topics`).
+Each file is a global named after it (`topics.yaml` is `topics`). From spec 08, `DATA=<folder>` layers a fixture folder over `site/data`: a file there wins over the one of the same name, the rest still come from `site/data`. `config/topics.js` always reads `site/data/topics.yaml`.
 
 | File | Owner | Contents | Spec |
 |---|---|---|---|
@@ -302,7 +302,7 @@ Each file is a global named after it (`topics.yaml` is `topics`).
 | `menus.yaml` | Maintainer | `main` (`{ name, url }` or `{ name, children }`) and `footer` (`{ title, links }`). Replaced by menus computed from content | 02, removed 04 |
 | `embeds.yaml` | Maintainer | Embed type to allowed host, title and aspect ratio | 06 |
 | `legacy.yaml` | Maintainer | `rewrites` and `redirects` lists of `{ from, to }` for `staticwebapp.config.json`, and `upload_prefixes`, the legacy upload folders in every spelling seen on live. Each file under `uploads/legacy/` in the build gets a 301 from every prefix | 05, 07 |
-| `settings.yaml` | Paul, through Pages CMS | Contact form key and footer details | 08 |
+| `settings.yaml` | Paul, through Pages CMS | `contact_access_key`, `contact_subject`, `enquiry_types`, `address`, `facebook_url`, `map_url`, `directions_url` | 08 |
 
 ### Includes in `site/_includes/`
 
@@ -353,6 +353,8 @@ Filters unless marked. Named exports are importable by `tests/unit/`.
 | `menuItems` | `menus.js` | `collections` | `menus.main` shape: Home, Blog, Calendar, then per page type in weight order its `header: true` pages, a plain `{ name, url }` for one, `{ name, children }` for several, none skipped | 04 |
 | `footerGroups` | `menus.js` | `collections` | `menus.footer` shape: `Links` (blog, calendar, notices, site map, `about` pages with `footer: true`), then a group per other type with `footer: true` pages | 04 |
 | `buildSwaConfig` | `swa.js`, export only | Output folder, data (`readData()` by default: `legacy` from 05, `site` and `embeds` from 09) | Writes and returns `staticwebapp.config.json` | 00, routes 05, headers 09 |
+| `contactKey` | `contact.js` | `settings` | The key when it matches the Web3Forms UUID pattern exactly, else `''` (form hidden) | 08 |
+| `enquiryTypes` | `contact.js` | `settings` | `enquiry_types` without empty entries, or `['General Enquiry']` | 08 |
 | `readData` | `data.js`, export only | | Every `site/data/*.yaml` as `{ name: parsed }`, with the `DATA` folder layered over it from spec 08 | 05, 08 |
 | `pagesByType` | `menus.js` | `collections` | `[{ title, pages: [{ name, url }] }]`: every page type in weight order with all its pages, menu flags ignored. `menuItems` and `footerGroups` build on it | 05 |
 | `buildAssets` | `assets.js`, export only | Output folder | `{ css, js }`, each `{ url, integrity }` | 02 |
@@ -385,7 +387,8 @@ Asset names change only when the bytes do, so spec 09 can cache them `immutable`
 | `tests/unit/*.test.mjs` | `node:test`: `dates`, `filters`, `images`, `topics`, `swa-config`, `workflow`, `roles`. Later: `content`, `menus` (04), `check-urls` (05), `embeds` (06), `migrate` (07), `contact` (08), `links` (09), `infra` (11) | 03 |
 | Image fixtures | `tests/fixtures/uploads.mjs` `writeFixtureUploads(dir)` writes `fixture-wide.png` (1600 by 900), `fixture-huge.png` (6000 by 4000), `Fixture Space.PNG` (900 by 600), `fixture.gif`, `fixture.svg` with sharp. Nothing binary committed | 06 |
 | `tests/fixtures/content/` | One fixture tree for every section | 00 onwards |
-| `tests/fixtures/empty/` | Every section with no items | 00 onwards |
+| `tests/fixtures/empty/` | Every section with no items, and the home page (04) | 00 onwards |
+| `tests/fixtures/data/{no-key,with-key}/` | Fixture `settings.yaml` for `--data`. `KEYED_SITE` (`tests/steps/fixtures.js`) is the 1315 server built with `with-key` | 08 |
 | `tests/fixtures/live/` | Trimmed snapshots of live pages for the migration tests | 07 |
 | `scripts/check-urls.mjs` | Compares a built (`--built _site`) or deployed (`--base https://<host>`, routes from `--config`, default `_site/staticwebapp.config.json`) site with `tests/fixtures/live-urls.txt`. Exports `loadList`, `matchRoute`, `checkBuilt`, `checkHost`, `main`. Run by hand, never in the workflow | 05 |
 | `tests/fixtures/live-urls.txt` | Live sitemap paths plus the known variants, with the fetch date | 05 |
