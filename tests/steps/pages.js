@@ -1,5 +1,10 @@
 import { expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { parse } from 'yaml';
 import { EMPTY_SITE, Given, Then, When } from './fixtures.js';
+
+const REPO = resolve('..');
 
 const main = (ui) => ui.page.locator('main');
 const visible = (locator) => locator.filter({ visible: true });
@@ -109,4 +114,13 @@ Then('no link in the page ends with a slash', async ({ ui }) => {
 Then('the page does not scroll sideways', async ({ ui }) => {
   const [scroll, client] = await ui.page.evaluate(() => [document.documentElement.scrollWidth, document.documentElement.clientWidth]);
   expect(scroll).toBeLessThanOrEqual(client);
+});
+
+// Structural files only: the page types are the maintainer's and hidden from Pages CMS.
+Then('the real page types are, in order:', async ({}, table) => {
+  for (const [type, title, weight] of table.raw()) {
+    const text = readFileSync(join(REPO, 'site/content/page', type, '_index.md'), 'utf8');
+    const data = parse(/^---\n([\s\S]*?)\n---/.exec(text)[1]);
+    expect({ type, title: data.title, weight: data.weight }).toEqual({ type, title, weight: Number(weight) });
+  }
 });

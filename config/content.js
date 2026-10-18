@@ -40,14 +40,28 @@ export function isIndex(inputPath) {
   return path.basename(inputPath, '.md') === '_index';
 }
 
+const trimUrl = (data) => (data.url ? String(data.url).trim().replace(/\/+$/, '') : '');
+
 // The file name keeps its date prefix (2026-01-05-dated stays whole). Eleventy's fileSlug drops it, so it is not used.
+// Root: _index.md is the home page, any other file needs a `url`. Pages: /page/{type}/{name} unless they carry a `url`;
+// page/_index.md and the page type _index.md files are not rendered.
 export function itemPermalink(inputPath, data) {
   const section = sectionOf(inputPath);
+  const name = path.basename(inputPath, '.md');
+  const url = trimUrl(data);
+  if (section === '') {
+    if (isIndex(inputPath)) return '/index.html';
+    return url ? `${url}/index.html` : false;
+  }
+  const [top, type, ...deeper] = section.split('/');
+  if (top === 'page') {
+    if (isIndex(inputPath) || !type || deeper.length) return false;
+    return url ? `${url}/index.html` : `/page/${type}/${name}/index.html`;
+  }
   if (!SECTIONS.includes(section)) return false;
   if (isIndex(inputPath)) return `/${section}/index.html`;
-  const url = data.url ? String(data.url).trim().replace(/\/+$/, '') : '';
   if (url) return `${url}/index.html`;
-  return `${ITEM_PATHS[section]}/${path.basename(inputPath, '.md')}/index.html`;
+  return `${ITEM_PATHS[section]}/${name}/index.html`;
 }
 
 const isContent = (inputPath) => inputPath.endsWith('.md');
@@ -70,4 +84,10 @@ export default function (eleventyConfig) {
       api.getFilteredByGlob(`${CONTENT_DIR}/${section}/*.md`).filter((item) => !isIndex(item.inputPath)),
     );
   }
+
+  // Page types carry the menu label and order, pages their menu flags. config/menus.js sorts both.
+  eleventyConfig.addCollection('pageTypes', (api) => api.getFilteredByGlob(`${CONTENT_DIR}/page/*/_index.md`));
+  eleventyConfig.addCollection('pages', (api) =>
+    api.getFilteredByGlob(`${CONTENT_DIR}/page/*/*.md`).filter((item) => !isIndex(item.inputPath)),
+  );
 }

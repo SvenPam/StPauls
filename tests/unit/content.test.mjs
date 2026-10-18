@@ -8,6 +8,22 @@ import { itemPermalink } from '../../config/content.js';
 
 const REPO = resolve(import.meta.dirname, '../..');
 
+const at = (p) => `site/content/${p}`;
+
+test('pages publish under /page/{type}/{name}, page types and the pages root do not', () => {
+  assert.equal(itemPermalink(at('page/about/about-us.md'), {}), '/page/about/about-us/index.html');
+  assert.equal(itemPermalink(at('page/about/contact-us.md'), { url: '/contact' }), '/contact/index.html');
+  assert.equal(itemPermalink(at('page/about/_index.md'), {}), false);
+  assert.equal(itemPermalink(at('page/_index.md'), {}), false);
+  assert.equal(itemPermalink(at('page/extra/stray.md'), {}), '/page/extra/stray/index.html');
+});
+
+test('the root index is the home page, other root files need a url', () => {
+  assert.equal(itemPermalink(at('_index.md'), {}), '/index.html');
+  assert.equal(itemPermalink(at('sitemap.md'), { url: '/sitemap' }), '/sitemap/index.html');
+  assert.equal(itemPermalink(at('stray.md'), {}), false);
+});
+
 test('a url that trims to nothing falls back to the pattern URL', () => {
   const file = 'site/content/notices/odd.md';
   assert.equal(itemPermalink(file, { url: '/' }), '/notices/notice/odd/index.html');
