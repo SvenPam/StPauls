@@ -26,7 +26,7 @@ Do not reopen these without being asked.
 | Logins | Removed. Paul is a Pages CMS collaborator. `/account/*` redirects home |
 | Contact form | Web3Forms, one inbox, key in Site settings, hidden until a real key is set |
 | Domain | Bare `stpaulswarton.co.uk` is primary. Cloudflare redirects `www` to it |
-| Cookie policy | Dropped if the site and its embeds set no cookies (spec 09) |
+| Cookie policy | Google Calendar's embed sets `NID`, so the page stays: a short note naming the embeds' cookies, and click-to-load for embeds that set any (spec 09, 2026-10-18) |
 | Cutover | DNS to Cloudflare early, Paul practises on the test URL, short freeze and re-extraction on the day |
 
 ## Who is who
