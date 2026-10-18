@@ -43,6 +43,10 @@ Feature: Contact form and site settings
     And I choose "Weddings and Baptisms" as the enquiry type
     Then the form sends "subject" as "Website enquiry: Weddings and Baptisms"
 
+  Scenario: The subject names the first enquiry type until another is chosen
+    When I open "/contact" on the site with a contact key
+    Then the form sends "subject" as "Website enquiry: General Enquiry"
+
   Scenario: Without script the subject is the plain one
     Given scripts are off
     When I open "/contact" on the site with a contact key

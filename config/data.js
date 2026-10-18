@@ -4,7 +4,9 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { parse } from 'yaml';
 
-const DATA_DIRS = ['site/data', process.env.DATA].filter((dir) => dir && existsSync(dir));
+// A DATA folder that is missing (a typo) would quietly build from Paul's files instead, so it stops the build.
+if (process.env.DATA && !existsSync(process.env.DATA)) throw new Error(`DATA folder not found: ${process.env.DATA}`);
+const DATA_DIRS = ['site/data', process.env.DATA].filter(Boolean);
 
 // Every data file as { name: parsed }, later folders winning. Also read by config/swa.js, outside Eleventy.
 export function readData() {

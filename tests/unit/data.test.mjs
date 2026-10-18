@@ -18,3 +18,7 @@ test('without DATA every file comes from site/data', () => {
   assert.equal(data.settings.contact_subject, 'Website enquiry');
   assert.ok(data.topics.website);
 });
+
+test('a DATA folder that does not exist stops the build', () => {
+  assert.throws(() => readData('tests/fixtures/data/missing'), /DATA/);
+});

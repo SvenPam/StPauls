@@ -55,7 +55,9 @@
   // The email subject names the enquiry type. Without script the type is still in the body.
   const form = document.querySelector('.contact-form');
   if (form) {
-    const subject = form.elements.subject;
-    form.elements.enquiry_type.addEventListener('change', (e) => { subject.value = `${subject.dataset.subject}: ${e.target.value}`; });
+    const { subject, enquiry_type: type } = form.elements;
+    const set = () => { subject.value = `${subject.dataset.subject}: ${type.value}`; };
+    set();
+    type.addEventListener('change', set);
   }
 })();

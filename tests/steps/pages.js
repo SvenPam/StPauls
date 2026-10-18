@@ -34,7 +34,6 @@ When('I open {string} on the site with a contact key', async ({ ui }, path) => {
   await ui.page.goto(KEYED_SITE + path);
 });
 
-
 Then('the page heading is {string}', async ({ ui }, text) => {
   await expect(ui.page.locator('h1')).toHaveText(text);
 });
