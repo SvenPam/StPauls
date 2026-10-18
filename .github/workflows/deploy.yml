@@ -5,18 +5,25 @@ on:
     branches: [main]
     paths:
       - 'site/**'
+      - 'config/**'
+      - 'eleventy.config.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.nvmrc'
       - 'infra/**'
       - '.pages.yml'
       - 'tests/**'
       - '.github/workflows/deploy.yml'
   pull_request:
   # Nightly rebuild so past events drop off the calendar.
+  # Weekly audit: the only run where npm audit findings turn the workflow red.
   schedule:
     - cron: '17 3 * * *'
+    - cron: '41 4 * * 1'
   workflow_dispatch:
 
+# Read only by default. Only the deploy job asks for an Azure token, and it runs no npm code.
 permissions:
-  id-token: write
   contents: read
 
 # A second Pages CMS save waits for the running deploy, then ships the newer commit.
@@ -24,40 +31,37 @@ concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: false
 
-env:
-  HUGO_VERSION: 0.167.0
-
 jobs:
-  test:
+  build:
+    if: github.event.schedule != '41 4 * * 1'
     runs-on: ubuntu-24.04
-    defaults:
-      run:
-        working-directory: tests
     steps:
       - uses: actions/checkout@v6
-
-      - name: Install Hugo
-        run: |
-          mkdir -p "$RUNNER_TEMP/hugo"
-          curl -fsSL -o "$RUNNER_TEMP/hugo.tar.gz" \
-            "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
-          tar -xzf "$RUNNER_TEMP/hugo.tar.gz" -C "$RUNNER_TEMP/hugo" hugo
-          echo "$RUNNER_TEMP/hugo" >> "$GITHUB_PATH"
-          "$RUNNER_TEMP/hugo/hugo" version
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: npm
-          cache-dependency-path: tests/package-lock.json
 
-      - name: Install test tools
+      - name: Install
         run: |
           npm ci
           npx playwright install --with-deps chromium
 
+      - name: Build
+        run: npm run build
+
       - name: Test
         run: npm test
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: site
+          path: _site
+          if-no-files-found: error
+          retention-days: 7
 
       - uses: actions/upload-artifact@v7
         if: failure()
@@ -66,25 +70,44 @@ jobs:
           path: tests/playwright-report
           retention-days: 7
 
-  deploy:
-    needs: test
-    # No environment: here. It would change the OIDC subject the federated credential trusts.
-    if: github.ref == 'refs/heads/main'
+  # Reports known vulnerabilities. Never blocks a deploy: deploy needs only build.
+  audit:
     runs-on: ubuntu-24.04
+    continue-on-error: ${{ github.event.schedule != '41 4 * * 1' }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
-      - name: Install Hugo
-        run: |
-          mkdir -p "$RUNNER_TEMP/hugo"
-          curl -fsSL -o "$RUNNER_TEMP/hugo.tar.gz" \
-            "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
-          tar -xzf "$RUNNER_TEMP/hugo.tar.gz" -C "$RUNNER_TEMP/hugo" hugo
-          echo "$RUNNER_TEMP/hugo" >> "$GITHUB_PATH"
-          "$RUNNER_TEMP/hugo/hugo" version
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
 
-      - name: Build
-        run: hugo --source site --minify
+      - name: Install without running scripts
+        run: npm ci --ignore-scripts
+
+      - name: Audit
+        run: npm audit
+
+  deploy:
+    needs: build
+    # No environment: here. It would change the OIDC subject the federated credential trusts.
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && github.event.schedule != '41 4 * * 1'
+    runs-on: ubuntu-24.04
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      # Needed for infra/ only. No node, npm or npx runs in this job.
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: site
+          path: _site
 
       - uses: azure/login@v3
         with:
@@ -123,6 +146,6 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ steps.token.outputs.token }}
           action: upload
-          app_location: site/public
+          app_location: _site
           output_location: ""
           skip_app_build: true
