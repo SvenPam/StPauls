@@ -386,7 +386,7 @@ Asset names change only when the bytes do, so spec 09 can cache them `immutable`
 | `tests/playwright.config.js` | One server per content set: `fixtures/content` on 1313 (with `--uploads` from 06, `--data fixtures/data/no-key` from 08), `fixtures/empty` on 1314, `fixtures/content` with `--data fixtures/data/with-key` on 1315 (08) | 03 |
 | `tests/features/*.feature` | One feature per area: `menu`, `layout`, `notices`, `blog`, `calendar`, `feeds`, `editor` (Pages CMS config and the real content build). Later: `pages` (pages, contact, home, 04), `sitemap` (05), `images` (06), `contact` (08), `budgets` (09) | 03 |
 | `tests/steps/*.js` | Shared steps. `fixtures.js` holds the `ui` world (current page, feed, config) | 03 |
-| `tests/unit/*.test.mjs` | `node:test`: `dates`, `filters`, `images`, `topics`, `swa-config`, `workflow`, `roles`. Later: `content`, `menus` (04), `check-urls` (05), `embeds` (06), `migrate` (07), `contact` (08), `links` (09), `infra` (11) | 03 |
+| `tests/unit/*.test.mjs` | `node:test`: `dates`, `filters`, `images`, `topics`, `swa-config`, `workflow`, `roles`. Later: `content`, `menus` (04), `check-urls` (05), `embeds` (06), `migrate` (07), `contact`, `data` (08), `links` (09), `infra` (11) | 03 |
 | Image fixtures | `tests/fixtures/uploads.mjs` `writeFixtureUploads(dir)` writes `fixture-wide.png` (1600 by 900), `fixture-huge.png` (6000 by 4000), `Fixture Space.PNG` (900 by 600), `fixture.gif`, `fixture.svg` with sharp. Nothing binary committed | 06 |
 | `tests/fixtures/content/` | One fixture tree for every section | 00 onwards |
 | `tests/fixtures/empty/` | Every section with no items, and the home page (04) | 00 onwards |
