@@ -1,5 +1,5 @@
 ---
-date: 2026-10-17
+date: 2026-10-18
 tags: [spec, plan, stpauls]
 status: agreed
 ---
@@ -7,6 +7,8 @@ status: agreed
 # Spec 11: cutover
 
 _One session to prepare, then cutover day itself with the maintainer and Paul. Puts the bare domain on the Static Web App, sets up Cloudflare for HTTPS and the `www` redirect, writes the cutover runbook, and switches the live site over with a short freeze and a tested rollback. See the [design](page-cms-feature.md) and [conventions](page-cms-spec-conventions.md)._
+
+_Rewritten for Eleventy on 2026-10-18. The order of the domain steps follows the maintainer's own cutover of another Static Web App (tranquility, `docs/runbook-cutover.md`)._
 
 ---
 
@@ -19,11 +21,14 @@ _One session to prepare, then cutover day itself with the maintainer and Paul. P
 > **Blocked by spec 01.** The DNS move is in progress (`status: in-progress` in [how to move DNS to Cloudflare](page-cms-how-to-move-dns-to-cloudflare.md)). Do not start this spec until that how-to's Outcome is filled in and its status is `stable`.
 
 - Specs 01 to 10 done. DNS is on Cloudflare, DNS only, pointing at the old App Service; today's records are in `docs/features/page-cms/page-cms-how-to-move-dns-to-cloudflare.md`.
-- Static Web App `swa-stpauls-web`, default host `brave-coast-006318103.5.azurestaticapps.net`, no custom domain.
-- `baseURL` is already `https://stpaulswarton.co.uk/`. HSTS is `max-age=300` (spec 09).
-- `scripts/migrate.py` (with `--check`), `scripts/check_urls.py`, `tests/fixtures/live-urls.txt`.
+- Static Web App `swa-stpauls-web`, default host `brave-coast-006318103.5.azurestaticapps.net`, no custom domain. `infra/main.bicep` declares only the site (`Microsoft.Web/staticSites@2025-03-01`) with parameters `name`, `location`, `tags`.
+- Bicep stays in CI: the `deploy` job runs `az deployment group create` with `infra/main.bicep` and `infra/main.bicepparam` on every deploy, signed in by OIDC. Its identity holds `StPauls Static Web App deployer` on the site, which already grants `Microsoft.Web/staticSites/customDomains/*`, and `StPauls template deployer` on the resource group. No role change is needed for a custom domain.
+- Canonical links, feeds and the site maps already use `site.url` (`https://stpaulswarton.co.uk`, spec 05).
+- HSTS follows spec 09's check, recorded in [checked facts](page-cms-spec-conventions.md#azure-static-web-apps): either our `max-age=300` replaces the platform's header, or the platform's `max-age=10886400; includeSubDomains; preload` stays and there is no short HSTS.
+- `scripts/migrate.mjs` (with `--check`), `scripts/check-urls.mjs` (`--built`, `--base`), `tests/fixtures/live-urls.txt`. Behind the sandbox proxy, Node's `fetch` needs `NODE_USE_ENV_PROXY=1`.
 - Paul has practised on the test URL (spec 10). His practice items are listed by the migration report as files the script did not write.
-- Microsoft's apex domain steps (from `MicrosoftDocs/azure-docs`, `articles/static-web-apps/apex-domain-external.md`): add the domain with **TXT** validation, put the generated value in a `TXT` record at host `@`, then point `@` at the default host with `ALIAS`, `ANAME` or CNAME flattening. Cloudflare flattens a `CNAME` at the apex.
+- Microsoft's apex domain steps (from `MicrosoftDocs/azure-docs`, `articles/static-web-apps/apex-domain-external.md`): add the domain with **TXT** validation, put the generated value in a `TXT` record at host `@`, then point `@` at the default host with `ALIAS`, `ANAME` or CNAME flattening. Cloudflare flattens a `CNAME` at the apex. On the tranquility cutover the portal asked for the record at `_dnsauth`: use the host name Azure shows.
+- Tranquility's order, kept here: validate with TXT well before the day, wait for **Ready** (the certificate can be issued before the record moves), write down the current records, then flip, then check, then turn on extras.
 
 ## In scope
 
@@ -45,7 +50,8 @@ Decommissioning the old site and raising HSTS (spec 12, four weeks later).
 |---|---|
 | Parameter | `@description('Custom apex domain. Empty until its TXT validation has been done by hand.') param customDomain string = ''` |
 | Resource | `resource domain 'Microsoft.Web/staticSites/customDomains@2025-03-01' = if (!empty(customDomain))`, `parent: site`, `name: empty(customDomain) ? 'unused' : customDomain`, `properties: { validationMethod: 'dns-txt-token' }` |
-| Parameter file | `param customDomain = 'stpaulswarton.co.uk'`, set only after the domain shows **Ready** in Azure (see the runbook). Bicep then keeps it, and the TXT record stays in Cloudflare for renewals |
+| Parameter file | `param customDomain = 'stpaulswarton.co.uk'`, set only after the domain shows **Ready** in Azure (see the runbook). The deploy job then applies it on every deploy and Bicep keeps it, and the TXT record stays in Cloudflare for renewals |
+| Rights | The deploy identity's `StPauls Static Web App deployer` role already covers `Microsoft.Web/staticSites/customDomains/*`. If a deploy is refused on a custom domain action, add that one action to `infra/roles/stpauls-static-web-app-deployer.json` and `tests/unit/roles.test.mjs`, and the maintainer runs `az role definition update` |
 | Why not create it from Bicep first | A TXT-validated domain stays in a validating state until the record exists, which would hold the deploy job. The first creation is a one-off command with `--no-wait` |
 
 ### Cloudflare (all by the maintainer, in the runbook)
@@ -53,7 +59,7 @@ Decommissioning the old site and raising HSTS (spec 12, four weeks later).
 | When | Setting |
 |---|---|
 | A week ahead | SSL/TLS mode **Full (strict)**. It only affects proxied records, and none are proxied yet |
-| A week ahead | `TXT` at `@` with the Static Web Apps validation value, kept for good, alongside any SPF record |
+| A week ahead | `TXT` at the host Azure shows (`@` or `_dnsauth`) with the Static Web Apps validation value, kept for good, alongside any SPF record |
 | A week ahead | Single Redirect rule "www to bare domain", disabled: when hostname equals `www.stpaulswarton.co.uk`, dynamic redirect to `concat("https://stpaulswarton.co.uk", http.request.uri.path)`, status 301, preserve query string |
 | Cutover | `@` becomes `CNAME` to `brave-coast-006318103.5.azurestaticapps.net`, **Proxied** |
 | Cutover | `www` becomes `CNAME` to `stpaulswarton.co.uk`, **Proxied** (created if spec 01 found none) |
@@ -65,13 +71,14 @@ Decommissioning the old site and raising HSTS (spec 12, four weeks later).
 | Step | Who | What | Check |
 |---|---|---|---|
 | 1 | Paul | Stops editing the old site at the agreed time | Confirmed by message |
-| 2 | Claude | `python3 scripts/migrate.py --dates scripts/legacy-dates.csv --check`, then the real run | List of changed files reviewed with the maintainer |
+| 2 | Claude | `node scripts/migrate.mjs --dates scripts/legacy-dates.csv --check`, then the real run | List of changed files reviewed with the maintainer |
 | 3 | Maintainer with Paul | Decide on each file the report lists as not written by the script: delete practice items, keep anything real | Report section empty or every entry decided |
-| 4 | Claude | Full test suite, local build, `check_urls.py --built` | `0 failed` |
+| 4 | Claude | `npm test`, `npm run build`, `node scripts/check-urls.mjs --list tests/fixtures/live-urls.txt --built _site` | `0 failed` |
 | 5 | Maintainer | Merge to `main`, watch the deploy | Workflow green |
-| 6 | Claude | `check_urls.py --base https://brave-coast-006318103.5.azurestaticapps.net` | `0 failed` |
+| 6 | Claude | `node scripts/check-urls.mjs --list tests/fixtures/live-urls.txt --base https://brave-coast-006318103.5.azurestaticapps.net` | `0 failed` |
+| 6a | Maintainer | Write down the current `@` and `www` records (type, value, proxy status) and the SSL/TLS mode, next to the spec 01 records table | Recorded |
 | 7 | Maintainer | Cloudflare cutover settings above | Records saved |
-| 8 | Claude | `check_urls.py --base https://stpaulswarton.co.uk`, `curl -sI http://stpaulswarton.co.uk/blog` (301 to `https://`), `curl -sI https://www.stpaulswarton.co.uk/blog/article/church-roof-completed` (301 to the bare domain, same path), headers present | All pass |
+| 8 | Claude | `node scripts/check-urls.mjs --list tests/fixtures/live-urls.txt --base https://stpaulswarton.co.uk` and the same with `--base https://www.stpaulswarton.co.uk` (every path a 301 to the bare domain, same path), `curl -sI http://stpaulswarton.co.uk/blog` (301 to `https://`), `curl -sI https://www.stpaulswarton.co.uk/blog/article/church-roof-completed` (301 to the bare domain, same path), one `http://www.stpaulswarton.co.uk/Areas/st_pauls/Uploads/...` link ending in 200, headers from spec 09 present | All pass |
 | 9 | Paul | Adds a real notice in Pages CMS | Live within 5 minutes |
 | 10 | Maintainer | Sends Paul the "you're live" message | Sent |
 
@@ -79,7 +86,14 @@ DNS changes on Cloudflare usually apply within minutes because the zone is alrea
 
 ### Rollback
 
-When step 8 or 9 fails and cannot be fixed within an hour: set `@` (and `www` if it existed) back to the values in the spec 01 records table, **DNS only**, and disable the redirect rule. The old site is still running until spec 12, and the five-minute HSTS means browsers stop insisting on HTTPS almost at once. Tell Paul to keep using the old site until a new date.
+When step 8 or 9 fails and cannot be fixed within an hour, put `@` (and `www` if it existed) back at the old App Service from the spec 01 records table and disable the redirect rule. How depends on spec 09's HSTS result:
+
+| Spec 09 found | Rollback |
+|---|---|
+| Our `max-age=300` replaces the platform's header | Records back to the spec 01 values, **DNS only**. Browsers stop insisting on HTTPS within five minutes, so the old HTTP-only site works again |
+| The platform's `max-age=10886400; includeSubDomains; preload` stays | Browsers that saw the new site insist on HTTPS for about four months, so plain HTTP cannot come back. Records back to the old App Service but **Proxied**, SSL/TLS mode **Flexible** (Cloudflare serves HTTPS to visitors and fetches the old site over HTTP), **Always Use HTTPS** stays on. Return SSL/TLS to **Full (strict)** when the new site comes back |
+
+The old site is still running until spec 12. Tell Paul to keep using the old site until a new date.
 
 ### Messages
 
@@ -98,9 +112,9 @@ Two short messages in the runbook, humanised, no em dash: to Paul the day before
 
 ## Acceptance
 
-- [ ] `npm test` in `tests/` passes, including the infra tests with Bicep on `PATH`.
-- [ ] The runbook covers preparation, the day's order, checks, rollback and both messages, with no em dash.
-- [ ] On the day: `check_urls.py --base https://stpaulswarton.co.uk` reports `0 failed`, `http://` and `www` redirect as specified, the headers from spec 09 are present on the bare domain, and Paul publishes a notice through Pages CMS.
+- [ ] `npm test` passes, including `tests/unit/infra.test.mjs` with Bicep on `PATH` (it skips without it).
+- [ ] The runbook covers preparation, the day's order, checks, the rollback that matches spec 09's HSTS result and both messages, with no em dash (review).
+- [ ] On the day: `check-urls.mjs --base https://stpaulswarton.co.uk` reports `0 failed`, `--base https://www.stpaulswarton.co.uk` shows every path redirected to the bare domain, `http://` and `www` redirect as specified, the headers from spec 09 are present on the bare domain, and Paul publishes a notice through Pages CMS.
 
 ---
 
@@ -108,11 +122,11 @@ Two short messages in the runbook, humanised, no em dash: to Paul the day before
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** The custom domain in Bicep, a tested runbook, and a clean switchover with a rollback ready.
+**Goal:** The custom domain in Bicep, a reviewed runbook, and a clean switchover with a rollback ready.
 
-**Architecture:** The Static Web App learns the domain once by hand (so validation never blocks a deploy), then Bicep declares it. Cloudflare does HTTP to HTTPS and `www` to bare domain at the edge, so the site config stays host-agnostic. The scripts from specs 05 and 07 do the day's heavy lifting.
+**Architecture:** The Static Web App learns the domain once by hand (so validation never blocks a deploy), then Bicep declares it and the deploy job keeps applying it. Cloudflare does HTTP to HTTPS and `www` to bare domain at the edge, so the site config stays host-agnostic. The scripts from specs 05 and 07 do the day's heavy lifting.
 
-**Tech Stack:** Bicep 0.48.1, Azure CLI (maintainer), Cloudflare dashboard (maintainer), Python 3 scripts.
+**Tech Stack:** Bicep 0.48.1, Azure CLI (maintainer), Cloudflare dashboard (maintainer), Node 26 scripts, `node:test`.
 
 **Spec:** the sections above, from Goal to Acceptance. Shared rules and names in [conventions](page-cms-spec-conventions.md).
 
@@ -125,10 +139,10 @@ Two short messages in the runbook, humanised, no em dash: to Paul the day before
 
 ### Review Focus
 
-1. The parameter set before validation is Ready, so the deploy job hangs. Pinned by the runbook's order and `test_custom_domain_is_optional` (an empty value adds no resource).
-2. An old `http://www.stpaulswarton.co.uk/Areas/st_pauls/Uploads/...` link from Facebook. Expected: `http` to `https` and `www` to bare at Cloudflare, then the legacy rewrite at Static Web Apps, ending in 200. Pinned by step 8 with one such URL added to the check.
+1. The parameter set before validation is Ready, so the deploy job hangs. Pinned by the runbook's order and the unit test "the custom domain is optional" (an empty value adds no resource).
+2. An old `http://www.stpaulswarton.co.uk/Areas/st_pauls/Uploads/...` link from Facebook. Expected: `http` to `https` and `www` to bare at Cloudflare, then the generated legacy upload redirect at Static Web Apps, ending in 200. Pinned by step 8 with one such URL added to the check.
 3. Mail on the domain breaking because a record was edited at cutover. Pinned by the runbook touching only `@` and `www` and stating that MX, SPF and other TXT records are left alone.
-4. Rollback needed after visitors have seen the new site. Expected: works within minutes because HSTS is five minutes. Pinned by `test_runbook_rollback_uses_recorded_values` and spec 09's `max-age=300`.
+4. Rollback needed after visitors have seen the new site. Expected: works within minutes, by the route spec 09's HSTS result allows. Pinned by the runbook's rollback table (review) and spec 09's recorded fact.
 5. Paul's practice items published by accident. Pinned by step 3 and the migration report.
 
 ---
@@ -137,28 +151,40 @@ Two short messages in the runbook, humanised, no em dash: to Paul the day before
 
 **Files:**
 - Modify: `infra/main.bicep`
-- Modify: `tests/test_infra.py`
+- Create: `tests/unit/infra.test.mjs`
 
 - [ ] **Step 1: Write the failing tests**
 
-```python
-def test_custom_domain_is_optional(self):
-    tpl = json.loads(run("bicep", "build", "infra/main.bicep", "--stdout"))
-    self.assertEqual(tpl["parameters"]["customDomain"]["defaultValue"], "")
-    res = tpl["resources"]
-    res = list(res.values()) if isinstance(res, dict) else res
-    dom = [r for r in res if r["type"] == "Microsoft.Web/staticSites/customDomains"]
-    self.assertEqual(len(dom), 1)
-    self.assertEqual(dom[0]["apiVersion"], "2025-03-01")
-    self.assertEqual(dom[0]["condition"], "[not(empty(parameters('customDomain')))]")
-    self.assertEqual(dom[0]["properties"], {"validationMethod": "dns-txt-token"})
+```js
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { execFileSync, spawnSync } from 'node:child_process';
+
+const hasBicep = spawnSync('bicep', ['--version']).status === 0;
+const build = () => JSON.parse(execFileSync('bicep', ['build', 'infra/main.bicep', '--stdout'], { encoding: 'utf8' }));
+const list = (r) => (Array.isArray(r) ? r : Object.values(r));
+
+test('the custom domain is optional', { skip: !hasBicep && 'bicep not on PATH' }, () => {
+  const tpl = build();
+  assert.equal(tpl.parameters.customDomain.defaultValue, '');
+  const dom = list(tpl.resources).filter((r) => r.type === 'Microsoft.Web/staticSites/customDomains');
+  assert.equal(dom.length, 1);
+  assert.equal(dom[0].apiVersion, '2025-03-01');
+  assert.equal(dom[0].condition, "[not(empty(parameters('customDomain')))]");
+  assert.deepEqual(dom[0].properties, { validationMethod: 'dns-txt-token' });
+});
+
+test('the site keeps its parameters', { skip: !hasBicep && 'bicep not on PATH' }, () => {
+  assert.deepEqual(Object.keys(build().parameters).sort(), ['customDomain', 'location', 'name', 'tags']);
+});
 ```
 
-Update `test_static_web_app`: two resources now, the Static Web App found by type; parameters `{"name", "location", "tags", "customDomain"}`.
+Bicep is not on `PATH` on the GitHub runner either, so these run where the maintainer or the sandbox has it (see [local tools](page-cms-spec-conventions.md#local-tools)) and skip in CI. The deploy job's `az deployment group create` compiles the same file on every deploy.
 
-- [ ] **Step 2: Run them and watch them fail** (Bicep on `PATH`, see [local tools](page-cms-spec-conventions.md#local-tools))
+- [ ] **Step 2: Run them and watch them fail** (Bicep on `PATH`)
 
-Run: `npm test -- infra.feature` in `tests/`
+Run: `npm run test:unit`
+Expected: FAIL, no `customDomain` parameter.
 
 - [ ] **Step 3: Add the parameter and resource** exactly as in the Bicep table. Leave `main.bicepparam` without `customDomain` for now.
 
@@ -175,38 +201,19 @@ git commit -m "Add an optional custom domain to the Static Web App"
 
 **Files:**
 - Create: `docs/features/page-cms/page-cms-runbook-cutover.md`
-- Modify: `tests/test_docs.py`
 
-- [ ] **Step 1: Write the failing doc tests**
+- [ ] **Step 1: Write the runbook** from the spec's tables, in tranquility's shape: Facts, "A week before" (validate, TXT, Ready, parameter merge, Cloudflare preparation), "Cutover day" (the day's steps as a checklist, each with its check), "Checks", "Roll back" (the table matching spec 09's recorded HSTS result, pointing at the records table in `page-cms-how-to-move-dns-to-cloudflare.md`), and "Messages" (both). Include exactly: `--validation-method dns-txt-token --no-wait`, `concat("https://stpaulswarton.co.uk", http.request.uri.path)`, `Full (strict)`, `brave-coast-006318103.5.azurestaticapps.net`. Run the humanizer skill over the messages.
 
-```python
-def test_runbook(self):
-    r = (REPO / "docs/features/page-cms/page-cms-runbook-cutover.md").read_text()
-    for h in ("## A week before", "## Cutover day", "## Checks", "## Roll back", "## Messages"):
-        self.assertIn(h, r)
-    self.assertIn("--validation-method dns-txt-token --no-wait", r)
-    self.assertIn('concat("https://stpaulswarton.co.uk", http.request.uri.path)', r)
-    self.assertIn("Full (strict)", r)
-    self.assertIn("brave-coast-006318103.5.azurestaticapps.net", r)
-    self.assertNotIn("\u2014", r)
+- [ ] **Step 2: Check it by reading**
 
-def test_runbook_rollback_uses_recorded_values(self):
-    r = (REPO / "docs/features/page-cms/page-cms-runbook-cutover.md").read_text()
-    rb = r.split("## Roll back", 1)[1].split("\n## ", 1)[0]
-    self.assertIn("page-cms-how-to-move-dns-to-cloudflare.md", rb)
-    self.assertIn("DNS only", rb)
-```
+Run: `grep -nP '\x{2014}' docs/features/page-cms/page-cms-runbook-cutover.md`
+Expected: no output. The runbook gets no test: it is a document.
 
-- [ ] **Step 2: Run them and watch them fail**
-
-- [ ] **Step 3: Write the runbook** from the spec's tables, with the day's steps as a checklist and both messages. Run the humanizer skill over the messages.
-
-- [ ] **Step 4: Run the full suite, commit and push**
+- [ ] **Step 3: Commit**
 
 ```bash
-git add docs tests
+git add docs
 git commit -m "Add the cutover runbook"
-git push -u origin <session branch>
 ```
 
 Tell the maintainer the week-ahead steps are theirs, and agree a date.
@@ -216,15 +223,15 @@ Tell the maintainer the week-ahead steps are theirs, and agree a date.
 ### Task 3: After validation is Ready
 
 **Files:**
-- Modify: `infra/main.bicepparam`, `tests/test_infra.py` (`test_parameter_file` expects `customDomain` = `stpaulswarton.co.uk`)
+- Modify: `infra/main.bicepparam`, `tests/unit/infra.test.mjs`
 
-- [ ] **Step 1:** Only once the maintainer confirms the domain is **Ready**: add `param customDomain = 'stpaulswarton.co.uk'`, update the test, run the suite, commit `Declare the custom domain in Bicep`, push. The maintainer merges; the deploy should show the domain unchanged.
+- [ ] **Step 1:** Only once the maintainer confirms the domain is **Ready**: add `param customDomain = 'stpaulswarton.co.uk'`, add a test that `bicep build-params infra/main.bicepparam --stdout` gives `customDomain` `stpaulswarton.co.uk` (skipped without Bicep), run `npm test`, commit `Declare the custom domain in Bicep`. The maintainer merges; the deploy job applies it and the domain stays **Ready**.
 
 ---
 
 ### Task 4: Cutover day
 
 - [ ] **Step 1:** Follow the runbook's day order with the maintainer and Paul. Run every check command yourself and paste results into the session.
-- [ ] **Step 2:** Commit the migrated content and any decided deletions as `Final content sync from the live site`, push, and let the maintainer merge.
-- [ ] **Step 3:** After step 8 passes, record the date and outcome at the top of the runbook and in `docs/features/page-cms/page-cms-discovery-way-forward.md`, commit, push.
+- [ ] **Step 2:** Commit the migrated content and any decided deletions as `Final content sync from the live site`, and let the maintainer merge.
+- [ ] **Step 3:** After step 8 passes, record the date and outcome at the top of the runbook and in `docs/features/page-cms/page-cms-discovery-way-forward.md`, and commit.
 - [ ] **Step 4:** If rollback is used, record why and what to fix, and stop.
