@@ -4,6 +4,8 @@ pagination:
   data: topicPages
   size: 1
   alias: t
+  # Every topic page in collections.all, so sitemap.xml lists them all, not just the first.
+  addAllPagesToCollections: true
 permalink: "/{{ t.section }}/topic/{{ t.slug }}/index.html"
 eleventyComputed:
   title: "{{ t.label }}"

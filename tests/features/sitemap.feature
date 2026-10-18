@@ -9,6 +9,7 @@ Feature: Site maps
       | https://stpaulswarton.co.uk/contact                                      |
       | https://stpaulswarton.co.uk/calendar/event/16/mu-advent-carol-service    |
       | https://stpaulswarton.co.uk/blog/topic/website                           |
+      | https://stpaulswarton.co.uk/notices/topic/church-events                  |
       | https://stpaulswarton.co.uk/notices/notice/2026-01-05-dated              |
     And it does not list:
       | https://stpaulswarton.co.uk/404.html   |
