@@ -232,9 +232,9 @@ Names later specs rely on. **Spec** is where each name is introduced. Specs 00 t
 | `page/{type}/{name}.md` | Page | `/page/{type}/{name}` | 04 |
 | `page/about/contact-us.md` | Contact page, `url: /contact`, `layout: contact.njk` | `/contact` | 04, 08 |
 | `contact-thanks.md` | Thanks page after the form, `url: /contact/thanks` | `/contact/thanks` | 08 |
-| `sitemap.md` | HTML site map, `layout: sitemap.njk` | `/sitemap` | 04 |
+| `sitemap.md` | HTML site map, `url: /sitemap`, `layout: sitemap.njk` | `/sitemap` | 05 |
 
-`{name}` is the whole file name without `.md`, date prefix included. Until spec 04, only `blog/`, `calendar/` and `notices/` are published, and `/` is `site/pages/home.njk`, a stub that `staticwebapp.config.json` redirects to `/notices/`.
+`{name}` is the whole file name without `.md`, date prefix included. Until spec 04, only `blog/`, `calendar/` and `notices/` are published, and `/` is `site/pages/home.njk`, a stub that `staticwebapp.config.json` redirects to `/notices/`. From spec 04 a file at the content root other than `_index.md` is published only at its `url`, and a page in a folder with no `_index.md` still gets `/page/{type}/{name}` but no menu entry.
 
 Page types: `about`, `services`, `groups`, `gallery`, `forms`, `links`, `community`, `safeguarding`.
 
@@ -268,6 +268,17 @@ Computed by `config/content.js` for every `.md` input, never written in front ma
 | `topic` | The section's topic field, first value, trimmed and lower-cased, or `''` |
 | `permalink` | From `itemPermalink`, or `false` |
 
+### Pages CMS entries
+
+| Entry | Type | Edits | Spec |
+|---|---|---|---|
+| `blog`, `events`, `notices` | `collection` | `site/content/blog`, `calendar`, `notices` | 03 |
+| `home` | `file` | `site/content/_index.md`, `operations.delete: false` | 04 |
+| `pages` | `group` of `page-about` to `page-safeguarding` | `site/content/page/{type}`, `filename: "{primary}.md"` | 04 |
+| `settings` | `file` | `site/data/settings.yaml` | 08 |
+
+Steps in `tests/steps/editor.js` look through a group's `items` as well as the top level.
+
 ### Topics
 
 | Front matter key | Term URL | Index URL | Spec |
@@ -296,12 +307,16 @@ Each file is a global named after it (`topics.yaml` is `topics`).
 | Include | Takes | Renders | Spec |
 |---|---|---|---|
 | `base.njk` | `content` | Page shell: head, skip link, header, `<main>`, footer | 02 |
-| `content.njk` | `section`, `isIndex` | Layout for content. Includes `sections/{section}-list.njk` or `sections/{section}-item.njk` | 03 |
+| `content.njk` | `section`, `isIndex` | Layout for content. Includes `sections/{section}-list.njk` or `sections/{section}-item.njk` for the dated sections, `sections/home.njk` for the root `_index.md` (04), `sections/page.njk` for anything else (04) | 03, 04 |
+| `sections/home.njk` | Home data | Hero, Church Notices, Latest Blog Articles | 04 |
+| `sections/page.njk` | Page data | Title, lead, image, body in `.prose`. Spec 06 adds the embed after the body | 04, 06 |
+| `contact.njk` | Page data | Contact page (`layout: contact.njk`): the page, then the address and contact list link, or the form from spec 08 | 04, 08 |
+| `sitemap.njk` | `collections` | HTML site map (`layout: sitemap.njk`) | 05 |
 | `sections/{blog,calendar,notices}-{list,item}.njk` | Page data | Section index and item pages | 03 |
 | `partials/head.njk` | `title`, `summary`, `assets` | `<title>`, meta description, stylesheet and script with `integrity` | 02 |
-| `partials/header.njk` | `menus.main`, `page.url` | Brand, menu button, `<details>` dropdowns, `aria-current` | 02, rewritten 04 |
-| `partials/footer.njk` | `menus.footer`, `site`, `build.year` | Footer groups, Find Us map and address, copyright | 02, rewritten 04, 08 |
-| `partials/card.njk` | `item` | `<article class="card">` for lists and topic pages. Render inside `asyncEach` | 03 |
+| `partials/header.njk` | `collections \| menuItems` (`menus.main` until 04), `page.url` | Brand, menu button, `<details>` dropdowns, `aria-current` | 02, rewritten 04 |
+| `partials/footer.njk` | `collections \| footerGroups` (`menus.footer` until 04), `site`, `build.year` | Footer groups, Find Us map and address, copyright | 02, rewritten 04, 08 |
+| `partials/card.njk` | `item`, optional `cardFill` (04) | `<article class="card">` for lists, topic pages and the home page. Render inside `asyncEach`. With `cardFill` the image is cropped with `picture` `fill` | 03, 04 |
 | `partials/blog-aside.njk` | `topics`, `collections.blog` | Blog topics and the 7 latest articles | 03 |
 | `partials/image.njk` | `imageSrc`, `imageAlt` | `picture` for a file under `site/assets/`, plain `<img>` otherwise | 03, uploads 06 |
 | `partials/topic-link.njk` | `topicSlug`, `topicSection` | Topic link, or nothing for a topic not in `topics.yaml` | 03 |
@@ -330,10 +345,12 @@ Filters unless marked. Named exports are importable by `tests/unit/`.
 | `itemPermalink` | `content.js`, export only | Input path, data | Output path or `false` | 03, extended 04 |
 | `assetPath` | `images.js` | Front matter image path | Path under `site/assets/`, or `''` | 03 |
 | `picture` (async shortcode) | `images.js` | `{ src, alt, sizes, eager }`, `src` under `site/assets/` | `<picture>` with WebP and the original format at 480, 800, 1200, 1600 (up to the source width), `width`, `height`, lazy unless `eager` | 02, `fill` 04, uploads 06 |
+| `menuItems` | `menus.js` | `collections` | `menus.main` shape: Home, Blog, Calendar, then per page type in weight order its `header: true` pages, a plain `{ name, url }` for one, `{ name, children }` for several, none skipped | 04 |
+| `footerGroups` | `menus.js` | `collections` | `menus.footer` shape: `Links` (blog, calendar, notices, site map, `about` pages with `footer: true`), then a group per other type with `footer: true` pages | 04 |
 | `buildSwaConfig` | `swa.js`, export only | Output folder | Writes and returns `staticwebapp.config.json` | 00, routes 05, headers 09 |
 | `buildAssets` | `assets.js`, export only | Output folder | `{ css, js }`, each `{ url, integrity }` | 02 |
 
-Globals: `site`, `topics`, `menus` and every other data file; `assets` (`assets.css.url`, `assets.css.integrity`, same for `js`); `build.year`; `topicPages`, `topicSections`. Collections: `blog`, `calendar`, `notices`, items only, oldest first.
+Globals: `site`, `topics` and every other data file (`menus` until spec 04); `assets` (`assets.css.url`, `assets.css.integrity`, same for `js`); `build.year`; `topicPages`, `topicSections`. Collections: `blog`, `calendar`, `notices`, items only, oldest first. From spec 04: `pageTypes` (`page/*/_index.md`) and `pages` (`page/*/*.md`, no `_index.md`), in Eleventy's default order; `config/menus.js` sorts them.
 
 The body is printed as `{{ content | safe }}`. Spec 06 (body images) and spec 09 (`noopener`) add their rewrites as filters or a transform in `config/`.
 
@@ -356,9 +373,9 @@ Asset names change only when the bytes do, so spec 09 can cache them `immutable`
 |---|---|---|
 | `tests/serve.js <content dir> <port>` | Builds the site with `npx @11ty/eleventy` and `CONTENT=<content dir>` into a temp folder and serves it like Static Web Apps. Spec 06 adds an uploads folder option and spec 08 a data folder option, and `playwright.config.js` gets a server per content set | 03 |
 | `tests/playwright.config.js` | One server per content set: `fixtures/content` on 1313, `fixtures/empty` on 1314 | 03 |
-| `tests/features/*.feature` | One feature per area: `menu`, `layout`, `notices`, `blog`, `calendar`, `feeds`, `editor` (Pages CMS config and the real content build) | 03 |
+| `tests/features/*.feature` | One feature per area: `menu`, `layout`, `notices`, `blog`, `calendar`, `feeds`, `editor` (Pages CMS config and the real content build). Later: `pages` (pages, contact, home, 04), `sitemap` (05), `images` (06), `contact` (08), `budgets` (09) | 03 |
 | `tests/steps/*.js` | Shared steps. `fixtures.js` holds the `ui` world (current page, feed, config) | 03 |
-| `tests/unit/*.test.mjs` | `node:test`: `dates`, `filters`, `images`, `topics`, `swa-config`, `workflow`, `roles` | 03 |
+| `tests/unit/*.test.mjs` | `node:test`: `dates`, `filters`, `images`, `topics`, `swa-config`, `workflow`, `roles`. Later: `content`, `menus` (04), `check-urls` (05), `migrate` (07), `contact` (08), `links` (09), `infra` (11) | 03 |
 | Image fixtures | Small committed PNGs, or written by a step or unit test with `sharp` or `node:zlib`. Spec 06 | 06 |
 | `tests/fixtures/content/` | One fixture tree for every section | 00 onwards |
 | `tests/fixtures/empty/` | Every section with no items | 00 onwards |
