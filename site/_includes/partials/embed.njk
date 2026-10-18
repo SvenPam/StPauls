@@ -1,0 +1,5 @@
+{#- The page's calendar or gallery, from `embed` and `embed_src`, checked against site/data/embeds.yaml. Nothing when they do not pass. -#}
+{%- set e = { embed: embed, embed_src: embed_src } | embedFor(embeds) %}
+{%- if e %}
+<div class="embed embed--{{ e.key }}"><iframe src="{{ e.src }}" title="{{ e.title }}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" allowfullscreen></iframe></div>
+{%- endif %}

@@ -269,6 +269,19 @@ content:
             required: true
             options:
               format: html
+          - name: embed
+            label: Embedded calendar or gallery
+            type: select
+            options:
+              values:
+                - name: google-calendar
+                  label: Church diary
+                - name: facebook-album
+                  label: Photos from the church Facebook page
+          - name: embed_src
+            label: Embed address
+            description: Paste the address the calendar or gallery gives you
+            type: string
           - name: url
             type: string
             hidden: true
@@ -320,6 +333,19 @@ content:
             required: true
             options:
               format: html
+          - name: embed
+            label: Embedded calendar or gallery
+            type: select
+            options:
+              values:
+                - name: google-calendar
+                  label: Church diary
+                - name: facebook-album
+                  label: Photos from the church Facebook page
+          - name: embed_src
+            label: Embed address
+            description: Paste the address the calendar or gallery gives you
+            type: string
           - name: url
             type: string
             hidden: true
@@ -371,6 +397,19 @@ content:
             required: true
             options:
               format: html
+          - name: embed
+            label: Embedded calendar or gallery
+            type: select
+            options:
+              values:
+                - name: google-calendar
+                  label: Church diary
+                - name: facebook-album
+                  label: Photos from the church Facebook page
+          - name: embed_src
+            label: Embed address
+            description: Paste the address the calendar or gallery gives you
+            type: string
           - name: url
             type: string
             hidden: true
@@ -422,6 +461,19 @@ content:
             required: true
             options:
               format: html
+          - name: embed
+            label: Embedded calendar or gallery
+            type: select
+            options:
+              values:
+                - name: google-calendar
+                  label: Church diary
+                - name: facebook-album
+                  label: Photos from the church Facebook page
+          - name: embed_src
+            label: Embed address
+            description: Paste the address the calendar or gallery gives you
+            type: string
           - name: url
             type: string
             hidden: true
@@ -473,6 +525,19 @@ content:
             required: true
             options:
               format: html
+          - name: embed
+            label: Embedded calendar or gallery
+            type: select
+            options:
+              values:
+                - name: google-calendar
+                  label: Church diary
+                - name: facebook-album
+                  label: Photos from the church Facebook page
+          - name: embed_src
+            label: Embed address
+            description: Paste the address the calendar or gallery gives you
+            type: string
           - name: url
             type: string
             hidden: true
@@ -524,6 +589,19 @@ content:
             required: true
             options:
               format: html
+          - name: embed
+            label: Embedded calendar or gallery
+            type: select
+            options:
+              values:
+                - name: google-calendar
+                  label: Church diary
+                - name: facebook-album
+                  label: Photos from the church Facebook page
+          - name: embed_src
+            label: Embed address
+            description: Paste the address the calendar or gallery gives you
+            type: string
           - name: url
             type: string
             hidden: true
@@ -575,6 +653,19 @@ content:
             required: true
             options:
               format: html
+          - name: embed
+            label: Embedded calendar or gallery
+            type: select
+            options:
+              values:
+                - name: google-calendar
+                  label: Church diary
+                - name: facebook-album
+                  label: Photos from the church Facebook page
+          - name: embed_src
+            label: Embed address
+            description: Paste the address the calendar or gallery gives you
+            type: string
           - name: url
             type: string
             hidden: true
@@ -626,6 +717,19 @@ content:
             required: true
             options:
               format: html
+          - name: embed
+            label: Embedded calendar or gallery
+            type: select
+            options:
+              values:
+                - name: google-calendar
+                  label: Church diary
+                - name: facebook-album
+                  label: Photos from the church Facebook page
+          - name: embed_src
+            label: Embed address
+            description: Paste the address the calendar or gallery gives you
+            type: string
           - name: url
             type: string
             hidden: true

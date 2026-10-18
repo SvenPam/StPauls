@@ -51,6 +51,12 @@ Then('the {string} collection offers the site topics as {string}', async ({ ui }
   expect(values).toEqual(Object.entries(topics).map(([n, label]) => ({ name: n, label })));
 });
 
+Then('the {string} collection offers the site embeds as {string}', async ({ ui }, name, key) => {
+  const embeds = read('site/data/embeds.yaml');
+  const values = field(ui.cfg, name, key).options.values;
+  expect(values).toEqual(Object.entries(embeds).map(([n, e]) => ({ name: n, label: e.title })));
+});
+
 Then('a title of {string} is {word}', async ({ ui }, title, outcome) => {
   for (const c of entries(ui.cfg)) {
     const re = new RegExp(field(ui.cfg, c.name, 'title').pattern.regex);

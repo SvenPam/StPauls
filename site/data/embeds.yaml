@@ -1,0 +1,10 @@
+# Calendars and galleries a page may embed. A page's embed address must be https on exactly this host.
+# Spec 09 builds the frame-src policy from these hosts.
+google-calendar:
+  host: calendar.google.com
+  title: Church diary
+  ratio: "4 / 3"
+facebook-album:
+  host: embedsocial.com
+  title: Photos from the church Facebook page
+  ratio: "62 / 100"
