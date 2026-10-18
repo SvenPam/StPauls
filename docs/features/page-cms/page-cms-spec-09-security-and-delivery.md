@@ -62,7 +62,7 @@ Either way the result is a new row in [checked facts](page-cms-spec-conventions.
 
 | Header | Value |
 |---|---|
-| `Content-Security-Policy` | `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' https: data:; font-src 'self'; connect-src 'self'; frame-src {https://host for each embeds.yaml entry, space separated}; form-action 'self' https://api.web3forms.com; upgrade-insecure-requests` |
+| `Content-Security-Policy` | `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' https: data:; font-src 'self'; connect-src 'self'; frame-src {https://host for each embeds.yaml entry, space separated}; form-action 'self' {origin of site.url} https://api.web3forms.com; upgrade-insecure-requests` (`site.url` because Web3Forms redirects there after a post, also from the test URL) |
 | `Strict-Transport-Security` | `max-age={site.hsts_max_age}`, only when `hsts_max_age` is set (it is not after a failed HSTS check). Ours has no `includeSubDomains` and no `preload`, because the church may have other names on the domain. That reasoning only holds when the check finds ours replaces the platform's header; otherwise the platform's `includeSubDomains` applies anyway (see the HSTS check). Five minutes keeps a rollback to the old HTTP-only site possible after cutover; spec 12 raises it to `31536000` once the old site is gone |
 | `X-Content-Type-Options` | `nosniff` |
 | `Referrer-Policy` | `strict-origin-when-cross-origin` |
@@ -70,7 +70,7 @@ Either way the result is a new row in [checked facts](page-cms-spec-conventions.
 | `X-Frame-Options` | `DENY` |
 | `Cross-Origin-Opener-Policy` | `same-origin` |
 
-`contentSecurityPolicy(embeds)` is a named export of `config/swa.js`, so a new embed type in `embeds.yaml` updates `frame-src` with it. `buildSwaConfig` reads `site` and `embeds` from its `data` argument.
+`contentSecurityPolicy(embeds, siteUrl)` is a named export of `config/swa.js`, so a new embed type in `embeds.yaml` updates `frame-src` with it. `buildSwaConfig` reads `site` and `embeds` from its `data` argument.
 
 ### Cache routes
 

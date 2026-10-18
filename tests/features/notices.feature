@@ -10,6 +10,7 @@ Feature: Notices
       | Fixture migrated |
       | Fixture wide content with a very long title that has to wrap on a phone screen without pushing the page sideways |
       | Fixture images   |
+      | Fixture links    |
       | Fixture dated    |
       | Fixture syntax   |
     And the "Fixture newer" link goes to "/notices/notice/newer"

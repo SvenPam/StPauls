@@ -69,3 +69,13 @@ test('the build restores the image cache before it builds', () => {
   assert.ok(cache < steps.findIndex((s) => s.run === 'npm run build'));
   assert.ok(!wf.jobs.deploy.steps.some((s) => /^actions\/cache@/.test(s.uses ?? '')));
 });
+
+test('every action is pinned to a commit with its version', () => {
+  const text = readFileSync('.github/workflows/deploy.yml', 'utf8');
+  const uses = [...text.matchAll(/^\s+(?:- )?uses: (\S+)(.*)$/gm)];
+  assert.ok(uses.length > 0);
+  for (const [, ref, rest] of uses) {
+    assert.match(ref, /^[\w.-]+\/[\w.-]+@[0-9a-f]{40}$/, ref);
+    assert.match(rest, /^\s+# v\d+(\.\d+)*$/, ref);
+  }
+});

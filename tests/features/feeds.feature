@@ -10,7 +10,7 @@ Feature: RSS feeds
 
   Scenario: Notices feed text is escaped once
     When I read the feed "/notices/index.xml"
-    Then it is valid RSS 2.0 with 8 items
+    Then it is valid RSS 2.0 with 9 items
     And the item "Fixture older" is described as "Older body at St Paul's for tea & cake"
     And the item "Fixture newer" is described as "Newer summary"
 

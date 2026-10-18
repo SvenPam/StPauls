@@ -1,2 +1,4 @@
 title: "St Paul's Warton"
 url: https://stpaulswarton.co.uk
+# HSTS in seconds. Five minutes keeps a rollback to the old site possible after cutover; spec 12 raises it.
+hsts_max_age: 300

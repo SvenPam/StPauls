@@ -6,7 +6,7 @@ import { existsSync } from 'node:fs';
 import { mkdtemp, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { buildSwaConfig } from '../../config/swa.js';
+import { buildSwaConfig, contentSecurityPolicy } from '../../config/swa.js';
 import { readData } from '../../config/data.js';
 
 let out;
@@ -112,7 +112,7 @@ test('a new legacy upload gets a route from every prefix', async () => {
     await writeFile(path.join(dir, 'uploads/legacy/Gallery/My Poster.pdf'), '');
     await writeFile(path.join(dir, 'uploads/not-legacy.pdf'), '');
     const legacy = { rewrites: [], redirects: [], upload_prefixes: ['/Areas/st_pauls/Uploads', '/Areas/St_Pauls/Uploads'] };
-    const { routes } = await buildSwaConfig(dir, { legacy });
+    const routes = (await buildSwaConfig(dir, { legacy })).routes.filter((r) => r.redirect);
     assert.deepEqual(routes, [
       { route: '/Areas/st_pauls/Uploads/Gallery/My Poster.pdf', redirect: '/uploads/legacy/Gallery/My%20Poster.pdf', statusCode: 301 },
       { route: '/Areas/St_Pauls/Uploads/Gallery/My Poster.pdf', redirect: '/uploads/legacy/Gallery/My%20Poster.pdf', statusCode: 301 },
@@ -120,4 +120,77 @@ test('a new legacy upload gets a route from every prefix', async () => {
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
+});
+
+test('HSTS follows hsts_max_age, with no subdomains or preload', () => {
+  assert.equal(config.globalHeaders['Strict-Transport-Security'], 'max-age=300');
+});
+
+test('no HSTS header when hsts_max_age is not set', async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'swa-hsts-'));
+  try {
+    const { globalHeaders } = await buildSwaConfig(dir, { ...readData(), site: { title: 'x' } });
+    assert.equal(globalHeaders?.['Strict-Transport-Security'], undefined);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+const csp = () =>
+  Object.fromEntries(
+    config.globalHeaders['Content-Security-Policy'].split(';').map((d) => d.trim().split(/\s+/)).map(([k, ...v]) => [k, v]),
+  );
+
+test('headers are present', () => {
+  const h = config.globalHeaders;
+  assert.equal(h['X-Content-Type-Options'], 'nosniff');
+  assert.equal(h['Referrer-Policy'], 'strict-origin-when-cross-origin');
+  assert.equal(h['X-Frame-Options'], 'DENY');
+  assert.equal(h['Cross-Origin-Opener-Policy'], 'same-origin');
+  assert.equal(h['Permissions-Policy'], 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()');
+});
+
+test('the CSP allows what the site uses', () => {
+  const c = csp();
+  assert.deepEqual(c['frame-src'].sort(), ['https://calendar.google.com', 'https://embedsocial.com']);
+  assert.ok(c['form-action'].includes('https://api.web3forms.com'));
+  assert.ok(c['img-src'].includes('https:'));
+  assert.deepEqual(c['style-src-attr'], ["'unsafe-inline'"]);
+  assert.deepEqual(c['script-src'], ["'self'"]);
+  assert.deepEqual(c['frame-ancestors'], ["'none'"]);
+  assert.deepEqual(c['upgrade-insecure-requests'], []);
+});
+
+test('frame-src follows embeds.yaml', () => {
+  assert.match(contentSecurityPolicy({ x: { host: 'example.org' } }), /frame-src https:\/\/example\.org;/);
+});
+
+test('cache routes come first', () => {
+  assert.deepEqual(config.routes.slice(0, 5).map((r) => r.route), ['/css/*', '/js/*', '/images/*', '/fonts/*', '/uploads/*']);
+  assert.equal(config.routes[0].headers['Cache-Control'], 'public, max-age=31536000, immutable');
+  assert.equal(config.routes[3].headers['Cache-Control'], 'public, max-age=31536000');
+  assert.equal(config.routes[4].headers['Cache-Control'], 'public, max-age=86400');
+});
+
+test('HTML is never cached for long', () => {
+  for (const r of config.routes.filter((r) => /max-age=31536000/.test(r.headers?.['Cache-Control'] ?? '')))
+    assert.match(r.route, /^\/(css|js|images|fonts)\/\*$/);
+});
+
+test('the config stays under 20 KB with 40 legacy uploads', async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'swa-size-'));
+  try {
+    await mkdir(path.join(dir, 'uploads/legacy/Gallery'), { recursive: true });
+    for (let i = 1; i <= 40; i++)
+      await writeFile(path.join(dir, `uploads/legacy/Gallery/St Pauls Church Easter 2019 photo ${String(i).padStart(2, '0')}.jpg`), '');
+    await buildSwaConfig(dir, readData());
+    const { size } = await stat(path.join(dir, 'staticwebapp.config.json'));
+    assert.ok(size < 20 * 1024, `config is ${size} bytes`);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('the form may return to the real site after posting, even from the test URL', () => {
+  assert.ok(csp()['form-action'].includes('https://stpaulswarton.co.uk'));
 });
