@@ -150,7 +150,7 @@ Made by the maintainer in the design conversation on 2026-10-17, unless marked _
 | Source | One media folder, `/uploads/`, shared by migrated images and Paul's uploads, so he can reuse them from the media picker |
 | Processing | sharp, from `config/images.js`, with a cache in `.cache/images/`. WebP at several widths capped at the original width, with the original format as fallback inside `<picture>` |
 | Markup | `srcset` and `sizes`, `width` and `height` from the source image, `loading="lazy"` except the first image on the page |
-| Body images | `<img src="/uploads/...">` inside the HTML body is rewritten to `<picture>` at build time |
+| Body images | An image in the body (`![alt](/uploads/...)` in Markdown, rendered to `<img>`) is rewritten to `<picture>` at build time |
 | Other images | Anything not under `/uploads/` keeps its address and attributes, gains `loading="lazy"` and `decoding="async"` when it has no `loading`, and is made to fit by CSS (spec 06) |
 | Alt text | An alt text field wherever Paul picks an image in a front matter field. Migrated images keep their live alt text |
 | Legacy paths | `/Areas/st_pauls/Uploads/...` keeps working through redirects, whatever its case or slashes |

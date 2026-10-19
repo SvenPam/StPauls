@@ -70,9 +70,7 @@ before(async () => {
   mkdirSync(join(site, 'static/uploads'), { recursive: true });
   mkdirSync(join(site, 'data'), { recursive: true });
   cpSync('site/data/legacy.yaml', join(site, 'data/legacy.yaml'));
-  const dates = join(site, 'dates.csv');
-  writeFileSync(dates, 'kind,id,start,end,location\nevent,16,2015-12-01T19:30,2015-12-01T21:00,"St Michael\'s, Kirkham"\n');
-  argv = ['--live', LIVE, '--site', site, '--report', report, '--dates', dates];
+  argv = ['--live', LIVE, '--site', site, '--report', report, '--db', 'tests/fixtures/sql'];
   assert.equal(await m.main(argv, { fetch, log: () => {} }), 0);
 });
 
@@ -86,7 +84,20 @@ test('writes the expected files', () => {
 });
 
 test('an event location from the export is written', () => {
-  assert.match(readFileSync(join(site, 'content/calendar/16-mu-advent-carol-service.md'), 'utf8'), /^location: St Michael's, Kirkham$/m);
+  assert.match(readFileSync(join(site, 'content/calendar/16-mu-advent-carol-service.md'), 'utf8'), /^location: St Michael’s, Kirkham$/m);
+});
+
+test('the notice date comes from the export', () => {
+  assert.match(readFileSync(join(site, 'content/notices/46-news-pew-sheets.md'), 'utf8'), /^date: 2023-11-29$/m);
+});
+
+test('bodies are written as Markdown with no HTML', () => {
+  for (const f of ['content/blog/church-roof-completed.md', 'content/calendar/16-mu-advent-carol-service.md', 'content/notices/46-news-pew-sheets.md', 'content/page/forms/st-pauls-forms.md']) {
+    const body = readFileSync(join(site, f), 'utf8').split(/^---$/m).slice(2).join('---');
+    assert.ok(body.trim(), f);
+    assert.doesNotMatch(body, /<\/?[a-z][^>]*>/i, f);
+  }
+  assert.match(readFileSync(join(site, 'content/page/forms/st-pauls-forms.md'), 'utf8'), /\[Baptism form\]\(\/uploads\/legacy\/baptism-form\.pdf\)/);
 });
 
 test('migrated items keep their live URL', () => {
@@ -119,6 +130,11 @@ test('a second run changes nothing', async () => {
   assert.equal(await m.main([...argv, '--check'], { fetch, log: () => {} }), 0);
 });
 
+test('a re-run without the export keeps the dates and locations already written', async () => {
+  const noExport = argv.map((v) => (v === 'tests/fixtures/sql' ? 'tests/fixtures/no-such-folder' : v));
+  assert.equal(await m.main([...noExport, '--check'], { fetch, log: () => {} }), 0);
+});
+
 test('extra legacy upload spellings are appended once, existing routes kept', async () => {
   const text = readFileSync(join(site, 'data/legacy.yaml'), 'utf8');
   assert.match(text, /# uploads \(spec 07\)/);
@@ -138,20 +154,21 @@ test('the report lists policy text, inferred dates, unknown topics and files it 
   const rep = readFileSync(report, 'utf8');
   for (const h of ['## Policy text that no longer applies', '## Inferred dates', '## Unknown topics', '## Files the script did not write']) assert.ok(rep.includes(h), h);
   assert.match(rep, /notices\/practice\.md/);
-  assert.match(rep, /news-pew-sheets \| 2026-10-01 \| inferred/);
-  assert.doesNotMatch(rep, /mu-advent-carol-service/);
+  assert.doesNotMatch(rep, /news-pew-sheets \| [\d-]+ \| inferred/);
+  assert.doesNotMatch(rep, /mu-advent-carol-service \| [\dT:-]+ \| inferred/);
+  assert.match(rep, /## Bodies left as HTML\n\n_None\._/);
   assert.match(rep, /\| uploads\/acny\/gone\.jpg \| https:\/\/media\.acny\.uk\/media\/venues\/gone\.jpg \| HTTP 403 \|/);
 });
 
 test('check mode lists a changed file', async () => {
   const p = join(site, 'content/notices/46-news-pew-sheets.md');
   const before = readFileSync(p, 'utf8');
-  writeFileSync(p, before + '<p>Edited in practice</p>\n');
+  writeFileSync(p, before + '\nEdited in practice\n');
   const lines = [];
   try {
     assert.equal(await m.main([...argv, '--check'], { fetch, log: (s) => lines.push(s) }), 1);
   } finally {
-    assert.equal(readFileSync(p, 'utf8'), before + '<p>Edited in practice</p>\n');
+    assert.equal(readFileSync(p, 'utf8'), before + '\nEdited in practice\n');
     writeFileSync(p, before);
   }
   assert.ok(lines.some((l) => l.includes('content/notices/46-news-pew-sheets.md')));

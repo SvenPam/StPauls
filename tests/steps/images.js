@@ -41,3 +41,18 @@ Then('the page has no embed', async ({ ui }) => {
   await expect(ui.page.locator('main h1')).toHaveCount(1);
   await expect(ui.page.locator('main iframe, main .embed')).toHaveCount(0);
 });
+
+// Centred: the image's middle is within 2px of the middle of the paragraph that holds it.
+const offCentre = (ui, alt) => image(ui, alt).evaluate((img) => {
+  const box = img.getBoundingClientRect();
+  const p = img.closest('p').getBoundingClientRect();
+  return Math.abs(box.left + box.width / 2 - (p.left + p.width / 2));
+});
+
+Then('the {string} image is centred', async ({ ui }, alt) => {
+  expect(await offCentre(ui, alt)).toBeLessThanOrEqual(2);
+});
+
+Then('the {string} image is not centred', async ({ ui }, alt) => {
+  expect(await offCentre(ui, alt)).toBeGreaterThan(20);
+});

@@ -1,0 +1,6 @@
+﻿EventID,TopicID,GroupID,Title,Description,HTML,EndDate,Location,IncludeSocial,IncludeComments,TimeStamp,UserID,LastModified,CreatorID,EditorID,StartDate,SiteID
+16,30,1009,MU Advent Carol Service,"Carols, then ""tea""","<p>Line one, with a comma</p>
+
+<p>Line two</p>
+",2015-12-01 21:00:00.000,"St Michael’s, Kirkham",1,0,2015-11-08 16:24:32.000,NULL,NULL,NULL,NULL,2015-12-01 19:30:00.000,2
+17,30,1009,No place,Nothing,<p>x</p>,NULL,NULL,0,0,2015-11-08 16:24:32.000,NULL,NULL,NULL,NULL,2015-12-02 10:00:00.000,2

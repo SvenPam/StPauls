@@ -23,4 +23,6 @@ export const config = {
   },
   templateFormats: ['md', 'njk'],
   htmlTemplateEngine: 'njk',
+  // Bodies are plain Markdown: no Liquid or Nunjucks runs on them.
+  markdownTemplateEngine: false,
 };
