@@ -109,9 +109,19 @@ jobs:
       contents: read
     steps:
       # Needed for infra/ only. No node, npm or npx runs in this job.
+      # Full history, so the push's before commit is here to compare infra/ with.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
+
+      # Bicep only runs when infra/ changed, on a manual run, or when the push cannot be compared.
+      - name: Check for infrastructure changes
+        id: changes
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+        run: bash .github/scripts/infra-changed.sh "$EVENT" "$BEFORE" "$GITHUB_SHA" >> "$GITHUB_OUTPUT"
 
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
@@ -126,6 +136,7 @@ jobs:
 
       - name: Deploy infrastructure
         id: infra
+        if: steps.changes.outputs.infra == 'true'
         env:
           AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
         run: |
@@ -141,11 +152,28 @@ jobs:
           echo "hostname=$hostname" >> "$GITHUB_OUTPUT"
           echo "Site: https://$hostname" >> "$GITHUB_STEP_SUMMARY"
 
+      # Bicep skipped: the last deployment's outputs name the same resource.
+      - name: Read last deployment
+        id: last
+        if: steps.changes.outputs.infra != 'true'
+        env:
+          AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+        run: |
+          az deployment group show \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --name stpauls-web \
+            --query properties.outputs -o json > "$RUNNER_TEMP/outputs.json"
+          name=$(jq -r .name.value "$RUNNER_TEMP/outputs.json")
+          hostname=$(jq -r .defaultHostname.value "$RUNNER_TEMP/outputs.json")
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "hostname=$hostname" >> "$GITHUB_OUTPUT"
+          echo "Site: https://$hostname (infrastructure unchanged)" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Read deployment token
         id: token
         env:
           AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
-          NAME: ${{ steps.infra.outputs.name }}
+          NAME: ${{ steps.infra.outputs.name || steps.last.outputs.name }}
         run: |
           token=$(az staticwebapp secrets list --name "$NAME" --resource-group "$AZURE_RESOURCE_GROUP" --query properties.apiKey -o tsv)
           echo "::add-mask::$token"

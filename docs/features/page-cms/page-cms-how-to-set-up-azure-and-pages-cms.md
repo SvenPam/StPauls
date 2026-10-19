@@ -188,5 +188,6 @@ Record go or no-go as a new row in the Decisions table of [way forward](page-cms
 | Role not found when assigning | The new role definition has not replicated yet. Wait a minute and retry |
 | Pages CMS save fails | A branch rule blocks direct pushes to `main` |
 | Pages CMS shows a config error | It names the key to fix in `.pages.yml` |
+| Infrastructure change not applied, "Deploy infrastructure" skipped | A Pages CMS save replaced the `infra/` push's waiting run, so the deploy compared only the save. Actions, Deploy, Run workflow: a manual run always runs Bicep |
 | Workflow did not run after a save | The save did not touch `site/**`. Check the commit in GitHub |
 | Image missing on the site | The body should reference `/uploads/<file>`, and the file should be in `site/static/uploads/` |
