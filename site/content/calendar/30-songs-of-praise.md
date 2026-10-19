@@ -11,4 +11,4 @@ Our friends at [Freckleton Methodist Church](http://www.freckleton-methodist-chu
 
 The evening will start at 6:30pm and will be accompanied by members of the [Freckleton Band](http://freckletonband.co.uk).
 
-[![Easter Songs of Praise](/uploads/legacy/Gallery/easter-praise.jpg)](/uploads/legacy/Gallery/easter-praise.jpg)
+![Easter Songs of Praise](/uploads/legacy/Gallery/easter-praise.jpg)

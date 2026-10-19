@@ -10,7 +10,6 @@ import { load } from 'cheerio';
 import { Document, Scalar, parse as parseYaml, parseDocument } from 'yaml';
 import { embedFor } from '../config/embeds.js';
 import { excerpt, plainText } from '../config/filters.js';
-import { markdown as renderer } from '../config/markdown.js';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const EMBEDS = parseYaml(readFileSync(`${ROOT}site/data/embeds.yaml`, 'utf8'));
@@ -221,6 +220,25 @@ export function loadExport(dir) {
       const start = wallClock(SQL(r[at.StartDate]));
       if (!id || !start) continue;
       known.set(`${kind}:${id}`, { start, end: kind === 'event' ? wallClock(SQL(r[at.EndDate])) : null, location: SQL(r[at.Location]) });
+    }
+  }
+  return known;
+}
+
+// Dates and locations already in the migrated files, so a re-run without the export keeps them.
+// Map of 'event:16' to { start, end, location }, like loadExport.
+export function loadWritten(site) {
+  const known = new Map();
+  for (const [kind, dir] of [['event', 'calendar'], ['notice', 'notices']]) {
+    const folder = path.join(site, 'content', dir);
+    if (!existsSync(folder)) continue;
+    for (const f of readdirSync(folder)) {
+      const id = Number(f.match(/^(\d+)-.*\.md$/)?.[1]);
+      const fm = id && readFileSync(path.join(folder, f), 'utf8').match(/^---\n([\s\S]*?\n)---\n/);
+      if (!fm) continue;
+      const data = parseYaml(fm[1]) ?? {};
+      const start = wallClock(data.date instanceof Date ? data.date.toISOString() : data.date);
+      if (start) known.set(`${kind}:${id}`, { start, end: data.end ? wallClock(data.end instanceof Date ? data.end.toISOString() : data.end) : null, location: data.location ?? '' });
     }
   }
   return known;
@@ -475,11 +493,21 @@ export function rewriteBody(html, ctx = newContext()) {
 // Inline tags kept as their contents only: underline, superscripts, spans and font tags have no Markdown form.
 const UNWRAP = new Set(['span', 'font', 'u', 'sup', 'sub', 'small', 'big', 'center', 'abbr']);
 const HEADINGS = /^h([1-6])$/;
-// Read again inside a paragraph, these would start a heading, quote, list, rule or fence.
-const LINE_START = /^(#|>|[-+=~]|\d+[.)])/;
+// At the start of a paragraph these would make a heading, quote, list, rule or fence. Escaping the first character
+// is enough. Anything else ("7.30 pm", "#PrayForTheRoof", "+44") is left as written.
+const LINE_START = /^(?:#{1,6}(?=\s|$)|>|[-+](?=\s|$)|\d{1,9}[.)](?=\s|$)|(?:-[ \t]*){3,}$|~~~)/;
+const IMAGE_FILE = /\.(jpe?g|png|gif|webp)$/i;
 
 const spaced = (s) => s.replace(/[\s ]+/g, ' ');
-const escapeText = (s) => s.replace(/[\\`*_[\]<]/g, '\\$&');
+// Only what Markdown would read as markup: emphasis, code, a link's closing bracket, HTML, entities, strikethrough.
+// An underscore inside a word (a_b) is not emphasis, so it stays.
+const escapeText = (s) => s
+  .replace(/[\\`*]/g, '\\$&')
+  .replace(/_/g, (m, i, all) => (/\w/.test(all[i - 1] ?? '') && /\w/.test(all[i + 1] ?? '') ? m : '\\_'))
+  .replace(/\](?=[([:])/g, '\\]')
+  .replace(/<(?=[A-Za-z/!?])/g, '\\<')
+  .replace(/&(?=#?\w+;)/g, '\\&')
+  .replace(/~~/g, '\\~\\~');
 const linkUrl = (url) => (/[\s()<>]/.test(url) ? `<${url.replace(/</g, '%3C').replace(/>/g, '%3E')}>` : url);
 
 // Emphasis markers must touch the words, so surrounding spaces move outside them.
@@ -510,6 +538,11 @@ export function toMarkdown(html) {
     }
     if (tag === 'a') {
       const href = ($(n).attr('href') ?? '').trim();
+      // An image that links to an image file (click to enlarge) becomes that file, with no link.
+      const kids = (n.children ?? []).filter((c) => !(c.type === 'text' && !c.data.trim()));
+      if (kids.length === 1 && kids[0].tagName === 'img' && IMAGE_FILE.test(href.replace(/[?#].*$/, ''))) {
+        return `![${escapeText(spaced($(kids[0]).attr('alt') ?? '').trim())}](${linkUrl(href)})`;
+      }
       // Jump menu links lose their link, and so do links with no text.
       const text = inline(n.children);
       if (!href || href.startsWith('#') || !text.trim()) return text;
@@ -526,7 +559,13 @@ export function toMarkdown(html) {
     const line = spaced(s).trim();
     return line.replace(LINE_START, (m) => (/^\d/.test(m) ? `${m.slice(0, -1)}\\${m.slice(-1)}` : `\\${m}`));
   };
-  const paragraphs = (nodes) => inline(nodes, '\n').split('\n').map(block).filter(Boolean);
+  // Asterisk banners: a paragraph of asterisks only becomes a divider, text between asterisk runs becomes bold.
+  const banner = (line) => {
+    if (/^(\\\*){3,}$/.test(line)) return '---';
+    const m = line.match(/^(?:\\\*){3,}\s*(.*?)\s*(?:\\\*)*$/);
+    return m && m[1] ? `**${m[1]}**` : line;
+  };
+  const paragraphs = (nodes) => inline(nodes, '\n').split('\n').map(block).filter(Boolean).map(banner);
 
   const cellText = (td) => block(inline($(td).contents().toArray())).replace(/\|/g, '\\|');
   const isTextCell = (td) => !$(td).find('img, ul, ol, table, br').length && $(td).find('p').length <= 1;
@@ -580,14 +619,10 @@ export function toMarkdown(html) {
   return { markdown: markdown ? `${markdown}\n` : '', left: [...left].sort() };
 }
 
-// The body file text in Markdown, or the HTML and the reason when a tag has no Markdown form here or the rendered
-// text would differ from the original's. Content is never corrected, so the conversion may not change a word.
+// The body file text in Markdown, or the HTML and the reason when a tag has no Markdown form here.
 export function bodyMarkdown(html) {
-  const asHtml = (problem) => ({ body: html ? `${html}\n` : '', problem });
   const { markdown, left } = toMarkdown(html);
-  if (left.length) return asHtml(left.map((t) => `<${t}>`).join(' '));
-  const words = (h) => plainText(h).replace(/\s+/g, '');
-  if (words(renderer.render(markdown)) !== words(html)) return asHtml('text would change');
+  if (left.length) return { body: html ? `${html}\n` : '', problem: left.map((t) => `<${t}>`).join(' ') };
   return { body: markdown, problem: '' };
 }
 
@@ -751,7 +786,8 @@ export async function main(argv = process.argv.slice(2), { fetch = globalThis.fe
   const site = opts.site;
   const topicsFile = [path.join(site, 'data/topics.yaml'), `${ROOT}site/data/topics.yaml`].find(existsSync);
   const topics = parseYaml(readFileSync(topicsFile, 'utf8'));
-  const known = loadExport(opts.db);
+  // The export wins; without it, the dates already written are kept, and only new items are inferred.
+  const known = new Map([...loadWritten(site), ...loadExport(opts.db)]);
 
   const sitemap = await get(fetch, `${live}/sitemap.xml`);
   const paths = [...new Set([...sitemap.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/g)].map((m) => new URL(m[1].replace(/&amp;/g, '&')).pathname))];

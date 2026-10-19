@@ -11,7 +11,7 @@ url: /calendar/event/53/mothers-union-meeting-for-march
 
 **Tuesday 26th March**
 
-7\.30 pm Meeting in the Village Hall.
+7.30 pm Meeting in the Village Hall.
 
 **Rev. David Noblett**
 

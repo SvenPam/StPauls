@@ -104,6 +104,6 @@ The legacy CSS, images and views needed for reference are on `archive/umbraco-20
 
 ## Open items
 
-- Content match, spec 07a (2026-10-19): built on its branch. Dates and locations come from the SQL export in `docs/features/migration/data/`, bodies are Markdown. Waiting on the maintainer's Pages CMS save check (spec 07a, manual step 0) before it merges. Re-export the same SQL on cutover day.
+- Content match, spec 07a (2026-10-19): built on its branch. Dates and locations from the SQL export are in the migrated files (export deleted), bodies are Markdown. Waiting on the maintainer's Pages CMS save check (spec 07a, manual step 0) before it merges.
 - The contact form inbox is not chosen yet. The form stays hidden until a Web3Forms key is set.
 - Easter 2026 and other seasonal pages are still being edited in the legacy back office by the church. Spec 11 re-extracts on cutover day.

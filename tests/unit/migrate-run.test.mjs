@@ -130,6 +130,11 @@ test('a second run changes nothing', async () => {
   assert.equal(await m.main([...argv, '--check'], { fetch, log: () => {} }), 0);
 });
 
+test('a re-run without the export keeps the dates and locations already written', async () => {
+  const noExport = argv.map((v) => (v === 'tests/fixtures/sql' ? 'tests/fixtures/no-such-folder' : v));
+  assert.equal(await m.main([...noExport, '--check'], { fetch, log: () => {} }), 0);
+});
+
 test('extra legacy upload spellings are appended once, existing routes kept', async () => {
   const text = readFileSync(join(site, 'data/legacy.yaml'), 'utf8');
   assert.match(text, /# uploads \(spec 07\)/);

@@ -7,4 +7,4 @@ location: St Paul's, Warton
 eventtopics: church-events
 url: /calendar/event/1067/freckleton-brass-band-christmas-concert
 ---
-[![](/uploads/legacy/Gallery/freck-band-sm.jpg)](/uploads/legacy/Gallery/freck-band.jpg)
+![](/uploads/legacy/Gallery/freck-band.jpg)

@@ -4,7 +4,7 @@ header: true
 footer: true
 weight: 1
 ---
-### \[ Sunday \] - \[ Wednesday \]
+### [ Sunday ] - [ Wednesday ]
 
 For details of all upcoming Services please refer to the [News Sheet](http://www.achurchnearyou.com/church/19565/page/40990/view/) .
 

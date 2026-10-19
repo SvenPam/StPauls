@@ -37,7 +37,6 @@ Every task in every spec includes these.
 | `yaml` | `2.9.1` | `site/data/*.yaml` |
 | `entities` | `6.0.1` | Entity decoding in feed text |
 | `cheerio` | `1.2.0` | HTML parsing in `scripts/migrate.mjs` only. Added by spec 07 |
-| `markdown-it` | `14.3.3` | Body rendering, `config/markdown.js`. The version Eleventy already resolves. Added by spec 07a |
 | `@playwright/test` | `1.56.1` | Browser tests. Matches the sandbox Chromium |
 | `playwright-bdd` | `9.2.1` | Gherkin scenarios. The 8.x line had audit findings with no fix |
 | `overrides` | `chokidar` `4.0.3`, `argparse` `2.0.1` | Without them `npm audit` reports 1 high, 1 moderate |
@@ -53,7 +52,7 @@ Every task in every spec includes these.
 | `site/assets/` | Stylesheets, the script and layout images, processed by `config/assets.js` and `config/images.js` |
 | `site/static/` | Copied as is to the site root |
 
-- Every `.md` file is front matter plus a Markdown body (spec 07a). `config/content.js` registers the `md` extension with the renderer in `config/markdown.js`: CommonMark plus tables, raw HTML allowed as a safety net, indented code off, no Nunjucks, so `{{ }}` and `{% %}` are shown as written. A paragraph holding only an image (or a linked image) gets `class="solo"` and is centred. Templates print the result with `{{ content | safe }}`.
+- Every `.md` file is front matter plus a Markdown body (spec 07a). `config/content.js` amends Eleventy's own markdown-it: CommonMark plus tables, raw HTML allowed as a safety net, indented code off. `markdownTemplateEngine: false`, so no Liquid or Nunjucks runs and so `{{ }}` and `{% %}` are shown as written. A paragraph holding only an image (or a linked image) gets `class="solo"` and is centred. Templates print the result with `{{ content | safe }}`.
 - A content file gets a URL only from `itemPermalink` in `config/content.js`. Today that covers `blog`, `calendar` and `notices`. Anything else in the content folder gets `permalink: false` and renders nothing (`content.njk` includes a section template only for those three) until a spec adds it (spec 04 adds `page/` and the home page).
 - Internal links are written without a trailing slash, except `/`, through the `href` filter. Eleventy's `page.url` and `item.url` end with `/`. Static Web Apps runs with `trailingSlash: "never"` from spec 05, so `/blog/article/x` is served directly and `/blog/article/x/` gets a 301.
 - No inline `<script>`, `<style>` or event handlers in templates. Script lives in `site/assets/js/site.js`, minified, hashed into the file name and loaded with `defer` and `integrity`. Nothing needs script to read or navigate.

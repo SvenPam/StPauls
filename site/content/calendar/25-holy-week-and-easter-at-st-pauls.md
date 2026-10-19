@@ -9,4 +9,4 @@ url: /calendar/event/25/holy-week-and-easter-at-st-pauls
 ---
 Services and events for Holy Week and Easter at St. Paul's, Warton
 
-[![Easter Poster](/uploads/legacy/Gallery/EasterPoster.jpg)](/uploads/legacy/Gallery/EasterPoster.jpg)
+![Easter Poster](/uploads/legacy/Gallery/EasterPoster.jpg)

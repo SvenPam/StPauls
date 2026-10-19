@@ -7,6 +7,6 @@ location: The Birley Arms, Warton
 eventtopics: other-events
 url: /calendar/event/1068/lancashire-sings-christmas
 ---
-[![](/uploads/legacy/Gallery/lancs-sings-sm.jpg)](/uploads/legacy/Gallery/lancs-sings.jpg)
+![](/uploads/legacy/Gallery/lancs-sings.jpg)
 
 Stay behind afterwards for the Quiz Night (9-11pm)

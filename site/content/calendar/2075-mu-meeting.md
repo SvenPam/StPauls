@@ -15,4 +15,4 @@ Canon Robert Brunswick – The Healing Ministry.
 
 Warton Village Hall
 
-7\.30 pm
+7.30 pm

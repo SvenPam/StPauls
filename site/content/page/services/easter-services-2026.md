@@ -4,7 +4,7 @@ header: true
 footer: true
 weight: 2
 ---
-### \[Ash Wednesday\] - \[Stations of the Cross\] - \[Palm Sunday\] - \[Maundy Thursday\] - \[Good Friday\] - \[Easter Vigil\] - \[Easter Sunday\]
+### [Ash Wednesday] - [Stations of the Cross] - [Palm Sunday] - [Maundy Thursday] - [Good Friday] - [Easter Vigil] - [Easter Sunday]
 
 ### Ash Wednesday - 18th February
 

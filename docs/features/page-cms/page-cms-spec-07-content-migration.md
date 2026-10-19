@@ -156,7 +156,7 @@ Agreed with the maintainer on 2026-10-18. Spec 07 is done with dates inferred an
 
 It gets its own spec or step before spec 11 (cutover), which re-runs the script anyway.
 
-Built as [spec 07a](page-cms-spec-07a-content-match.md) (2026-10-19). The maintainer's export is in `docs/features/migration/data/` and is read with `--db`, which replaces `--dates` and `scripts/legacy-dates.csv`. Bodies are Markdown.
+Built as [spec 07a](page-cms-spec-07a-content-match.md) (2026-10-19). The maintainer's SQL export was read with `--db` (replacing `--dates` and `scripts/legacy-dates.csv`), then deleted; re-runs keep the dates already written. Bodies are Markdown.
 
 ---
 

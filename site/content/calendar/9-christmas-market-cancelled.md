@@ -7,7 +7,7 @@ location: St Paul's Church, Warton
 eventtopics: church-events
 url: /calendar/event/9/christmas-market-cancelled
 ---
-\*\*\*\*\*\*\*\*\* Please note that this event has now been cancelled due to the reimposition of a national lockdown from 5th November to 2nd December \*\*\*\*\*\*\*\*\*\*\*\*
+**Please note that this event has now been cancelled due to the reimposition of a national lockdown from 5th November to 2nd December**
 
 Christmas Market in St Paul's.
 

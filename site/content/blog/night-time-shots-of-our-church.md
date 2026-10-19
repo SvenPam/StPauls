@@ -6,7 +6,7 @@ blogtopics: church-events
 ---
 Recently a local amateur photographer sent us this fabulous night-time picture of our Church.
 
-[![St. Paul's, Warton at night](/uploads/legacy/Gallery/st-pauls-4-small.jpg)](/uploads/legacy/Gallery/st-pauls-4-large.jpg)
+![St. Paul's, Warton at night](/uploads/legacy/Gallery/st-pauls-4-large.jpg)
 
 St. Paul's, Warton at night - click on the picture above to see a higher resolution version
 

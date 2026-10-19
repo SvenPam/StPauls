@@ -4,7 +4,7 @@ header: true
 footer: true
 weight: 1
 ---
-\[Church Organist and Choir\] - \[Church Wardens\] - \[St. Paul's Little People\] - \[Mothers' Union\] - \[Women's Institute\]
+[Church Organist and Choir] - [Church Wardens] - [St. Paul's Little People] - [Mothers' Union] - [Women's Institute]
 
 ## **Church Organist and Choir**
 

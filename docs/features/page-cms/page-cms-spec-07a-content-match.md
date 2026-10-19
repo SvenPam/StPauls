@@ -33,7 +33,7 @@ Every event and notice shows the date it has in the live database, events show t
 - Scenarios in `tests/features/notices.feature` pin raw-HTML behaviour: `I see "*stars*"`, `the body shows "Indented after blank" as text, not code`, `the body has a list item "Item one"`, template syntax shown as written. Fixture bodies in `tests/fixtures/content/` are HTML.
 - Eleventy 3.1.6 already depends on `markdown-it` (14.3.3 in the lock file).
 
-### The SQL export (`docs/features/migration/data/`, committed 2026-10-19)
+### The SQL export (`docs/features/migration/data/`, committed 2026-10-19, deleted after the run the same day)
 
 | File | Rows | Columns used |
 |---|---|---|
@@ -117,7 +117,7 @@ Text that Markdown would misread once the tags are gone:
 node scripts/migrate.mjs [--live http://stpaulswarton.co.uk] [--db docs/features/migration/data] [--site site] [--check]
 ```
 
-`--db` replaces `--dates`. Default `docs/features/migration/data`. The script reads `events.csv` and `notices.csv` from it; a missing folder or file means "no export" and the spec 07 inference runs as before.
+`--db` replaces `--dates`. Default `docs/features/migration/data`. The script reads `events.csv` and `notices.csv` from it. The export was deleted once its dates were written (maintainer, 2026-10-19), so a re-run keeps the dates and locations already in the migrated files (`loadWritten`), and only items new on live are inferred and flagged.
 
 | Field written | From | Format |
 |---|---|---|
@@ -130,7 +130,8 @@ node scripts/migrate.mjs [--live http://stpaulswarton.co.uk] [--db docs/features
 | Case | Rule | Flagged in report |
 |---|---|---|
 | Item in the export | Use it | No |
-| Item on live, not in the export (created after the export) | Spec 07 inference | Yes, as now |
+| Item already migrated, not in the export | Keep the date, end and location in its file | No |
+| Item new on live | Spec 07 inference | Yes, as now |
 | Row in the export, not on live | Ignored | No |
 
 The CSV reader handles the BOM, quoted fields with commas, doubled quotes and newlines, and `NULL`. `scripts/legacy-dates.csv` and `loadDates` go; spec 07's dates table in conventions and its manual step 1 are updated.
@@ -148,7 +149,8 @@ The CSV reader handles the BOM, quoted fields with commas, doubled quotes and ne
 | `<a href="#...">` (jump menu link) | Its text, no link |
 | `<a id>` / `<a name>` with no `href` (jump target) | Its contents only |
 | `<img>` | `![alt](src)`. `width`, `height`, `style` dropped. An empty `alt` stays empty |
-| Link wrapping only an image | `[![alt](src)](href)`. `onclick` dropped and flagged, as in spec 07 |
+| Link wrapping only an image, to an image file (click to enlarge) | `![alt](href)`: the bigger file, no link. The site makes responsive copies anyway (maintainer, 2026-10-19: simpler for Paul) |
+| Link wrapping only an image, to anything else | `[![alt](src)](href)`. `onclick` dropped and flagged, as in spec 07 |
 | `<figure>` with `<figcaption>` | The image on its own line, then the caption as a paragraph |
 | `<ul>`/`<ol>`/`<li>` | `-` / `1.` lists |
 | `<br>` | Ends the paragraph: the text after it starts a new paragraph. No hard-break syntax. Trailing `<br>` runs dropped |
@@ -156,17 +158,19 @@ The CSV reader handles the BOM, quoted fields with commas, doubled quotes and ne
 | `style`, `class`, `align`, `dir` anywhere | Dropped |
 | `<table>` of text, one line per cell | GFM pipe table. Rows where every cell is empty or `&nbsp;` dropped. The header row from `<thead>`, or the first row |
 | `<table>` with an image, a list or several paragraphs in a cell | Each cell's contents in reading order (row by row), as paragraphs and images, no table |
+| A paragraph of three or more asterisks only | `---`, a divider (maintainer, 2026-10-19) |
+| A paragraph starting with three or more asterisks (`********* Cancelled *********`) | The text between them in bold (maintainer, 2026-10-19) |
 | `&nbsp;` | A space. Runs of spaces collapse to one. Paragraphs that are then empty are dropped |
 | Entities (`&#39;`, `&rsquo;`, `&pound;`) | The character |
 | Anything not listed | Not converted: the item is written as it is today (HTML) and listed in the report under "Bodies left as HTML", so nothing is lost silently |
 
-Escaping, so the text reads as written:
+Escaping: only what Markdown would read as markup gets a `\`, so Paul sees as few backslashes as possible (maintainer, 2026-10-19):
 
-| Text at | Escaped |
-|---|---|
-| Start of a paragraph: `#`, `>`, `-`, `+`, `*`, `=`, a number followed by `.` or `)` | With `\` (`1\.`, `\-`), so no heading, quote, list or rule appears. The 1) 2) 3) and 1. 2. 3. paragraphs stay paragraphs, as on live |
-| Anywhere: `*`, `_`, `` ` ``, `[`, `]`, `<`, `\` | With `\`. The `*********` banners stay asterisks |
-| `|` inside a table cell | `\|` |
+| Text | Escaped | Left alone |
+|---|---|---|
+| Start of a paragraph | `# ` to `###### ` (a space after), `>`, `- ` and `+ `, a number of up to 9 digits followed by `. ` or `) `, `---`, `~~~` | `7.30 pm`, `#PrayForTheRoof`, `+44` |
+| Anywhere | `*`, `` ` ``, `\`, `_` at a word edge, `]` before `(`, `[` or `:`, `<` before a letter, `/`, `!` or `?`, `&` before an entity, `~~` | `a_b_c`, `[ Sunday ]`, `3 < 4`, `Tea & cake` |
+| A table cell | `\|` | |
 
 URLs with spaces or parentheses are written `<url>` inside the link (`[text](<url with space>)`).
 
@@ -176,13 +180,13 @@ The report gets one more table, "Bodies left as HTML", with the item and the tag
 
 | Requirement | Why |
 |---|---|
-| `md` files render with markdown-it, CommonMark plus tables (markdown-it's `default` preset), `html: true`, `linkify: false`, `typographer: false`, `breaks: false` | `html: true` is a safety net for anything Pages CMS writes as HTML; migrated content has none |
+| `md` files render with Eleventy's own markdown-it (`amendLibrary`, no direct dependency), CommonMark plus tables, `html: true` (Eleventy's default), `linkify: false`, `typographer: false`, `breaks: false` | `html: true` is a safety net for anything Pages CMS writes as HTML; migrated content has none |
 | Indented code blocks are off (`md.disable('code')`); fenced code stays | Paul indenting a line must never turn it into a code box |
-| No template engine runs on bodies (`markdownTemplateEngine: false` or the same through the extension) | `{{` and `{%` in a body stay as written (existing scenario) |
+| No template engine runs on bodies (`markdownTemplateEngine: false` in `eleventy.config.js`) | `{{` and `{%` in a body stay as written (existing scenario) |
 | The `images` and `noopener` transforms keep working on the rendered HTML | Pictures and `rel="noopener"` as now |
 | `excerpt` keeps working on the rendered HTML | Feeds and summaries as now |
 
-How it is wired (`amendLibrary` on Eleventy's own markdown-it, or the custom extension calling markdown-it) is the builder's call. If `markdown-it` is imported directly it becomes an exact-pinned dependency at the version Eleventy already resolves, and `npm audit` stays at 0.
+`markdown-it` was a direct dependency for the first build and was removed (maintainer, 2026-10-19): Eleventy's copy is enough for the site, and the migration no longer renders.
 
 ### Images on their own line
 
@@ -218,13 +222,13 @@ Behaviour only, per the [conventions](page-cms-spec-conventions.md#tests).
 | CSV with BOM, a quoted body with commas, quotes and newlines | Parsed into the right columns |
 | `--db` folder missing | Runs as spec 07, no error |
 | Each row of the conversion table | The Markdown shown in the table |
-| A centred `<p>` with a linked, sized image | `[![alt](/uploads/...)](href)` alone in a paragraph |
+| A centred `<p>` with a sized image linking to a bigger copy | `![alt](/uploads/big...)` alone in a paragraph, no link |
 | Jump menu page (trimmed `pa4` snapshot) | Link text with no `#` links, targets gone, escaped brackets |
 | Contact List table (trimmed `pa12`, names replaced) | A pipe table, empty rows gone, split email links kept as two links |
 | Website Pictures table (trimmed `pa14`) | Images and captions in reading order, no table |
 | `*********` banner, `1)` and `1.` paragraphs, `#hashtag` at a line start | Shown as written when rendered with the site's markdown-it |
 | An unknown tag (`<marquee>`) | Body left as HTML and listed in "Bodies left as HTML" |
-| Round trip: every converted fixture body rendered with the site's markdown-it contains no tag the converter was meant to remove, and its text, tags removed, equals the original's text | Pins "content is not corrected" |
+| A re-run with no export folder | `--check` reports no changes: written dates and locations are kept |
 | `--check` straight after a run | No changes |
 
 ### Scenarios
@@ -233,7 +237,7 @@ Behaviour only, per the [conventions](page-cms-spec-conventions.md#tests).
 |---|---|
 | `notices.feature`, "A notice page" | Fixture body becomes Markdown: list item, link, heading. `I see "*stars*"` becomes an escaped `\*stars\*` in the fixture, still shown as `*stars*`. "Indented after blank" still shown as text, not code |
 | `notices.feature`, "Template syntax in a body is shown as written" | Unchanged, passes with Markdown |
-| `pages.feature`, "A Markdown body" (new) | Heading, list, pipe table header cells, escaped banner and `1.` shown as written, an image alone centred and one beside text not |
+| `pages.feature`, "A Markdown body" (new) | Heading, list, pipe table header cells, an escaped `*****` line and `1.` shown as written, an image alone centred and one beside text not |
 | `editor.feature` | Every `body` field has `format: markdown` |
 | `calendar.feature`, "An event page" | Already shows the fixture `location` ("Church Hall"). No change |
 
@@ -246,7 +250,7 @@ Legacy HTML fixtures stay as they are (see Implementation notes); `about-us.md` 
 - The converter is a walk over the cheerio tree already used by `rewriteBody`. No new dependency is expected; adding an HTML-to-Markdown library is the builder's call only if the walk proves unworkable, exact-pinned and audited.
 - Output stays deterministic: same input, same bytes. Bodies end with one newline.
 - Order of work: dates and locations first (they stand alone), then the converter, rendering and `.pages.yml`, then the Pages CMS save check (manual step 0) on the converted content. The escaping and table rules are small separate pieces (`escapeText`, `LINE_START`, `table` in `toMarkdown`), so the check's result changes only them.
-- As built (2026-10-19): `config/markdown.js` holds the one markdown-it instance, shared by `config/content.js` and the script. Centring is a markdown-it core rule that gives a paragraph holding only an image, or only a linked image, `class="solo"`; `.prose .solo` centres it. `bodyMarkdown` renders each converted body and compares its text with the original's (whitespace ignored); any difference, or a tag with no Markdown form, keeps the HTML and lists the item under "Bodies left as HTML". Legacy HTML fixtures in `tests/fixtures/content/` stay HTML: they pin the `html: true` safety net and the image and link transforms. The Markdown scenario uses `page/about/about-us.md`, so no list scenario changes.
+- As built (2026-10-19): `config/content.js` amends Eleventy's markdown-it (`amendLibrary`). Centring is a markdown-it core rule that gives a paragraph holding only an image, or only a linked image, `class="solo"`; `.prose .solo` centres it. `bodyMarkdown` keeps the HTML and lists the item under "Bodies left as HTML" when a tag has no Markdown form. The text check against the originals was run by hand on the real content (111 bodies, 0 differences apart from the asterisk banners) rather than kept in the script. Legacy HTML fixtures in `tests/fixtures/content/` stay HTML: they pin the `html: true` safety net and the image and link transforms. The Markdown scenario uses `page/about/about-us.md`, so no list scenario changes.
 - First run on 2026-10-19: 95 items, 0 inferred dates, 0 bodies left as HTML, 68 event locations, 0 text changes against the previous files, `--check` reports no changes, `check-urls` 120 checked, 0 failed. The 6 failed downloads are the same as spec 07's (already broken on live). `contact-us.md` and `contact-thanks.md` were converted by hand.
 - The report's existing tables stay. "Inferred dates" should be empty or only hold items created after the export.
 
@@ -263,7 +267,7 @@ Legacy HTML fixtures stay as they are (see Implementation notes); `about-us.md` 
    | Pages, Gallery, Website Pictures | Linked images one after another |
 
    Expected: no commit, or whitespace only. Send back any diff. The builder then matches the converter to what Pages CMS writes for each construct (builder's call, 2026-10-19: simple editing wins, so the editor's format is the target), re-runs, and the check is repeated. If Pages CMS drops or flattens the table, Contact List uses the "each cell in reading order" rule. If it cannot keep Markdown at all, stop and bring it to the maintainer; the dates and locations work can ship on its own.
-1. Keep `docs/features/migration/data/` as exported. On cutover day (spec 11), re-run the same queries into the same files before re-running the script. If that is not possible, items created after this export get inferred dates and are flagged.
+1. Nothing to keep: the SQL export is deleted and its dates live in the migrated files. On cutover day (spec 11) the re-run keeps them; only items new on live get inferred dates, flagged in the report. A fresh export into `docs/features/migration/data/` is optional and wins if present.
 2. Before merging, open one converted page, one event and one article in Pages CMS on the test site, save each without changes, and check the commit Pages CMS makes. Expected: no change, or whitespace only. Report anything else; it decides whether the editor rewrites Markdown in a way the site cannot take. Pages CMS cannot be reached from the sandbox.
 3. Review the content diff and the report. Compare home, an article with images, Website Pictures, Contact List and Regular Church Services with live using `scripts/screenshots.mjs`.
 

@@ -1,7 +1,7 @@
 // Paul's content: every .md file is front matter plus a Markdown body that Pages CMS saved.
-// Bodies are rendered with config/markdown.js and no template engine, so {{ }} and {% %} stay as written.
+// Eleventy's own Markdown library renders it with no template engine (markdownTemplateEngine: false in
+// eleventy.config.js), so {{ }} and {% %} stay as written.
 import path from 'node:path';
-import { markdown } from './markdown.js';
 
 // Relative to the working directory, because Eleventy globs and input paths are. An absolute CONTENT is converted.
 export const CONTENT_DIR = path.relative(process.cwd(), path.resolve(process.env.CONTENT ?? 'site/content')).split(path.sep).join('/');
@@ -68,7 +68,19 @@ export function itemPermalink(inputPath, data) {
 const isContent = (inputPath) => inputPath.endsWith('.md');
 
 export default function (eleventyConfig) {
-  eleventyConfig.addExtension('md', { compile: (body) => () => markdown.render(body) });
+  // CommonMark plus tables. Indented code is off, so an indented line never becomes a code box. A paragraph holding
+  // only an image, or only a linked image, gets class="solo" so the stylesheet can centre it.
+  eleventyConfig.amendLibrary('md', (md) => {
+    md.set({ linkify: false, typographer: false, breaks: false }).disable('code');
+    md.core.ruler.push('solo_image', (state) => {
+      const tokens = state.tokens;
+      for (let i = 1; i < tokens.length; i += 1) {
+        if (tokens[i].type !== 'inline' || tokens[i - 1].type !== 'paragraph_open') continue;
+        const kinds = tokens[i].children.filter((c) => !(c.type === 'text' && !c.content.trim())).map((c) => c.type).join(' ');
+        if (kinds === 'image' || kinds === 'link_open image link_close') tokens[i - 1].attrJoin('class', 'solo');
+      }
+    });
+  });
 
   // Computed `layout` did not work in the spike, so it is plain global data. Site pages set their own.
   eleventyConfig.addGlobalData('layout', 'content.njk');

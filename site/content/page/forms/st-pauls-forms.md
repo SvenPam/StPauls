@@ -4,7 +4,7 @@ header: true
 footer: true
 weight: 1
 ---
-### \[Baptism Form\] - \[News Sheet\] - \[Parish Magazine\] - \[Diary of Events\]
+### [Baptism Form] - [News Sheet] - [Parish Magazine] - [Diary of Events]
 
 ## Baptism Form
 

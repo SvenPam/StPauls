@@ -18,7 +18,7 @@ The Wednesday morning 0930 service will take place at the usual time but in The 
 
 Please keep checking the Church Noticeboard for any further updates.
 
-\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*
+---
 
 Update as of 28th July 2019:
 
@@ -28,7 +28,7 @@ During the period of the repairs Church Services and other events will be reloca
 
 There will also be a 1/2 Boon Day on Saturday 10th August to help prepare the Church for the repair work so all are welcome from 1pm on that day to support that work.
 
-\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*
+---
 
 St. Paul’s roof is leaking and is in desperate need of renovation. We have been raising funds to pay for this roof project for over five years.
 

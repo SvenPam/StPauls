@@ -19,4 +19,4 @@ We are looking for nominations for hymns for the songs of praise service, on the
 
 There will be a tombola-type stall with a "red, white and blue" theme, as well as children's prizes, and Holy Trinity, Freckleton Methodist Church, Holy Family and St Paul's are going to provide the red, white, blue and children's prizes, respectively. We would therefore be very grateful if you would please kindly help us by donating children's prizes (e.g. small toys).
 
-[![](/uploads/legacy/Gallery/queens-birthday.jpg)](/uploads/legacy/Gallery/queens-birthday.jpg)
+![](/uploads/legacy/Gallery/queens-birthday.jpg)

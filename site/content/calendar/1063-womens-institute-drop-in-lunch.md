@@ -7,4 +7,4 @@ location: Warton Village Hall
 eventtopics: other-events
 url: /calendar/event/1063/womens-institute-drop-in-lunch
 ---
-This year's WI 'Drop-In Lunch \[incl. Trinity Hospice Produce Stall\] will take place in the Village Hall on Thursday 24th November from 11:30am until 1:30pm.
+This year's WI 'Drop-In Lunch [incl. Trinity Hospice Produce Stall] will take place in the Village Hall on Thursday 24th November from 11:30am until 1:30pm.
