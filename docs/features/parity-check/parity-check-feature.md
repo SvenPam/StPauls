@@ -65,7 +65,8 @@ The site gets very little traffic and there are no search concerns, so old-link 
 | Build speed | Bicep runs only when `infra/` changes. Tests stay | Maintainer |
 | Repo protection | Code owners plus a ruleset on `main`: maintainer approval for any non-content change | Maintainer |
 | URLs | Item URLs stay identical to live. Other live URL variants are no longer a parity target. _Changes CLAUDE.md_ ("Content source") | Maintainer |
-| Time format | 24-hour (`19:30`) on cards and event pages. Live cards are 24-hour; the event page used the server's UK short time | _Builder's call_ |
+| Time format | 24-hour (`19:30`) on cards and event pages, as the UK local time typed in Pages CMS (no zone), never UTC | Maintainer |
+| Soon | 7 days, not live's 24 hours | Maintainer |
 | Countdowns and labels | `site.js` refreshes event status labels and countdowns, and hides events that have ended since the build, from times in `data-` attributes. The built page is the no-script fallback | _Builder's call_ |
 | Topic pages | Calendar and notices topic pages include past items, like live (B-30, B-31) | _Builder's call_ |
 | Kept improvements | `<title>` format, `/contact/thanks`, topic link on event pages, blog summaries, sitemap, `robots.txt`, `dd-MMM-yy` article dates, lead paragraph on pages and articles (B-07, B-23, B-28, B-29, B-32 to B-36) | _Builder's call_, from the report |
@@ -137,7 +138,7 @@ Live (B-02, B-10, B-11, B-13, C-04, C-05): a notice has a start date and an opti
 
 Live (B-01, B-05, B-06, B-08, B-09, C-01, C-02, C-03). There are no upcoming events on live today, so these rules are tested on fixtures only.
 
-- **Status.** Expired: after the end. Active ("In Progress"): between start and end. Soon: starts within the next **24 hours** (`SOON_MS` in `config/dates.js` is 168 hours today, from the 2019 port). Future: otherwise.
+- **Status.** Expired: after the end. Active ("In Progress"): between start and end. Soon: starts within the next **7 days** (`SOON_MS`, kept from the 2019 port; live used 24 hours. Maintainer, 2026-10-19). Future: otherwise.
 - **No end time:** the event ends 24 hours after it starts. Today the end falls back to the start, so the event goes from Soon straight to Expired and drops off `/calendar` as it starts.
 - **Home:** an "Upcoming Events" column beside the notices, heading linking to `/calendar`. Events not yet ended, soonest first, first 20, grouped under the month name (no year). Each line: day of the month in bold, the title, and a "Soon" or "Active" label when one applies. Hidden when there are none. Column widths and how it stacks on a phone are the builder's call.
 - **`/calendar`:** heading "Upcoming Events", `<title>` "Calendar" (in the site's title format).
@@ -242,7 +243,7 @@ When a spec merges: update `CLAUDE.md` ("Logins" and "Content source" rows, new 
 
 The builder's calls above, in one list for the maintainer to read:
 
-1. 24-hour times everywhere.
+1. 24-hour times everywhere, shown as the UK local time typed in Pages CMS, never treated as UTC. Agreed (maintainer, 2026-10-19).
 2. `site.js` refreshes labels and countdowns and hides ended events, not just the event page countdown.
 3. Calendar and notices topic pages keep past items.
 4. A notice's "Show until" day is included.

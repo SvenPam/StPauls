@@ -12,7 +12,7 @@ _One session, after spec 01. Part 1 "Notices" and "Events" of the [parity design
 
 ## Goal
 
-A notice Paul adds shows from its start date and goes away after its end date, like live. An event shows as Soon in its last 24 hours, stays Active until it ends (24 hours after the start when there is no end), and its pages, cards and the new home column read like live.
+A notice Paul adds shows from its start date and goes away after its end date, like live. An event shows as Soon in its last 7 days, stays Active until it ends (24 hours after the start when there is no end), and its pages, cards and the new home column read like live.
 
 ## Starting point
 
@@ -55,11 +55,12 @@ Hero, blog, menus, contact (spec 03). Open Graph (spec 04). Old short notice and
 
 ### Events
 
-- `SOON_MS` is 24 hours.
+- `SOON_MS` stays 168 hours (7 days). Maintainer, 2026-10-19: not live's 24 hours.
+- Times are UK wall-clock times as typed in Pages CMS (no zone), never UTC. Pages show them as typed. `site.js` compares the visitor's clock with the UK instant (`data-` attributes carry the London offset), so a countdown is right in any time zone.
 - `eventEnd(data)`: a readable `end` after the start, else the start plus 24 hours.
-- `eventStatus` unchanged otherwise: Expired after the end, Active from start to end, Soon when the start is under 24 hours away, else Future.
+- `eventStatus` unchanged otherwise: Expired after the end, Active from start to end, Soon when the start is under 7 days away, else Future.
 - `time(v)` becomes 24-hour `HH:mm` (`19:30`). Every caller wants that (design, Decisions).
-- New `countdown(data, now = buildNow()): string`: Expired, "In Progress" (Active), "{h} hours to go" (Soon, `h` = whole hours to the start, rounded down, at least 1), "{m} minutes to go" when under an hour (whole minutes rounded down, at least 1), "{d} days to go" (Future, whole days rounded down). Singular forms are not used, like live ("1 hours to go").
+- New `countdown(data, now = buildNow()): string`: Expired, "In Progress" (Active), "{m} minutes to go" when the start is under an hour away (whole minutes rounded down, at least 1), "{h} hours to go" under 24 hours (whole hours rounded down), else "{d} days to go" (whole days rounded down). Live tied hours to Soon; with Soon at 7 days, hours apply under 24 hours only (builder's call). Singular forms are not used, like live ("1 hours to go").
 - Status labels on cards and the home column: Expired, "In Progress" (Active), Soon; nothing for Future. On the home column Active reads "Active" (live B-01).
 - Event page (`calendar-item.njk`):
   - `<p class="countdown" data-start data-end>` with `countdown`, after the heading. The status span goes.
@@ -92,7 +93,7 @@ From `data-start` and `data-end` (ISO with offset) and the visitor's clock, on l
 ## Acceptance
 
 - [ ] Notices follow start and end as above on home, `/notices`, pages, cards, feed, sitemaps and topic pages.
-- [ ] Events: 24-hour Soon, 24-hour default end, 24-hour times, live date blocks and countdown, live card fields.
+- [ ] Events: 7-day Soon, 24-hour default end, 24-hour times, live date blocks and countdown, live card fields.
 - [ ] Home "Upcoming Events" column as above, hidden when empty.
 - [ ] `site.js` corrects labels, countdowns and ended items between builds.
 - [ ] `npm test` green.
@@ -113,7 +114,7 @@ From `data-start` and `data-end` (ISO with offset) and the visitor's clock, on l
 
 - All wall times are UK (`Europe/London`). Compare with `londonInstant`.
 - Exact copy: "Show from", "Show until", "**Expired** This notice has now expired and should be ignored.", "In Progress", "Active", "Soon", "{h} hours to go", "{m} minutes to go", "{d} days to go", "Upcoming Events".
-- Soon is 24 hours. Default event length is 24 hours. Home: 5 notices, 20 events.
+- Soon is 7 days. Times are UK wall-clock, never UTC. Default event length is 24 hours. Home: 5 notices, 20 events.
 - No inline script or style (content security policy).
 
 ### Review Focus
@@ -172,7 +173,7 @@ From `data-start` and `data-end` (ISO with offset) and the visitor's clock, on l
 - Produces: `countdown(data, now)`; `time` returns `HH:mm`; `eventEnd` default start + 24 h.
 
 - [ ] **Step 1: Write the failing tests.**
-  - Unit, now `2030-06-15T12:00:00+01:00`: `eventStatus` of `soon` is Soon, of a start at 2030-06-16T12:30 is Future; `active-no-end` Active; `ended-no-end` Expired. `countdown`: `soon` "3 hours to go", `minutes` "40 minutes to go", `active-no-end` "In Progress", `ended-no-end` "Expired", `future-same-day` "4 days to go". `time('2030-06-15T19:30')` is "19:30". Clock change: event `2030-10-27T01:30`, now `2030-10-26T02:00:00+01:00`, `countdown` "23 hours to go" (builder confirms the number from `londonInstant` before fixing it in the test).
+  - Unit, now `2030-06-15T12:00:00+01:00`: `eventStatus` of `soon` is Soon, of `future-same-day` (5 days away) is Soon, of a start at 2030-06-23T12:30 is Future; `active-no-end` Active; `ended-no-end` Expired. `countdown`: `soon` "3 hours to go", `minutes` "40 minutes to go", `active-no-end` "In Progress", `ended-no-end` "Expired", `future-same-day` "4 days to go". `time('2030-06-15T19:30')` is "19:30". Clock change: event `2030-10-27T01:30`, now `2030-10-26T02:00:00+01:00`, `countdown` "23 hours to go" (builder confirms the number from `londonInstant` before fixing it in the test).
   - Scenarios on 1316: `/calendar/event/future-same-day` shows Start "10:00 June 20" and End "12:00 June 20"; `future-two-days` shows "20 Jun 10:00" and "21 Jun 09:00"; `same-day-next-month` shows "20 Jun 10:00" and "20 Jul 10:00"; `soon` has no End block and shows "3 hours to go"; `active-no-end` shows "In Progress".
   - Update the existing calendar scenarios to 24-hour times and the "backwards" fixture to "no End block".
 - [ ] **Step 2: Run** `npm test`. Expected: new tests FAIL.
