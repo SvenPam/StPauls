@@ -35,7 +35,7 @@ test('the top level can only read contents', () => {
   assert.deepEqual(wf.permissions, { contents: 'read' });
 });
 test('pushes watch everything the build reads', () => {
-  for (const p of ['site/**', 'config/**', 'eleventy.config.js', 'package.json', 'package-lock.json', '.nvmrc', 'infra/**', '.pages.yml', 'tests/**', '.github/workflows/deploy.yml']) {
+  for (const p of ['site/**', 'config/**', 'eleventy.config.js', 'package.json', 'package-lock.json', '.nvmrc', 'infra/**', '.pages.yml', 'tests/**', '.github/workflows/deploy.yml', '.github/scripts/**']) {
     assert.ok(wf.on.push.paths.includes(p), p);
   }
 });

@@ -14,6 +14,7 @@ on:
       - '.pages.yml'
       - 'tests/**'
       - '.github/workflows/deploy.yml'
+      - '.github/scripts/**'
   pull_request:
   # Nightly rebuild so past events drop off the calendar.
   # Weekly audit: the only run where npm audit findings turn the workflow red.
