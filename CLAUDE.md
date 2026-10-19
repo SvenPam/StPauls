@@ -28,6 +28,8 @@ Do not reopen these without being asked.
 | Domain | Bare `stpaulswarton.co.uk` is primary. Cloudflare redirects `www` to it |
 | Cookie policy | Google Calendar's embed sets `NID`, so the page stays: a short note naming the embeds' cookies, and click-to-load for embeds that set any (spec 09, 2026-10-18) |
 | Cutover | DNS to Cloudflare early, Paul practises on the test URL, short freeze and re-extraction on the day |
+| Body format | Pure Markdown, no HTML in bodies, Pages CMS `format: markdown`. Simple editing beats looking like live: jump menus, image widths and centring go (2026-10-19, spec 07a) |
+| Content edits | Migrated content is never corrected, broken links and typos included. The maintainer is not the author (2026-10-19) |
 
 ## Who is who
 
@@ -102,6 +104,6 @@ The legacy CSS, images and views needed for reference are on `archive/umbraco-20
 
 ## Open items
 
-- Content match, deferred from spec 07 (2026-10-18): the maintainer pulls all content from the live and 2019 Umbraco databases with SQL for feature and content parity, exports `scripts/legacy-dates.csv` (dates and event locations), and the migration is re-run. The same step moves body copy from HTML to vanilla Markdown. Until then dates are inferred and flagged in `docs/features/page-cms/page-cms-migration-report.md`. See spec 07, "Deferred: content match".
+- Content match, spec 07a (2026-10-19): built on its branch. Dates and locations from the SQL export are in the migrated files (export deleted), bodies are Markdown. Waiting on the maintainer's Pages CMS save check (spec 07a, manual step 0) before it merges.
 - The contact form inbox is not chosen yet. The form stays hidden until a Web3Forms key is set.
 - Easter 2026 and other seasonal pages are still being edited in the legacy back office by the church. Spec 11 re-extracts on cutover day.

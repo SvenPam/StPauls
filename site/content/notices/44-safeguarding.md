@@ -1,8 +1,9 @@
 ---
 title: SAFEGUARDING
-date: 2026-09-29
+date: 2026-02-21
 summary: "The parish of Warton: St Paul is committed to the safeguarding of children, young people and adults. We follow the House of Bishops guidance and policies and have our own Parish Safeguarding Officer(s), PSOs. The Diocese of Blackburn’s safeguarding pages contain vital links and information including…"
+location: St Paul's Church, Warton
 noticetopics: church-services
 url: /notices/notice/44/safeguarding
 ---
-<p>The parish of Warton: St Paul is committed to the safeguarding of children, young people and adults. We follow the House of Bishops guidance and policies and have our own Parish Safeguarding Officer(s), PSOs. The Diocese of Blackburn’s safeguarding pages contain vital links and information including contacts for the Diocesan Safeguarding Advisor (DSA) who advise our PSOs. If you are concerned that a child or adult has been harmed or may be at risk of harm please contact the DSA. If you have immediate concerns about the safety of someone, please contact the police and your local authority Children or Adults Services.</p>
+The parish of Warton: St Paul is committed to the safeguarding of children, young people and adults. We follow the House of Bishops guidance and policies and have our own Parish Safeguarding Officer(s), PSOs. The Diocese of Blackburn’s safeguarding pages contain vital links and information including contacts for the Diocesan Safeguarding Advisor (DSA) who advise our PSOs. If you are concerned that a child or adult has been harmed or may be at risk of harm please contact the DSA. If you have immediate concerns about the safety of someone, please contact the police and your local authority Children or Adults Services.

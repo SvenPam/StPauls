@@ -82,6 +82,19 @@ Then('the body shows {string} as text, not code', async ({ ui }, text) => {
   await expect(main(ui).locator('.prose pre, .prose code')).toHaveCount(0);
 });
 
+Then('the body has a heading {string}', async ({ ui }, text) => {
+  await expect(main(ui).locator('.prose').getByRole('heading', { name: text, exact: true })).toBeVisible();
+});
+
+Then('the body has a table with the header cells {string}', async ({ ui }, cells) => {
+  await expect(main(ui).locator('.prose table th')).toHaveText(cells.split(',').map((c) => c.trim()));
+});
+
+Then('the body shows {string} as text, not a numbered list', async ({ ui }, text) => {
+  await expect(main(ui).locator('.prose').getByText(text, { exact: true })).toBeVisible();
+  await expect(main(ui).locator('.prose ol')).toHaveCount(0);
+});
+
 Then('the body has a list item {string}', async ({ ui }, text) => {
   await expect(main(ui).locator('.prose li', { hasText: text })).toBeVisible();
 });

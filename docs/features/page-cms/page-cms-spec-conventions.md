@@ -52,11 +52,11 @@ Every task in every spec includes these.
 | `site/assets/` | Stylesheets, the script and layout images, processed by `config/assets.js` and `config/images.js` |
 | `site/static/` | Copied as is to the site root |
 
-- Every `.md` file is front matter plus an HTML body. `config/content.js` registers the `md` extension raw: no Markdown and no Nunjucks runs on it, so a body is published byte for byte, `{{ }}` and `{% %}` included. Templates print it with `{{ content | safe }}`.
+- Every `.md` file is front matter plus a Markdown body (spec 07a). `config/content.js` amends Eleventy's own markdown-it: CommonMark plus tables, raw HTML allowed as a safety net, indented code off. `markdownTemplateEngine: false`, so no Liquid or Nunjucks runs and so `{{ }}` and `{% %}` are shown as written. A paragraph holding only an image (or a linked image) gets `class="solo"` and is centred. Templates print the result with `{{ content | safe }}`.
 - A content file gets a URL only from `itemPermalink` in `config/content.js`. Today that covers `blog`, `calendar` and `notices`. Anything else in the content folder gets `permalink: false` and renders nothing (`content.njk` includes a section template only for those three) until a spec adds it (spec 04 adds `page/` and the home page).
 - Internal links are written without a trailing slash, except `/`, through the `href` filter. Eleventy's `page.url` and `item.url` end with `/`. Static Web Apps runs with `trailingSlash: "never"` from spec 05, so `/blog/article/x` is served directly and `/blog/article/x/` gets a 301.
 - No inline `<script>`, `<style>` or event handlers in templates. Script lives in `site/assets/js/site.js`, minified, hashed into the file name and loaded with `defer` and `integrity`. Nothing needs script to read or navigate.
-- Templates use no inline `style` attributes. Content bodies may contain them (legacy HTML and the rich text editor).
+- Templates use no inline `style` attributes. Migrated bodies have none; a body the editor saves with HTML may.
 - One stylesheet under 25000 bytes, one script under 2048 bytes.
 - Templates make no requests to other domains, except the two embeds (spec 06) and the contact form post (spec 08).
 - `staticwebapp.config.json` is written by `config/swa.js` after every build. There is no static copy. Spec 05 adds routes there, spec 09 headers.
@@ -77,7 +77,7 @@ Every task in every spec includes these.
 ### Content and editor
 
 - Any task that adds or renames a front matter key updates `.pages.yml` in the same task. From spec 03 Pages CMS keeps unknown keys (`settings.content.merge: true`), but every key is still declared, with `hidden: true` when Paul should not see it.
-- Rich text fields use `format: html`. The trial notice was stored as Markdown because that is the default.
+- Rich text fields use `format: markdown` (spec 07a, 2026-10-19). Bodies are plain Markdown with no HTML, so Paul's editor and the files agree.
 - Date fields with a time keep seconds in their `format` (`yyyy-MM-dd'T'HH:mm:ss`). See Eleventy facts.
 - Existing live URLs never change. A migrated item that cannot get its live URL from the permalink pattern carries a hidden `url` field.
 

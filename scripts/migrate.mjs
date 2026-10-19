@@ -202,14 +202,44 @@ function csvRows(text) {
   return rows.filter((r) => r.some((c) => c.trim()));
 }
 
-// Map of 'event:16' to { start, end, location } from the maintainer's export. A missing file gives an empty map.
-// The location column is optional: the legacy model has the field, but live never shows it.
-export function loadDates(file) {
+const SQL = (v) => (v == null || v.trim() === 'NULL' ? '' : v.trim());
+
+// Dates and locations from the maintainer's SQL export of the live database (spec 07a): events.csv and notices.csv
+// in `dir`, with a header row and NULL for empty. Map of 'event:16' to { start, end, location }. A missing folder
+// or file gives nothing, and the dates are inferred as before.
+export function loadExport(dir) {
   const known = new Map();
-  if (!file) return known;
-  for (const [kind, id, start, end, location = ''] of csvRows(readFileSync(file, 'utf8').replace(/^\uFEFF/, '')).slice(1).map((r) => r.map((c) => c.trim()))) {
-    const s = wallClock(start);
-    if (kind && id && s) known.set(`${kind}:${Number(id)}`, { start: s, end: wallClock(end), location });
+  if (!dir) return known;
+  for (const [kind, file, idCol] of [['event', 'events.csv', 'EventID'], ['notice', 'notices.csv', 'NoticeID']]) {
+    const f = path.join(dir, file);
+    if (!existsSync(f)) continue;
+    const [head = [], ...rows] = csvRows(readFileSync(f, 'utf8').replace(/^\uFEFF/, ''));
+    const at = Object.fromEntries(head.map((h, i) => [h.trim(), i]));
+    for (const r of rows) {
+      const id = Number(SQL(r[at[idCol]]));
+      const start = wallClock(SQL(r[at.StartDate]));
+      if (!id || !start) continue;
+      known.set(`${kind}:${id}`, { start, end: kind === 'event' ? wallClock(SQL(r[at.EndDate])) : null, location: SQL(r[at.Location]) });
+    }
+  }
+  return known;
+}
+
+// Dates and locations already in the migrated files, so a re-run without the export keeps them.
+// Map of 'event:16' to { start, end, location }, like loadExport.
+export function loadWritten(site) {
+  const known = new Map();
+  for (const [kind, dir] of [['event', 'calendar'], ['notice', 'notices']]) {
+    const folder = path.join(site, 'content', dir);
+    if (!existsSync(folder)) continue;
+    for (const f of readdirSync(folder)) {
+      const id = Number(f.match(/^(\d+)-.*\.md$/)?.[1]);
+      const fm = id && readFileSync(path.join(folder, f), 'utf8').match(/^---\n([\s\S]*?\n)---\n/);
+      if (!fm) continue;
+      const data = parseYaml(fm[1]) ?? {};
+      const start = wallClock(data.date instanceof Date ? data.date.toISOString() : data.date);
+      if (start) known.set(`${kind}:${id}`, { start, end: data.end ? wallClock(data.end instanceof Date ? data.end.toISOString() : data.end) : null, location: data.location ?? '' });
+    }
   }
   return known;
 }
@@ -458,6 +488,144 @@ export function rewriteBody(html, ctx = newContext()) {
   return { html: out, downloads: [...used], embed, notes };
 }
 
+// --- Markdown ---
+
+// Inline tags kept as their contents only: underline, superscripts, spans and font tags have no Markdown form.
+const UNWRAP = new Set(['span', 'font', 'u', 'sup', 'sub', 'small', 'big', 'center', 'abbr']);
+const HEADINGS = /^h([1-6])$/;
+// At the start of a paragraph these would make a heading, quote, list, rule or fence. Escaping the first character
+// is enough. Anything else ("7.30 pm", "#PrayForTheRoof", "+44") is left as written.
+const LINE_START = /^(?:#{1,6}(?=\s|$)|>|[-+](?=\s|$)|\d{1,9}[.)](?=\s|$)|(?:-[ \t]*){3,}$|~~~)/;
+const IMAGE_FILE = /\.(jpe?g|png|gif|webp)$/i;
+
+const spaced = (s) => s.replace(/[\s ]+/g, ' ');
+// Only what Markdown would read as markup: emphasis, code, a link's closing bracket, HTML, entities, strikethrough.
+// An underscore inside a word (a_b) is not emphasis, so it stays.
+const escapeText = (s) => s
+  .replace(/[\\`*]/g, '\\$&')
+  .replace(/_/g, (m, i, all) => (/\w/.test(all[i - 1] ?? '') && /\w/.test(all[i + 1] ?? '') ? m : '\\_'))
+  .replace(/\](?=[([:])/g, '\\]')
+  .replace(/<(?=[A-Za-z/!?])/g, '\\<')
+  .replace(/&(?=#?\w+;)/g, '\\&')
+  .replace(/~~/g, '\\~\\~');
+const linkUrl = (url) => (/[\s()<>]/.test(url) ? `<${url.replace(/</g, '%3C').replace(/>/g, '%3E')}>` : url);
+
+// Emphasis markers must touch the words, so surrounding spaces move outside them.
+function wrap(mark, inner) {
+  const [, lead, body, trail] = inner.match(/^(\s*)([\s\S]*?)(\s*)$/);
+  return body ? `${lead}${mark}${body}${mark}${trail}` : inner;
+}
+
+// Converts a body that rewriteBody cleaned into Markdown with no HTML in it. `left` collects the tags that have
+// no Markdown form here; when it is not empty the caller keeps the HTML.
+export function toMarkdown(html) {
+  const $ = load(html ?? '', null, false);
+  const left = new Set();
+
+  // Inline content as one line of Markdown. A <br> becomes `breakAs`.
+  const inline = (nodes, breakAs = ' ') => nodes.map((n) => {
+    if (n.type === 'text') return escapeText(spaced(n.data));
+    if (n.type !== 'tag') return '';
+    const tag = n.tagName;
+    const inner = () => inline(n.children, breakAs);
+    if (tag === 'br') return breakAs;
+    // Each line separately, so a <br> inside bold text does not split the markers across paragraphs.
+    if (tag === 'strong' || tag === 'b') return inner().split('\n').map((l) => wrap('**', l)).join('\n');
+    if (tag === 'em' || tag === 'i') return inner().split('\n').map((l) => wrap('*', l)).join('\n');
+    if (tag === 'img') {
+      const src = $(n).attr('src') ?? '';
+      return src ? `![${escapeText(spaced($(n).attr('alt') ?? '').trim())}](${linkUrl(src)})` : '';
+    }
+    if (tag === 'a') {
+      const href = ($(n).attr('href') ?? '').trim();
+      // An image that links to an image file (click to enlarge) becomes that file, with no link.
+      const kids = (n.children ?? []).filter((c) => !(c.type === 'text' && !c.data.trim()));
+      if (kids.length === 1 && kids[0].tagName === 'img' && IMAGE_FILE.test(href.replace(/[?#].*$/, ''))) {
+        return `![${escapeText(spaced($(kids[0]).attr('alt') ?? '').trim())}](${linkUrl(href)})`;
+      }
+      // Jump menu links lose their link, and so do links with no text.
+      const text = inline(n.children);
+      if (!href || href.startsWith('#') || !text.trim()) return text;
+      const [, lead, body, trail] = text.match(/^(\s*)([\s\S]*?)(\s*)$/);
+      return `${lead}[${body}](${linkUrl(href)})${trail}`;
+    }
+    if (UNWRAP.has(tag)) return inner();
+    left.add(tag);
+    return '';
+  }).join('');
+
+  // One block: tidy spaces and escape what would change its meaning at the start of a line.
+  const block = (s) => {
+    const line = spaced(s).trim();
+    return line.replace(LINE_START, (m) => (/^\d/.test(m) ? `${m.slice(0, -1)}\\${m.slice(-1)}` : `\\${m}`));
+  };
+  // Asterisk banners: a paragraph of asterisks only becomes a divider, text between asterisk runs becomes bold.
+  const banner = (line) => {
+    if (/^(\\\*){3,}$/.test(line)) return '---';
+    const m = line.match(/^(?:\\\*){3,}\s*(.*?)\s*(?:\\\*)*$/);
+    return m && m[1] ? `**${m[1]}**` : line;
+  };
+  const paragraphs = (nodes) => inline(nodes, '\n').split('\n').map(block).filter(Boolean).map(banner);
+
+  const cellText = (td) => block(inline($(td).contents().toArray())).replace(/\|/g, '\\|');
+  const isTextCell = (td) => !$(td).find('img, ul, ol, table, br').length && $(td).find('p').length <= 1;
+
+  function table(el) {
+    const rows = $(el).find('tr').toArray().filter((tr) => $(tr).closest('table')[0] === el);
+    const cells = rows.map((tr) => $(tr).children('th, td').toArray());
+    const filled = cells.filter((r) => r.some((td) => $(td).text().replace(/[\s ]/g, '') || $(td).find('img').length));
+    if (!filled.length) return [];
+    if (!filled.flat().every(isTextCell)) return filled.flat().flatMap((td) => blocks($(td).contents().toArray()));
+    const width = Math.max(...filled.map((r) => r.length));
+    const line = (r) => `| ${Array.from({ length: width }, (_, i) => (r[i] ? cellText(r[i]) : '')).join(' | ')} |`;
+    return [[line(filled[0]), `|${' --- |'.repeat(width)}`, ...filled.slice(1).map(line)].join('\n')];
+  }
+
+  function blocks(nodes) {
+    const out = [];
+    let run = [];
+    const flush = () => {
+      out.push(...paragraphs(run));
+      run = [];
+    };
+    for (const n of nodes) {
+      if (n.type !== 'tag' || !['p', 'div', 'figure', 'figcaption', 'section', 'address', 'ul', 'ol', 'table', 'hr', 'blockquote', 'pre', 'iframe', 'dl'].includes(n.tagName) && !HEADINGS.test(n.tagName)) {
+        run.push(n);
+        continue;
+      }
+      flush();
+      const tag = n.tagName;
+      const kids = n.children ?? [];
+      const heading = tag.match(HEADINGS);
+      if (heading) {
+        // A closing # would be read as part of the heading markup.
+        const text = block(inline(kids)).replace(/#$/, '\\#');
+        if (text) out.push(`${'#'.repeat(Number(heading[1]))} ${text}`);
+      } else if (tag === 'p' || tag === 'figcaption') out.push(...paragraphs(kids));
+      else if (['div', 'figure', 'section', 'address'].includes(tag)) out.push(...blocks(kids));
+      else if (tag === 'ul' || tag === 'ol') {
+        const items = $(n).children('li').toArray();
+        if ($(n).children().toArray().some((c) => c.tagName !== 'li') || items.some((li) => $(li).find('ul, ol, table, p, div').length)) left.add(tag);
+        else out.push(items.map((li, i) => `${tag === 'ol' ? `${i + 1}.` : '-'} ${block(inline(li.children))}`).join('\n'));
+      } else if (tag === 'table') out.push(...table(n));
+      else if (tag === 'hr') out.push('---');
+      else left.add(tag);
+    }
+    flush();
+    return out;
+  }
+
+  const markdown = blocks($.root()[0].children).join('\n\n');
+  return { markdown: markdown ? `${markdown}\n` : '', left: [...left].sort() };
+}
+
+// The body file text in Markdown, or the HTML and the reason when a tag has no Markdown form here.
+export function bodyMarkdown(html) {
+  const { markdown, left } = toMarkdown(html);
+  if (left.length) return { body: html ? `${html}\n` : '', problem: left.map((t) => `<${t}>`).join(' ') };
+  return { body: markdown, problem: '' };
+}
+
 // --- Writing ---
 
 // Writes each file whose text differs (or, with check, only lists it). Returns the changed paths relative to site.
@@ -527,7 +695,7 @@ status: draft
 
 # Migration report
 
-_Written by \`scripts/migrate.mjs\` from ${r.live}. Run again on cutover day. See [spec 07](page-cms-spec-07-content-migration.md)._
+_Written by \`scripts/migrate.mjs\` from ${r.live}, with dates and locations from the SQL export. Run again on cutover day. See [spec 07](page-cms-spec-07-content-migration.md) and [spec 07a](page-cms-spec-07a-content-match.md)._
 
 ## Counts
 
@@ -552,7 +720,10 @@ ${table(['Item', 'What'], r.removed)}
 ${table(['File'], r.unwritten.map((f) => [f]))}
 ## Policy text that no longer applies
 
-${table(['Page', 'Sentence'], r.policy)}`;
+${table(['Page', 'Sentence'], r.policy)}
+## Bodies left as HTML
+
+${table(['Item', 'Why'], r.leftHtml ?? [])}`;
   await mkdir(path.dirname(file), { recursive: true });
   await writeFile(file, text);
 }
@@ -605,7 +776,7 @@ export async function main(argv = process.argv.slice(2), { fetch = globalThis.fe
     args: argv,
     options: {
       live: { type: 'string', default: LIVE },
-      dates: { type: 'string' },
+      db: { type: 'string', default: 'docs/features/migration/data' },
       site: { type: 'string', default: 'site' },
       report: { type: 'string', default: 'docs/features/page-cms/page-cms-migration-report.md' },
       check: { type: 'boolean', default: false },
@@ -615,7 +786,8 @@ export async function main(argv = process.argv.slice(2), { fetch = globalThis.fe
   const site = opts.site;
   const topicsFile = [path.join(site, 'data/topics.yaml'), `${ROOT}site/data/topics.yaml`].find(existsSync);
   const topics = parseYaml(readFileSync(topicsFile, 'utf8'));
-  const known = loadDates(opts.dates ?? null);
+  // The export wins; without it, the dates already written are kept, and only new items are inferred.
+  const known = new Map([...loadWritten(site), ...loadExport(opts.db)]);
 
   const sitemap = await get(fetch, `${live}/sitemap.xml`);
   const paths = [...new Set([...sitemap.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/g)].map((m) => new URL(m[1].replace(/&amp;/g, '&')).pathname))];
@@ -625,7 +797,7 @@ export async function main(argv = process.argv.slice(2), { fetch = globalThis.fe
   const blog = parseBlogIndex(await get(fetch, `${live}/blog`));
 
   const ctx = newContext(live);
-  const report = { date: new Date().toISOString().slice(0, 10), live, counts: { Articles: 0, Events: 0, Notices: 0, Pages: 0 }, inferred: [], unknownTopics: [], failed: [], iframes: [], removed: [], unwritten: [], policy: [] };
+  const report = { date: new Date().toISOString().slice(0, 10), live, counts: { Articles: 0, Events: 0, Notices: 0, Pages: 0 }, inferred: [], unknownTopics: [], failed: [], iframes: [], removed: [], unwritten: [], policy: [], leftHtml: [] };
   const files = new Map();
   const events = [];
   const notices = [];
@@ -634,6 +806,11 @@ export async function main(argv = process.argv.slice(2), { fetch = globalThis.fe
     const slug = topicSlug(label, topics);
     if (!slug && label) report.unknownTopics.push([where, label]);
     return slug || undefined;
+  };
+  const md = (where, html) => {
+    const { body, problem } = bodyMarkdown(html);
+    if (problem) report.leftHtml.push([where, problem]);
+    return body;
   };
   const rewrite = (where, html) => {
     const r = rewriteBody(html, ctx);
@@ -669,7 +846,7 @@ export async function main(argv = process.argv.slice(2), { fetch = globalThis.fe
       const body = rewrite(p, a.body);
       files.set(`content/blog/${info.slug}.md`, frontMatter({
         title: a.title, date, summary: a.summary, blogtopics: topicOf(p, listed?.topic), ...cardImage(info.slug),
-      }) + body.html + '\n');
+      }) + md(p, body.html));
       report.counts.Articles += 1;
     } else if (kind === 'event') {
       const e = parseEvent(html);
@@ -685,7 +862,7 @@ export async function main(argv = process.argv.slice(2), { fetch = globalThis.fe
       for (const s of sentences(body.html)) if (POLICY.test(s)) report.policy.push([p, s]);
       files.set(`content/page/${info.type}/${info.slug}.md`, frontMatter({
         title: pg.title, header: menu.header, footer: menu.footer, weight: menu.weight, ...(body.embed ?? {}),
-      }) + (body.html ? `${body.html}\n` : ''));
+      }) + md(p, body.html));
       report.counts.Pages += 1;
     }
   }
@@ -697,7 +874,7 @@ export async function main(argv = process.argv.slice(2), { fetch = globalThis.fe
     files.set(`content/calendar/${e.id}-${e.slug}.md`, frontMatter({
       title: e.title, date: d.start, end: d.end ?? undefined, summary: e.summary || undefined, location: known.get(`event:${e.id}`)?.location || e.location || undefined,
       eventtopics: topicOf(e.path, e.topicLabel), url: `/calendar/event/${e.id}/${e.slug}`,
-    }) + e.rewritten.html + '\n');
+    }) + md(e.path, e.rewritten.html));
     report.counts.Events += 1;
   }
   const order = [...new Set([...home.noticeOrder, ...notices.map((n) => n.id).sort((a, b) => b - a)])];
@@ -706,8 +883,8 @@ export async function main(argv = process.argv.slice(2), { fetch = globalThis.fe
     const d = noticeDates.get(n.id);
     if (d.reason) report.inferred.push([n.path, d.date, d.reason]);
     files.set(`content/notices/${n.id}-${n.slug}.md`, frontMatter({
-      title: n.title, date: d.date, summary: excerpt(n.rewritten.html), noticetopics: topicOf(n.path, n.topicLabel), url: `/notices/notice/${n.id}/${n.slug}`,
-    }) + n.rewritten.html + '\n');
+      title: n.title, date: d.date, summary: excerpt(n.rewritten.html), location: known.get(`notice:${n.id}`)?.location || undefined, noticetopics: topicOf(n.path, n.topicLabel), url: `/notices/notice/${n.id}/${n.slug}`,
+    }) + md(n.path, n.rewritten.html));
     report.counts.Notices += 1;
   }
 
