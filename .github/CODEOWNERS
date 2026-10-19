@@ -1,0 +1,5 @@
+# Everything needs the maintainer's review, except what Pages CMS writes (.pages.yml).
+* @SvenPam
+/site/content/
+/site/static/uploads/
+/site/data/settings.yaml
