@@ -27,7 +27,7 @@ A Pages CMS save reaches the test site in about 3 minutes with the tests still r
 ## In scope
 
 1. Bicep only on `infra/` changes.
-2. `.github/CODEOWNERS` and a test that keeps it in step with `.pages.yml`.
+2. `.github/CODEOWNERS`. No test (maintainer, 2026-10-19: excessive).
 3. 302 redirects from admin and login links to Pages CMS.
 4. The ruleset how-to for the maintainer.
 
@@ -100,7 +100,7 @@ Not runnable in the sandbox: the workflow on GitHub, Azure, Pages CMS, the rules
 
 - [ ] A content-only push skips Bicep; an `infra/` push, a manual run and a first push run it.
 - [ ] The deploy job still uploads with the right token when Bicep is skipped.
-- [ ] `CODEOWNERS` owns everything except the Pages CMS paths, and a test fails if `.pages.yml` gains a path it does not exempt.
+- [ ] `CODEOWNERS` owns everything except the Pages CMS paths.
 - [ ] Admin and login links 302 to Pages CMS.
 - [ ] How-to updated. `npm test` green.
 
