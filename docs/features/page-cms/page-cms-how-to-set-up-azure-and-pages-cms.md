@@ -143,7 +143,7 @@ GitHub: repo Settings, Secrets and variables, Actions.
 | `AZURE_SUBSCRIPTION_ID` | Secret | `echo $SUB` |
 | `AZURE_RESOURCE_GROUP` | Variable | `rg-stpauls-web` |
 
-Then check Settings, Rules (and Branches): no ruleset or branch protection may require pull requests on `main`. Pages CMS commits straight to `main`, and its saves fail if that is blocked. If you want a rule, add the Pages CMS app to its bypass list.
+Pages CMS commits straight to `main`. Any ruleset or branch protection on `main` must list the Pages CMS app as a bypass, or every save fails. The ruleset to use is in [Protect `main`](#protect-main), set up after Pages CMS is connected.
 
 ## 6. Run the workflow
 
@@ -177,6 +177,30 @@ Record go or no-go as a new row in the Decisions table of [way forward](page-cms
 
 ---
 
+## Protect `main`
+
+From [parity spec 01](../parity-check/parity-check-spec-01-repo-and-build.md). `.github/CODEOWNERS` makes you the owner of everything except what Pages CMS writes. This ruleset makes that count: code changes need your approval, publishers' saves still go straight to `main`. The repo is public, so rulesets are free.
+
+1. Settings, Rules, Rulesets, New ruleset, New branch ruleset.
+2. Name `main`. Enforcement status Active. Target branches: Add target, Include default branch.
+3. Bypass list, Add bypass:
+   - the Pages CMS app, mode **Always**.
+   - Repository admin (you), mode **For pull requests only**. You can't approve your own pull requests, so without this your own changes could never merge.
+4. Rules:
+   - Restrict deletions.
+   - Block force pushes.
+   - Require a pull request before merging: Required approvals 0, tick **Require review from Code Owners**.
+   - Require status checks to pass: add `build` (from the Deploy workflow; it appears once a pull request has run it).
+5. Create.
+
+Check it before inviting Paul:
+
+1. In Pages CMS, signed in with GitHub, change one word in a notice and save. The commit lands on `main`.
+2. Do the same as an email collaborator (invite yourself on another address, or ask Paul once he is invited). The commit lands on `main`.
+3. If your own save is refused, Pages CMS used your token for it: set your bypass mode to **Always**.
+
+Undo the test edits afterwards.
+
 ## Troubleshooting
 
 | Symptom | Likely cause |
@@ -186,7 +210,7 @@ Record go or no-go as a new row in the Decisions table of [way forward](page-cms
 | `AuthorizationFailed` on `Microsoft.Web/staticSites/write` or `listSecrets/action` | `StPauls Static Web App deployer` is missing, or assigned on the resource group instead of the Static Web App. Re-run the `az staticwebapp show` assignment |
 | `AuthorizationFailed` on a `.../operationResults/...` read while a custom domain is added (spec 11) | Azure polls the async result with an action the role lacks. Add that single action from the error to `infra/roles/stpauls-static-web-app-deployer.json`, fill in the `<SUB>` and `<RG>` placeholders with the `sed` command from section 4, update the role from the filled file with `az role definition update --role-definition @/tmp/<file>.json`, delete that file, and extend the test in `tests/unit/roles.test.mjs` |
 | Role not found when assigning | The new role definition has not replicated yet. Wait a minute and retry |
-| Pages CMS save fails | A branch rule blocks direct pushes to `main` |
+| Pages CMS save fails | The ruleset on `main` is missing the Pages CMS app (or, for your own saves, your admin bypass is not **Always**). See [Protect `main`](#protect-main) |
 | Pages CMS shows a config error | It names the key to fix in `.pages.yml` |
 | Infrastructure change not applied, "Deploy infrastructure" skipped | A Pages CMS save replaced the `infra/` push's waiting run, so the deploy compared only the save. Actions, Deploy, Run workflow: a manual run always runs Bicep |
 | Workflow did not run after a save | The save did not touch `site/**`. Check the commit in GitHub |
