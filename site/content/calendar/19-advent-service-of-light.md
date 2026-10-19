@@ -6,5 +6,6 @@ summary: Details of our Advent Service of Light
 eventtopics: church-services
 url: /calendar/event/19/advent-service-of-light
 ---
-<p>Our Advent Service of Light will be held at 6pm on Sunday 6th December 2015 at St Paul's.</p>
-<p>All are welcome.</p>
+Our Advent Service of Light will be held at 6pm on Sunday 6th December 2015 at St Paul's.
+
+All are welcome.
