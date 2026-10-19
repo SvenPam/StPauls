@@ -245,10 +245,12 @@ Fixture bodies in `tests/fixtures/content/` move to Markdown where a scenario is
 
 - The converter is a walk over the cheerio tree already used by `rewriteBody`. No new dependency is expected; adding an HTML-to-Markdown library is the builder's call only if the walk proves unworkable, exact-pinned and audited.
 - Output stays deterministic: same input, same bytes. Bodies end with one newline.
+- Order of work: dates and locations first (they stand alone), then the Pages CMS probe (manual step 0), then the converter, rendering and `.pages.yml`. The escaping and table rules are separate functions, so the probe's result changes only them.
 - The report's existing tables stay. "Inferred dates" should be empty or only hold items created after the export.
 
 ## Manual steps (maintainer)
 
+0. **Before the bulk conversion is built:** the builder writes one hand-made Markdown test page (an escaped `\*` banner, a `1\.` paragraph, escaped `\[ \]`, a pipe table, a linked image, two paragraphs) and the `format: markdown` change for pages only, on the session branch. The maintainer opens it in Pages CMS on a branch or the test site, saves it unchanged and sends back the file Pages CMS wrote. The builder then matches the converter's output to whatever Pages CMS writes for each construct (builder's call, 2026-10-19: simple editing wins, so the editor's format is the target). If Pages CMS drops or flattens the table, Contact List uses the "each cell in reading order" rule instead. If it cannot keep Markdown at all, stop and bring it to the maintainer; the dates and locations work ships on its own.
 1. Keep `docs/features/migration/data/` as exported. On cutover day (spec 11), re-run the same queries into the same files before re-running the script. If that is not possible, items created after this export get inferred dates and are flagged.
 2. Before merging, open one converted page, one event and one article in Pages CMS on the test site, save each without changes, and check the commit Pages CMS makes. Expected: no change, or whitespace only. Report anything else; it decides whether the editor rewrites Markdown in a way the site cannot take. Pages CMS cannot be reached from the sandbox.
 3. Review the content diff and the report. Compare home, an article with images, Website Pictures, Contact List and Regular Church Services with live using `scripts/screenshots.mjs`.
