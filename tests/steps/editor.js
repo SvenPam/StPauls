@@ -35,10 +35,10 @@ Then('the {string} collection has a hidden {string} field', async ({ ui }, name,
   expect(field(ui.cfg, name, key)).toMatchObject({ type: 'string', hidden: true });
 });
 
-Then('every rich text field saves HTML', async ({ ui }) => {
+Then('every rich text field saves Markdown', async ({ ui }) => {
   const rich = entries(ui.cfg).flatMap((c) => c.fields).filter((f) => f.type === 'rich-text');
   expect(rich.length).toBeGreaterThan(0);
-  for (const f of rich) expect(f.options?.format).toBe('html');
+  for (const f of rich) expect(f.options?.format).toBe('markdown');
 });
 
 Then('the {string} collection saves {string} as date and time {string}', async ({ ui }, name, key, format) => {

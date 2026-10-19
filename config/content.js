@@ -1,6 +1,7 @@
-// Paul's content: every .md file is front matter plus an HTML body that Pages CMS saved.
-// Bodies are published byte for byte, with no Markdown and no Nunjucks.
+// Paul's content: every .md file is front matter plus a Markdown body that Pages CMS saved.
+// Bodies are rendered with config/markdown.js and no template engine, so {{ }} and {% %} stay as written.
 import path from 'node:path';
+import { markdown } from './markdown.js';
 
 // Relative to the working directory, because Eleventy globs and input paths are. An absolute CONTENT is converted.
 export const CONTENT_DIR = path.relative(process.cwd(), path.resolve(process.env.CONTENT ?? 'site/content')).split(path.sep).join('/');
@@ -67,7 +68,7 @@ export function itemPermalink(inputPath, data) {
 const isContent = (inputPath) => inputPath.endsWith('.md');
 
 export default function (eleventyConfig) {
-  eleventyConfig.addExtension('md', { compile: (body) => () => body });
+  eleventyConfig.addExtension('md', { compile: (body) => () => markdown.render(body) });
 
   // Computed `layout` did not work in the spike, so it is plain global data. Site pages set their own.
   eleventyConfig.addGlobalData('layout', 'content.njk');

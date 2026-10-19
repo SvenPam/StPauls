@@ -71,7 +71,7 @@ Decommissioning the old site and raising HSTS (spec 12, four weeks later).
 | Step | Who | What | Check |
 |---|---|---|---|
 | 1 | Paul | Stops editing the old site at the agreed time | Confirmed by message |
-| 2 | Claude | `node scripts/migrate.mjs --dates scripts/legacy-dates.csv --check`, then the real run | List of changed files reviewed with the maintainer |
+| 2 | Claude | Re-export the SQL into `docs/features/migration/data/` (spec 07a), `node scripts/migrate.mjs --check`, then the real run | List of changed files reviewed with the maintainer |
 | 3 | Maintainer with Paul | Decide on each file the report lists as not written by the script: delete practice items, keep anything real | Report section empty or every entry decided |
 | 4 | Claude | `npm test`, `npm run build`, `node scripts/check-urls.mjs --list tests/fixtures/live-urls.txt --built _site` | `0 failed` |
 | 5 | Maintainer | Merge to `main`, watch the deploy | Workflow green |

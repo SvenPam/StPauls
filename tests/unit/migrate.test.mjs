@@ -122,22 +122,28 @@ test('an event year is inferred from its neighbours', () => {
   assert.match(got.get(11).reason, /inferred/);
 });
 
-test('CSV dates win', () => {
-  const known = m.loadDates('tests/fixtures/live/dates.csv');
-  const got = m.inferEventDates([{ id: 16, start: [19, 30, 12, 1], end: [21, 0, 12, 1], textYears: [] }], known);
+test('the SQL export gives dates and locations, NULL as empty', () => {
+  const known = m.loadExport('tests/fixtures/sql');
+  assert.deepEqual(known.get('event:16'), { start: '2015-12-01T19:30:00', end: '2015-12-01T21:00:00', location: 'St Michael’s, Kirkham' });
+  assert.deepEqual(known.get('event:17'), { start: '2015-12-02T10:00:00', end: null, location: '' });
+  assert.deepEqual(known.get('notice:46'), { start: '2023-11-29T09:15:00', end: null, location: '' });
+});
+
+test('a missing export folder gives no dates', () => {
+  assert.equal(m.loadExport('tests/fixtures/no-such-folder').size, 0);
+  assert.equal(m.loadExport(undefined).size, 0);
+});
+
+test('export dates win', () => {
+  const got = m.inferEventDates([{ id: 16, start: [19, 30, 12, 1], end: [21, 0, 12, 1], textYears: [] }], m.loadExport('tests/fixtures/sql'));
   assert.equal(got.get(16).start, '2015-12-01T19:30:00');
+  assert.equal(got.get(16).end, '2015-12-01T21:00:00');
   assert.equal(got.get(16).reason, '');
 });
 
-test('the export can carry a location, quoted when it has a comma', () => {
-  const known = m.loadDates('tests/fixtures/live/dates.csv');
-  assert.equal(known.get('event:16').location, "St Michael's, Kirkham");
-  assert.equal(known.get('event:99999').location, '');
-});
-
-test('notice dates count back one day per id step, CSV first', () => {
-  const got = m.inferNoticeDates([46, 44, 43], m.loadDates('tests/fixtures/live/dates.csv'));
-  assert.deepEqual(got.get(46), { date: '2024-03-10', reason: '' });
+test('notice dates count back one day per id step, export first', () => {
+  const got = m.inferNoticeDates([46, 44, 43], m.loadExport('tests/fixtures/sql'));
+  assert.deepEqual(got.get(46), { date: '2023-11-29', reason: '' });
   assert.equal(got.get(44).date, '2026-09-29');
   assert.match(got.get(44).reason, /inferred/);
 });

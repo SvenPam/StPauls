@@ -1,7 +1,7 @@
 ---
 date: 2026-10-19
 tags: [spec, plan, stpauls]
-status: draft
+status: agreed
 ---
 
 # Spec 07a: content match and Markdown bodies
@@ -21,6 +21,7 @@ Every event and notice shows the date it has in the live database, events show t
 | Pure Markdown bodies. Simple editing for Paul comes before looking like live. Jump menus, image widths and centring may go | Maintainer, 2026-10-19 |
 | Content is not corrected. The maintainer is not the author: broken links, wrong years in text and typos are migrated as written | Maintainer, 2026-10-19 |
 | The SQL export replaces `scripts/legacy-dates.csv` | Builder's call, agreed in principle 2026-10-19 (the CSVs already hold every field the dates file was meant to) |
+| Notices follow their real dates, even where that changes live's order (44 Safeguarding now lists above 46 News / Pew Sheets) | Maintainer, 2026-10-19 |
 
 ## Starting point
 
@@ -232,12 +233,11 @@ Behaviour only, per the [conventions](page-cms-spec-conventions.md#tests).
 |---|---|
 | `notices.feature`, "A notice page" | Fixture body becomes Markdown: list item, link, heading. `I see "*stars*"` becomes an escaped `\*stars\*` in the fixture, still shown as `*stars*`. "Indented after blank" still shown as text, not code |
 | `notices.feature`, "Template syntax in a body is shown as written" | Unchanged, passes with Markdown |
-| `pages.feature` (new) | A page with a pipe table shows a table with its header cells |
-| `images.feature` (new) | An image alone in a paragraph is centred; one beside text is not |
+| `pages.feature`, "A Markdown body" (new) | Heading, list, pipe table header cells, escaped banner and `1.` shown as written, an image alone centred and one beside text not |
 | `editor.feature` | Every `body` field has `format: markdown` |
-| `calendar.feature` | A fixture event with `location` shows it (check existing coverage first) |
+| `calendar.feature`, "An event page" | Already shows the fixture `location` ("Church Hall"). No change |
 
-Fixture bodies in `tests/fixtures/content/` move to Markdown where a scenario is about content. One stays HTML to pin the `html: true` safety net.
+Legacy HTML fixtures stay as they are (see Implementation notes); `about-us.md` and `contact-thanks.md` are Markdown.
 
 ---
 
@@ -245,12 +245,24 @@ Fixture bodies in `tests/fixtures/content/` move to Markdown where a scenario is
 
 - The converter is a walk over the cheerio tree already used by `rewriteBody`. No new dependency is expected; adding an HTML-to-Markdown library is the builder's call only if the walk proves unworkable, exact-pinned and audited.
 - Output stays deterministic: same input, same bytes. Bodies end with one newline.
-- Order of work: dates and locations first (they stand alone), then the Pages CMS probe (manual step 0), then the converter, rendering and `.pages.yml`. The escaping and table rules are separate functions, so the probe's result changes only them.
+- Order of work: dates and locations first (they stand alone), then the converter, rendering and `.pages.yml`, then the Pages CMS save check (manual step 0) on the converted content. The escaping and table rules are small separate pieces (`escapeText`, `LINE_START`, `table` in `toMarkdown`), so the check's result changes only them.
+- As built (2026-10-19): `config/markdown.js` holds the one markdown-it instance, shared by `config/content.js` and the script. Centring is a markdown-it core rule that gives a paragraph holding only an image, or only a linked image, `class="solo"`; `.prose .solo` centres it. `bodyMarkdown` renders each converted body and compares its text with the original's (whitespace ignored); any difference, or a tag with no Markdown form, keeps the HTML and lists the item under "Bodies left as HTML". Legacy HTML fixtures in `tests/fixtures/content/` stay HTML: they pin the `html: true` safety net and the image and link transforms. The Markdown scenario uses `page/about/about-us.md`, so no list scenario changes.
+- First run on 2026-10-19: 95 items, 0 inferred dates, 0 bodies left as HTML, 68 event locations, 0 text changes against the previous files, `--check` reports no changes, `check-urls` 120 checked, 0 failed. The 6 failed downloads are the same as spec 07's (already broken on live). `contact-us.md` and `contact-thanks.md` were converted by hand.
 - The report's existing tables stay. "Inferred dates" should be empty or only hold items created after the export.
 
 ## Manual steps (maintainer)
 
-0. **Before the bulk conversion is built:** the builder writes one hand-made Markdown test page (an escaped `\*` banner, a `1\.` paragraph, escaped `\[ \]`, a pipe table, a linked image, two paragraphs) and the `format: markdown` change for pages only, on the session branch. The maintainer opens it in Pages CMS on a branch or the test site, saves it unchanged and sends back the file Pages CMS wrote. The builder then matches the converter's output to whatever Pages CMS writes for each construct (builder's call, 2026-10-19: simple editing wins, so the editor's format is the target). If Pages CMS drops or flattens the table, Contact List uses the "each cell in reading order" rule instead. If it cannot keep Markdown at all, stop and bring it to the maintainer; the dates and locations work ships on its own.
+0. **Pages CMS save check, before merging.** The converted content is on the spec branch, so no test page is needed. In Pages CMS, switch to the branch `ccr-03ea18e8-l6hzof`, open each of these, save without changing anything, and look at the commit Pages CMS makes:
+
+   | Item | What it checks |
+   |---|---|
+   | Pages, About, Contact List | Pipe table, adjacent links |
+   | Blog, Progress Update on St. Paul's Church Roof Fund | Escaped `\*` banners, `1\)` paragraphs |
+   | Pages, Services, Regular Church Services | Escaped `\[ \]`, headings, images |
+   | Events, Christmas Market - Cancelled (id 9) | `1\.` paragraphs, a link |
+   | Pages, Gallery, Website Pictures | Linked images one after another |
+
+   Expected: no commit, or whitespace only. Send back any diff. The builder then matches the converter to what Pages CMS writes for each construct (builder's call, 2026-10-19: simple editing wins, so the editor's format is the target), re-runs, and the check is repeated. If Pages CMS drops or flattens the table, Contact List uses the "each cell in reading order" rule. If it cannot keep Markdown at all, stop and bring it to the maintainer; the dates and locations work can ship on its own.
 1. Keep `docs/features/migration/data/` as exported. On cutover day (spec 11), re-run the same queries into the same files before re-running the script. If that is not possible, items created after this export get inferred dates and are flagged.
 2. Before merging, open one converted page, one event and one article in Pages CMS on the test site, save each without changes, and check the commit Pages CMS makes. Expected: no change, or whitespace only. Report anything else; it decides whether the editor rewrites Markdown in a way the site cannot take. Pages CMS cannot be reached from the sandbox.
 3. Review the content diff and the report. Compare home, an article with images, Website Pictures, Contact List and Regular Church Services with live using `scripts/screenshots.mjs`.

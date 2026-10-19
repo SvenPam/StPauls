@@ -15,8 +15,8 @@ Feature: Pages CMS
     And the "events" collection has a hidden "url" field
     And the "notices" collection has a hidden "url" field
 
-  Scenario: Bodies are saved as HTML
-    Then every rich text field saves HTML
+  Scenario: Bodies are saved as Markdown
+    Then every rich text field saves Markdown
 
   Scenario: Event times are saved in a form the site reads
     Then the "events" collection saves "date" as date and time "yyyy-MM-dd'T'HH:mm:ss"

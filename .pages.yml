@@ -66,7 +66,7 @@ content:
         type: rich-text
         required: true
         options:
-          format: html
+          format: markdown
   - name: events
     label: Events
     type: collection
@@ -138,7 +138,7 @@ content:
         type: rich-text
         required: true
         options:
-          format: html
+          format: markdown
   - name: notices
     label: Notices
     type: collection
@@ -194,7 +194,7 @@ content:
         type: rich-text
         required: true
         options:
-          format: html
+          format: markdown
   - name: home
     label: Home page
     type: file
@@ -304,7 +304,7 @@ content:
             type: rich-text
             required: true
             options:
-              format: html
+              format: markdown
           - name: embed
             label: Embedded calendar or gallery
             type: select
@@ -368,7 +368,7 @@ content:
             type: rich-text
             required: true
             options:
-              format: html
+              format: markdown
           - name: embed
             label: Embedded calendar or gallery
             type: select
@@ -432,7 +432,7 @@ content:
             type: rich-text
             required: true
             options:
-              format: html
+              format: markdown
           - name: embed
             label: Embedded calendar or gallery
             type: select
@@ -496,7 +496,7 @@ content:
             type: rich-text
             required: true
             options:
-              format: html
+              format: markdown
           - name: embed
             label: Embedded calendar or gallery
             type: select
@@ -560,7 +560,7 @@ content:
             type: rich-text
             required: true
             options:
-              format: html
+              format: markdown
           - name: embed
             label: Embedded calendar or gallery
             type: select
@@ -624,7 +624,7 @@ content:
             type: rich-text
             required: true
             options:
-              format: html
+              format: markdown
           - name: embed
             label: Embedded calendar or gallery
             type: select
@@ -688,7 +688,7 @@ content:
             type: rich-text
             required: true
             options:
-              format: html
+              format: markdown
           - name: embed
             label: Embedded calendar or gallery
             type: select
@@ -752,7 +752,7 @@ content:
             type: rich-text
             required: true
             options:
-              format: html
+              format: markdown
           - name: embed
             label: Embedded calendar or gallery
             type: select

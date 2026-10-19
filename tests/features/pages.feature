@@ -16,6 +16,16 @@ Feature: Pages
     And the summary "About summary" is the lead
     And I see "About body."
 
+  Scenario: A Markdown body
+    When I open "/page/about/about-us"
+    Then the body has a heading "Who we are"
+    And the body has a list item "First item"
+    And the body has a table with the header cells "Role, Name"
+    And I see "***** Cancelled *****"
+    And the body shows "1. Not a list" as text, not a numbered list
+    And the "Solo picture" image is centred
+    And the "Inline picture" image is not centred
+
   Scenario: The contact placeholder
     When I open "/contact"
     Then the page heading is "Contact Us"
