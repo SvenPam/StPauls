@@ -1,7 +1,7 @@
 ---
 date: 2026-10-19
 tags: [design, stpauls, parity, plan]
-status: draft
+status: agreed
 ---
 
 # Design: what to match from live before Paul edits
