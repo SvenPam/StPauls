@@ -75,10 +75,10 @@ editor:
     - /account*
     - /Account*
     - /management*
-    - /Management*
 ```
 
-  plus, for each of `calendar`, `notices`, `page` and their capitalised spellings, `/{s}/list`, and for each of `blog`, `calendar`, `notices`, `page` and capitalised, `/{s}/create`, `/{s}/edit/*`, `/{s}/delete/*`, with an action part capitalised to match (`/Calendar/Create`, `/Calendar/Edit/*`). Written out in full in the YAML; no generation.
+  plus `/{calendar,notices,page}/list` and `/{blog,calendar,notices,page}/create`, `/edit/*`, `/delete/*`, lower case only. Written out in full in the YAML; no generation. _Changed while building:_ capitalised admin spellings left out (live linked lower case, and mixed-case links are dropped), and `/Management*` with them. `/Account*` stays: live's header linked `/Account/Login`.
+- `buildSwaConfig` writes compact JSON. Azure caps the file at 20 KB and the 40-extra-uploads headroom test failed with the new routes on indented JSON (22.4 KB).
 - The `/account*` and `/Account*` entries leave `redirects`.
 - `buildSwaConfig` emits each editor route as `{ route, redirect: editor.url, statusCode: 302 }`, after the `redirects` routes.
 - `tests/fixtures/live-urls.txt` keeps `/account/login` and friends; the URL check already accepts 302 to a matching route's target.
@@ -129,6 +129,7 @@ Not runnable in the sandbox: the workflow on GitHub, Azure, Pages CMS, the rules
 - A push touching `infra/` and content together: expect Bicep (script test).
 - A scheduled nightly run: never Bicep, still deploys (script test, workflow test on the fallback step).
 - `/account` with no slash and `/Account/Login`: both 302 (config test).
+- The config near Azure's 20 KB cap: the existing headroom test (40 extra uploads).
 - A new page type added to `.pages.yml` under `site/content/`: still exempt by the prefix (CODEOWNERS test uses prefix matching).
 
 ---

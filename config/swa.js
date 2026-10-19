@@ -1,4 +1,4 @@
-// Writes staticwebapp.config.json for Azure Static Web Apps after each build.
+// Writes staticwebapp.config.json for Azure Static Web Apps after each build. Compact, because Azure caps it at 20 KB.
 // Routes come from site/data/legacy.yaml plus one redirect per legacy upload file and prefix,
 // because Static Web Apps redirects cannot use captures. Routes are decoded, targets encoded.
 import { mkdir, readdir, writeFile } from 'node:fs/promises';
@@ -60,6 +60,7 @@ export async function buildSwaConfig(outDir = '_site', data = readData()) {
     ...cacheRoutes,
     ...(legacy.rewrites ?? []).map(({ from, to }) => ({ route: from, rewrite: to })),
     ...(legacy.redirects ?? []).map(({ from, to }) => ({ route: from, redirect: to, statusCode: 301 })),
+    ...(legacy.editor?.routes ?? []).map((route) => ({ route, redirect: legacy.editor.url, statusCode: 302 })),
     ...uploads.flatMap((file) =>
       (legacy.upload_prefixes ?? []).map((prefix) => ({
         route: `${prefix}/${file}`,
@@ -86,7 +87,7 @@ export async function buildSwaConfig(outDir = '_site', data = readData()) {
     },
   };
   await mkdir(outDir, { recursive: true });
-  await writeFile(path.join(outDir, 'staticwebapp.config.json'), `${JSON.stringify(config, null, 2)}\n`);
+  await writeFile(path.join(outDir, 'staticwebapp.config.json'), `${JSON.stringify(config)}\n`);
   return config;
 }
 

@@ -11,7 +11,7 @@ const config = {
   trailingSlash: 'never',
   routes: [
     { route: '/Calendar', redirect: '/calendar', statusCode: 301 },
-    { route: '/account*', redirect: '/', statusCode: 301 },
+    { route: '/account*', redirect: 'https://app.pagescms.org/svenpam/stpauls/main', statusCode: 302 },
   ],
 };
 
@@ -73,7 +73,7 @@ test('a configured redirect to the wrong place fails', async () => {
 });
 
 test('a configured redirect to its target passes', async () => {
-  const fetch = fakeFetch({ '/account/login': [301, '/'], '/Calendar': [301, 'https://h/calendar'] });
+  const fetch = fakeFetch({ '/account/login': [302, 'https://app.pagescms.org/svenpam/stpauls/main'], '/Calendar': [301, 'https://h/calendar'] });
   assert.deepEqual(await checkHost(['/account/login', '/Calendar'], 'https://h', { config, fetch }), []);
 });
 

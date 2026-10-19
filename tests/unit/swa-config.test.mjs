@@ -93,8 +93,23 @@ test('mixed-case legacy links redirect to the lower-case page', () => {
   const rd = Object.fromEntries(config.routes.filter((r) => r.redirect).map((r) => [r.route, [r.redirect, r.statusCode]]));
   assert.deepEqual(rd['/Calendar'], ['/calendar', 301]);
   assert.deepEqual(rd['/Contact'], ['/contact', 301]);
-  assert.deepEqual(rd['/account*'], ['/', 301]);
-  assert.deepEqual(rd['/Account*'], ['/', 301]);
+});
+
+const PAGES_CMS = 'https://app.pagescms.org/svenpam/stpauls/main';
+
+test('admin and login links go to Pages CMS for now', () => {
+  const rd = Object.fromEntries(config.routes.filter((r) => r.redirect).map((r) => [r.route, [r.redirect, r.statusCode]]));
+  for (const route of ['/account*', '/Account*', '/management*', '/calendar/list', '/notices/list', '/page/list', '/blog/create', '/blog/edit/*', '/notices/delete/*']) {
+    assert.deepEqual(rd[route], [PAGES_CMS, 302], route);
+  }
+});
+
+test('no account route still goes home', () => {
+  assert.deepEqual(config.routes.filter((r) => /^\/account/i.test(r.route) && r.redirect === '/'), []);
+});
+
+test('/blog/list stays a 404', () => {
+  assert.deepEqual(config.routes.filter((r) => /^\/blog\/list$/i.test(r.route)), []);
 });
 
 test('no redirect can match its own target', () => {

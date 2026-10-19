@@ -109,7 +109,7 @@ Temporary (302) redirect to `https://app.pagescms.org/svenpam/stpauls/main`:
 - `/{calendar,notices,page}/list`. `/blog/list` was public, so it 404s.
 - `/{blog,calendar,notices,page}/create`, `/edit/*`, `/delete/*`.
 - `/management*`.
-- Each in lower case and with the section name capitalised (`/Calendar/Create`), as `legacy.yaml` does for `/Account*`.
+- Lower case only, plus `/Account*` (live's header linked `/Account/Login`).
 
 `legacy.yaml` redirects are all 301 today (`config/swa.js`). How a 302 is expressed is the builder's call. The Pages CMS address lives in one place.
 

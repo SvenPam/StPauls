@@ -6,8 +6,28 @@ redirects:
   - { from: /Notices, to: /notices }
   - { from: /Contact, to: /contact }
   - { from: /Blog, to: /blog }
-  - { from: "/account*", to: "/" }
-  - { from: "/Account*", to: "/" }
+# Old admin and login links go to Pages CMS. Temporary (302), so the target can change.
+editor:
+  url: https://app.pagescms.org/svenpam/stpauls/main
+  routes:
+    - "/account*"
+    - "/Account*"
+    - "/management*"
+    - "/calendar/list"
+    - "/notices/list"
+    - "/page/list"
+    - "/blog/create"
+    - "/blog/edit/*"
+    - "/blog/delete/*"
+    - "/calendar/create"
+    - "/calendar/edit/*"
+    - "/calendar/delete/*"
+    - "/notices/create"
+    - "/notices/edit/*"
+    - "/notices/delete/*"
+    - "/page/create"
+    - "/page/edit/*"
+    - "/page/delete/*"
 # Each file under uploads/legacy/ in the build gets a 301 from every prefix below.
 upload_prefixes:
   - /Areas/st_pauls/Uploads
