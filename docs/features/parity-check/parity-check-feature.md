@@ -59,6 +59,7 @@ The site gets very little traffic and there are no search concerns, so old-link 
 | Notices | Start and optional end date, live's rules (part 1, "Notices") | Maintainer |
 | Events | Live's rules (part 1, "Events") | Maintainer |
 | Wide layout | Dropped | Maintainer |
+| Topics (G-01) | Stay fixed at the 4 in `site/data/topics.yaml`. Static for a decade. Adding or renaming one is a maintainer job on request; it goes in the handover runbook (spec 12) with G-02, adding a page type | Maintainer |
 | Old-link and email redirects | Dropped | Maintainer |
 | Admin and login links | Temporary redirect (302) to `https://app.pagescms.org/svenpam/stpauls/main`. _Changes CLAUDE.md_ ("Logins": `/account/*` went home) | Maintainer |
 | Build speed | Bicep runs only when `infra/` changes. Tests stay | Maintainer |
@@ -198,6 +199,7 @@ Nothing to build. Recorded so nobody adds them back by accident.
 | D-01 to D-09, D-12 to D-16 | Old-link variants | Maintainer: little traffic, no search concern. Admin links are the exception (part 0) |
 | D-10, D-11 | Old email links | Maintainer: barely used, only spam |
 | B-15, G-06 | Wide layout | No page uses it. Maintainer |
+| G-01, G-02 | Publishers adding topics or page types | Topics static for a decade. Maintainer job, in the handover runbook |
 | B-24, E-02 | Copy of the enquiry emailed to the enquirer | Web3Forms free has no autoresponder. Accepted |
 | B-37 | Future-dated articles hidden | The live editor never let anyone set the date |
 | E-01, E-03 to E-05, E-07 to E-12 | Logins, comments, publish emails, share links, analytics, maintainer credit, audit table, admin tools, groups | Already decided |
