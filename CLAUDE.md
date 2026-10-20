@@ -75,6 +75,7 @@ Do all of these on the spec's branch before it merges:
 | `docs/features/page-cms/page-cms-feature.md` | The plan: decisions, architecture, work outline |
 | `docs/features/page-cms/page-cms-spec-NN-*.md` | One spec per working session, 00 to 12 |
 | `docs/features/page-cms/page-cms-spec-conventions.md` | Shared rules and the names specs pass between each other |
+| `docs/features/design-options/` | Phase 2 design mockups for Paul. Rebuilt by `scripts/design-options/build.mjs` |
 | `.claude/skills/` | Imported obra/superpowers skills, see `.claude/skills/SUPERPOWERS.md` |
 | `site/` | Eleventy site: `content/` (Paul's), `_includes/`, `pages/`, `data/`, `assets/`, `static/` |
 | `config/` | Eleventy modules loaded by `eleventy.config.js`: content (URLs and collections), data, pages, assets, images, dates, filters, topics, `staticwebapp.config.json` |
@@ -107,5 +108,6 @@ The legacy CSS, images and views needed for reference are on `archive/umbraco-20
 ## Open items
 
 - Content match, spec 07a (2026-10-19): built on its branch. Dates and locations from the SQL export are in the migrated files (export deleted), bodies are Markdown. Waiting on the maintainer's Pages CMS save check (spec 07a, manual step 0) before it merges.
+- Design options (2026-10-20): ten mockups in `docs/features/design-options/`, link sent to Paul. Waiting on his pick before any phase 2 spec.
 - The contact form inbox is not chosen yet. The form stays hidden until a Web3Forms key is set.
 - Easter 2026 and other seasonal pages are still being edited in the legacy back office by the church. Spec 11 re-extracts on cutover day.

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>St Paul's Warton (design 3)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Mulish:wght@400;700&display=swap">
+<style>
+.mockbar{all:initial;display:block;background:#2b2d31;color:#f2f2f3;font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:8px max(16px,env(safe-area-inset-left,0px))}
+.mockbar *{all:unset;box-sizing:border-box}
+.mockbar__in{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 16px;max-width:80rem;margin:0 auto}
+.mockbar__name{display:block;font-weight:600}
+.mockbar__name span{opacity:.75;font-weight:400}
+.mockbar__links{display:flex;flex-wrap:wrap;gap:4px 6px}
+.mockbar a{display:inline-block;padding:4px 10px;border-radius:999px;color:#f2f2f3;text-decoration:none;cursor:pointer;border:1px solid #55585e}
+.mockbar a:hover,.mockbar a:focus-visible{background:#45484e;outline:none}
+.mockbar a[aria-current]{background:#f2f2f3;color:#2b2d31;border-color:#f2f2f3}
+.mocktoast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:1000;max-width:calc(100% - 32px);padding:10px 16px;border-radius:8px;background:#2b2d31;color:#fff;font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;box-shadow:0 4px 16px rgb(0 0 0/.25)}
+
+/* Same layout, dressed like a church noticeboard: the name set in a classic book face, centred under a gold cross. */
+:root{--navy:#002060;--navy-deep:#001a4f;--gold:#c8a85a;--gold-soft:#e6d6a8;--gold-text:#7a6326;--ink:#20242e;--muted:#5a606c;--page:#ffffff;--wash:#f5f6f9;--line:#dfe2e8;
+--serif:'EB Garamond',Garamond,'Times New Roman',serif;--sans:'Mulish','Century Gothic',sans-serif}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;font:400 1.0625rem/1.65 var(--sans);color:var(--ink);background:var(--page)}
+img{display:block;max-width:100%}
+a{color:var(--navy);text-underline-offset:.15em}
+h1,h2,h3{font-family:var(--serif);font-weight:600;color:var(--navy);line-height:1.15;text-wrap:balance}
+.wrap{max-width:72rem;margin:0 auto;padding-left:max(1rem,env(safe-area-inset-left,0px));padding-right:max(1rem,env(safe-area-inset-right,0px))}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+.hd{position:relative;background:var(--navy);color:#fff;text-align:center}
+.hd__top{padding-block:1.6rem 1.2rem}
+.brand{display:inline-flex;flex-direction:column;align-items:center;gap:.35rem;color:#fff;text-decoration:none}
+.brand .cross{width:1rem;height:1.35rem;color:var(--gold)}
+.brand__name{font:600 clamp(2rem,5.5vw,3.1rem)/1 var(--serif);font-variant-caps:small-caps;letter-spacing:.05em}
+.brand__tag{font:italic 400 clamp(1.05rem,2.4vw,1.3rem)/1.3 var(--serif);color:var(--gold-soft)}
+.hd__nav{border-top:1px solid rgb(200 168 90/.45);border-bottom:4px double var(--gold)}
+.hd__nav ul{display:flex;flex-wrap:wrap;justify-content:center;margin:0 auto;list-style:none}
+.hd__nav a{display:block;padding:.7rem .7rem;color:#e5e9f3;text-decoration:none;font-size:.8rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.hd__nav a:hover,.hd__nav a[aria-current]{color:var(--gold)}
+.hd__menu{display:none;padding-bottom:1rem}
+.hd__menu summary{display:inline-block;list-style:none;cursor:pointer;padding:.45rem 1.1rem;border:1px solid var(--gold);color:var(--gold-soft);font-size:.85rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.hd__menu summary::-webkit-details-marker{display:none}
+.hd__menu ul{margin:.75rem 0 0;padding:0;list-style:none}
+.hd__menu a{display:block;padding:.6rem 0;color:#fff;text-decoration:none;font-family:var(--serif);font-size:1.25rem;border-top:1px solid rgb(255 255 255/.12)}
+@media (max-width:900px){.hd__nav{display:none}.hd__menu{display:block}.hd{border-bottom:4px double var(--gold)}}
+
+.photo{height:clamp(14rem,34vw,26rem);overflow:hidden;background:var(--navy)}
+.photo img{width:100%;height:100%;object-fit:cover;object-position:50% 40%}
+.welcome{max-width:46rem;margin:0 auto;padding-block:2.25rem .5rem;text-align:center;font:italic 400 clamp(1.3rem,3vw,1.65rem)/1.4 var(--serif);color:var(--navy)}
+
+.orn{display:flex;align-items:center;gap:1rem;max-width:34rem;margin:3rem auto 1.5rem;font-size:clamp(1.7rem,3.5vw,2.2rem);text-align:center}
+.orn::before,.orn::after{content:"";flex:1;height:1px;background:var(--gold)}
+.orn a{text-decoration:none}
+
+.notices{max-width:46rem;margin:0 auto;padding:0;list-style:none}
+.notices li{padding:1.1rem 0;border-bottom:1px solid var(--line)}
+.notices li:first-child{border-top:1px solid var(--line)}
+.notices h3{margin:0 0 .3rem;font-size:1.45rem}
+.notices h3 a{text-decoration:none}
+.notices h3 a:hover{text-decoration:underline}
+.notices p{margin:0;overflow-wrap:anywhere}
+.more{display:inline-block;margin-top:.35rem;color:var(--gold-text);font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+
+.cards{display:grid;gap:2rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr))}
+.card{min-width:0;text-align:center}
+.card__img{display:block;padding:6px;border:1px solid var(--gold);aspect-ratio:4/3;background:var(--page)}
+.card__img img,.card__noimg{width:100%;height:100%;object-fit:cover}
+.card__noimg{display:grid;place-items:center;background:var(--navy);color:var(--gold)}
+.card__noimg .cross{width:2rem;height:2.7rem}
+.card__meta{margin:.9rem 0 .25rem;color:var(--gold-text);font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.card h3{margin:0 0 .4rem;font-size:1.5rem}
+.card h3 a{text-decoration:none}
+.card h3 a:hover{text-decoration:underline}
+.card p{margin:0}
+
+.ft{margin-top:4rem;background:var(--navy);color:#e3e7f1;text-align:center;border-top:4px double var(--gold)}
+.ft__in{display:grid;justify-items:center;gap:.75rem;padding-block:2.5rem 1.5rem}
+.ft .cross{width:.8rem;height:1.1rem;color:var(--gold)}
+.ft__name{margin:0;font:600 1.8rem/1 var(--serif);font-variant-caps:small-caps;letter-spacing:.05em;color:#fff}
+.ft address{font-style:normal}
+.ft a{color:var(--gold-soft)}
+.ft__links{display:flex;flex-wrap:wrap;justify-content:center;gap:.4rem 1.25rem;margin:0;padding:0;list-style:none}
+.fb{display:inline-flex;align-items:center;gap:.5rem}
+.fb svg{width:1.3rem;height:1.3rem}
+.ft__legal{padding-block:1rem;border-top:1px solid rgb(255 255 255/.12);font-size:.85rem}
+.ft__legal p{margin:0}
+
+.art{max-width:44rem;margin:0 auto;padding-top:2.5rem;text-align:center}
+.art h1{margin:0 0 .75rem;font-size:clamp(2.3rem,5vw,3.2rem)}
+.art__meta{margin:0;color:var(--gold-text);font-size:.8rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.art__meta a{color:inherit}
+.art__lead{margin:1.5rem 0;font:italic 400 1.45rem/1.45 var(--serif);color:var(--navy)}
+.art__img{padding:6px;border:1px solid var(--gold);margin:0 0 2rem}
+.art__img img{width:100%;aspect-ratio:16/10;object-fit:cover}
+.prose{text-align:left;font:400 1.25rem/1.7 var(--serif)}
+.prose p{margin:0 0 1.15rem}
+.prose p:first-child::first-letter{float:left;margin:.08em .1em 0 0;font-size:3.4em;line-height:.8;color:var(--navy)}
+.moreart{max-width:46rem;margin:0 auto;padding:0;list-style:none;columns:2 16rem;column-gap:2rem}
+.moreart li{break-inside:avoid;padding:.5rem 0;border-bottom:1px solid var(--line);font-family:var(--serif);font-size:1.2rem}
+.moreart a{text-decoration:none}
+.moreart a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="mockbar"><div class="mockbar__in">
+<span class="mockbar__name">Design 3 of 10: Traditional <span>(home page)</span></span>
+<span class="mockbar__links">
+<a href="index.html" aria-current="page">Home</a><a href="article.html">Article</a>
+<a href="../02-tidied-up/index.html" aria-label="Previous design">&#8249;</a><a href="../index.html">All designs</a><a href="../04-easy-reading/index.html" aria-label="Next design">&#8250;</a>
+</span></div></div>
+<header class="hd">
+<div class="wrap hd__top"><a class="brand" href="index.html"><svg class="cross" viewBox="0 0 24 32" aria-hidden="true" focusable="false"><path fill="currentColor" d="M10 0h4v9h8v4h-8v19h-4V13H2V9h8z"/></svg><span class="brand__name">St Paul's Warton</span><span class="brand__tag">Serving Christ - Serving the Community</span></a></div>
+<nav class="hd__nav" aria-label="Main"><ul class="wrap"><li><a href="index.html" aria-current="page">Home</a></li><li><a href="#">Blog</a></li><li><a href="#">Calendar</a></li><li><a href="#">About</a></li><li><a href="#">Services</a></li><li><a href="#">Groups</a></li><li><a href="#">Community</a></li><li><a href="#">Links</a></li><li><a href="#">Gallery</a></li><li><a href="#">Forms</a></li><li><a href="#">Safeguarding</a></li></ul></nav>
+<details class="wrap hd__menu"><summary>Menu</summary><ul><li><a href="index.html" aria-current="page">Home</a></li><li><a href="#">Blog</a></li><li><a href="#">Calendar</a></li><li><a href="#">About</a></li><li><a href="#">Services</a></li><li><a href="#">Groups</a></li><li><a href="#">Community</a></li><li><a href="#">Links</a></li><li><a href="#">Gallery</a></li><li><a href="#">Forms</a></li><li><a href="#">Safeguarding</a></li></ul></details>
+</header>
+<main>
+<div class="photo"><img src="../img/wall.jpg" alt="St Paul's Church, Warton"></div>
+<p class="wrap welcome">A warm welcome to everyone, especially any who are visiting St Paul's for the first time</p>
+<section class="wrap"><h2 class="orn"><a href="#">Church Notices</a></h2>
+<ul class="notices"><li><h3><a href="#">SAFEGUARDING</a></h3><p>The parish of Warton: St Paul is committed to the safeguarding of children, young people and adults. We follow the House of Bishops guidance and policies and have our own Parish Safeguarding Officer(s), PSOs. The Diocese of Blackburn’s safeguarding pages contain vital links and information including…</p><a class="more" href="#">Read more</a></li><li><h3><a href="#">News / Pew Sheets</a></h3><p>Weekly news sheets are now available to view from https://www.achurchnearyou.com/church/19565/page/40990/view/</p><a class="more" href="#">Read more</a></li><li><h3><a href="#">Latest Parish Magazine</a></h3><p>Copies of the latest editions of the St Paul's Parish Magazine are available to download or view at https://www.achurchnearyou.com/church/19565/page/55052/view/. A link is also available from the Forms page.</p><a class="more" href="#">Read more</a></li><li><h3><a href="#">Thank you for your donations</a></h3><p>Thank you to everyone for raising donations for St Pauls Church Warton Preston with #easyfundraising! If you haven't signed up yet, it's easy and completely FREE. 6,100 shops and sites will donate to us when you use easyfundraising to do your everyday online shopping - at no extra cost to you! Every…</p><a class="more" href="#">Read more</a></li><li><h3><a href="#">Online Donations Now Available</a></h3><p>Online donations can now be made via our GiveALittle account. Go to https://givealittle.co/campaigns/d9a38846-f38b-4a5c-a7ee-0402cf7eeb46 or follow the link on the Links page.</p><a class="more" href="#">Read more</a></li></ul></section>
+<section class="wrap"><h2 class="orn"><a href="#">Latest from the Blog</a></h2>
+<div class="cards"><article class="card">
+<a class="card__img" href="#" tabindex="-1" aria-hidden="true"><img src="../img/churchyard.jpg" alt=""></a>
+<p class="card__meta">2 March 2022</p><h3><a href="#">St Paul's Churchyard in Bloom</a></h3><p>Pictures of St Paul's churchyard with the crocus on full display</p></article><article class="card">
+<a class="card__img" href="#" tabindex="-1" aria-hidden="true"><span class="card__noimg"><svg class="cross" viewBox="0 0 24 32" aria-hidden="true" focusable="false"><path fill="currentColor" d="M10 0h4v9h8v4h-8v19h-4V13H2V9h8z"/></svg></span></a>
+<p class="card__meta">16 August 2020</p><h3><a href="#">St Paul's, Warton Graveyard Now Recognised by CWGC</a></h3><p>Our graveyard has now been recognised by the Commonwealth War Graves Commission</p></article><article class="card">
+<a class="card__img" href="article.html" tabindex="-1" aria-hidden="true"><img src="../img/interior.jpg" alt=""></a>
+<p class="card__meta">5 May 2020</p><h3><a href="article.html">Church Roof Completed</a></h3><p>Update on the completion of the church roof works</p></article></div></section>
+</main>
+<footer class="ft"><div class="wrap ft__in">
+<svg class="cross" viewBox="0 0 24 32" aria-hidden="true" focusable="false"><path fill="currentColor" d="M10 0h4v9h8v4h-8v19h-4V13H2V9h8z"/></svg><p class="ft__name">St Paul's Warton</p>
+<address>Church Road, Warton, Lancashire, PR4 1BD</address>
+<ul class="ft__links"><li><a href="#">Regular Church Services</a></li><li><a href="#">Church Calendar</a></li><li><a href="#">Contact Us</a></li><li><a href="#">Safeguarding</a></li><li><a href="#">Site Map</a></li></ul>
+<a class="fb" href="#"><svg class="fb" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M24 12a12 12 0 1 0-13.9 11.9v-8.4h-3V12h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.4l-.5 3.5h-2.9v8.4A12 12 0 0 0 24 12z"/></svg>Find us on Facebook</a>
+</div><div class="wrap ft__legal"><p>&copy; 2026 St Paul's Warton &middot; <a href="#">Privacy Policy</a> &middot; <a href="#">Cookie Policy</a></p></div></footer>
+<script>
+document.addEventListener('click', function (e) {
+  var a = e.target.closest('a[href="#"]');
+  if (!a) return;
+  e.preventDefault();
+  var t = document.querySelector('.mocktoast') || document.body.appendChild(Object.assign(document.createElement('div'), { className: 'mocktoast', role: 'status' }));
+  t.textContent = 'This is a mockup. Only the home page and one article are filled in.';
+  clearTimeout(t._h); t.hidden = false; t._h = setTimeout(function () { t.hidden = true; }, 2600);
+});
+</script>
+</body>
+</html>

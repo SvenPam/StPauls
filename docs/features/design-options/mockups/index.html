@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
+<title>St Paul's Website Designs</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;700;800&display=swap">
+<style>
+:root{--bg:#f5f6f8;--surface:#ffffff;--ink:#1b2130;--muted:#566072;--line:#dde1e8;--accent:#002060;--accent-ink:#ffffff;--gold:#8a6f2c;--shadow:rgb(16 24 40/.08);
+--font:'Mulish','Century Gothic',system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11141b;--surface:#1a1e28;--ink:#e9ecf2;--muted:#a4adbc;--line:#2c3241;--accent:#d2b56a;--accent-ink:#11141b;--gold:#d2b56a;--shadow:rgb(0 0 0/.3);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#11141b;--surface:#1a1e28;--ink:#e9ecf2;--muted:#a4adbc;--line:#2c3241;--accent:#d2b56a;--accent-ink:#11141b;--gold:#d2b56a;--shadow:rgb(0 0 0/.3);color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.6 var(--font)}
+.page{max-width:76rem;margin:0 auto;padding-block:2.5rem 4rem;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.eyebrow{display:flex;align-items:center;gap:.5rem;margin:0 0 .5rem;color:var(--gold);font-weight:700;font-size:.85rem;letter-spacing:.08em;text-transform:uppercase}
+.eyebrow svg{width:.6rem;height:.8rem}
+h1{margin:0 0 1rem;font-size:clamp(2rem,5vw,2.75rem);font-weight:800;line-height:1.15;text-wrap:balance}
+.intro{display:grid;gap:1.5rem;align-items:start;margin-bottom:1rem}
+@media (min-width:860px){.intro{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}}
+.intro p{margin:0 0 .75rem;max-width:38rem;font-size:1.0625rem}
+.ask{padding:1.25rem 1.5rem;border-radius:10px;background:var(--surface);border:1px solid var(--line)}
+.ask h2{margin:0 0 .4rem;font-size:1.05rem}
+.ask p{margin:0;font-size:1rem;color:var(--muted)}
+.group{margin-top:3rem}
+.group__head{display:flex;flex-wrap:wrap;align-items:baseline;gap:.25rem 1rem;padding-bottom:.75rem;margin-bottom:1.25rem;border-bottom:1px solid var(--line)}
+.group__head h2{margin:0;font-size:1.4rem;font-weight:800}
+.group__head p{margin:0;color:var(--muted)}
+.grid{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fill,minmax(min(100%,21rem),1fr))}
+.card{display:flex;flex-direction:column;min-width:0;border-radius:12px;background:var(--surface);border:1px solid var(--line);box-shadow:0 1px 3px var(--shadow);overflow:hidden}
+.shot{position:relative;display:block;aspect-ratio:16/10;background:var(--line);border-bottom:1px solid var(--line)}
+.shot__desk{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+.shot__phone{position:absolute;right:4%;bottom:-6%;width:21%;max-width:100%;aspect-ratio:390/780;object-fit:cover;object-position:top;border-radius:10px;border:3px solid #1b2130;box-shadow:0 6px 18px rgb(0 0 0/.3);background:#fff}
+.shot:hover .shot__desk,.shot:focus-visible .shot__desk{opacity:.92}
+.card__body{display:flex;flex-direction:column;gap:.5rem;flex:1;padding:1.5rem 1.25rem 1.25rem}
+.card__title{display:flex;align-items:center;gap:.6rem;margin:0;font-size:1.2rem;font-weight:800}
+.num{display:inline-grid;place-items:center;flex:none;width:1.9rem;height:1.9rem;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:.95rem;font-variant-numeric:tabular-nums}
+.card__body p{margin:0}
+.needs{color:var(--muted);font-size:.95rem}
+.needs b{color:var(--ink)}
+.links{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:auto;padding-top:.5rem}
+.btn{display:inline-flex;align-items:center;min-height:2.6rem;padding:.4rem 1rem;border-radius:999px;border:2px solid var(--accent);color:var(--accent);font-weight:700;text-decoration:none}
+.btn--fill{background:var(--accent);color:var(--accent-ink)}
+.btn:hover{filter:brightness(1.1)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.foot{margin-top:3rem;color:var(--muted);font-size:.9rem}
+</style>
+<div class="page">
+<p class="eyebrow"><svg viewBox="0 0 24 32" aria-hidden="true"><path fill="currentColor" d="M10 0h4v9h8v4h-8v19h-4V13H2V9h8z"/></svg>St Paul's Warton</p>
+<h1>Ten looks for the church website</h1>
+<div class="intro"><div>
+<p>Here are ten ways the website could look. Number 1 is the site as it is now. The others go from small tidy-ups to something completely new.</p>
+<p>Tap a picture to open that design. The grey bar at the top lets you switch between the home page and a blog article, or step on to the next design. The words and photos are the real ones from the site. Only the home page and one article are filled in, so other links won't go anywhere.</p>
+<p>It's worth looking on your phone as well as a computer.</p>
+</div>
+<div class="ask"><h2>When you've had a look</h2><p>Let us know the two or three you like best, and anything you'd keep or avoid from any of them. Mixing bits from different designs is fine.</p></div>
+</div>
+<section class="group" aria-labelledby="g-base"><div class="group__head"><h2 id="g-base">Where we are now</h2><p>The new site as it stands today, built to match the old one.</p></div>
+<div class="grid"><article class="card">
+<a class="shot" href="01-original/index.html" aria-label="Open design 1, Original">
+<img class="shot__desk" src="thumbs/01-original-desktop.jpg" alt="">
+<img class="shot__phone" src="thumbs/01-original-phone.jpg" alt=""></a>
+<div class="card__body">
+<h3 class="card__title"><span class="num">1</span>Original</h3>
+<p>The new site as it is now on the test address. Same colours and layout as the old site, with a few readability fixes.</p>
+<p class="needs"><b>Needs from you:</b> Nothing.</p>
+<div class="links"><a class="btn btn--fill" href="01-original/index.html">Home page</a><a class="btn" href="01-original/article.html">Article</a></div>
+</div></article></div></section>
+<section class="group" aria-labelledby="g-slight"><div class="group__head"><h2 id="g-slight">Small changes</h2><p>Same blue and gold, same layout. Tidier and easier to read.</p></div>
+<div class="grid"><article class="card">
+<a class="shot" href="02-tidied-up/index.html" aria-label="Open design 2, Tidied up">
+<img class="shot__desk" src="thumbs/02-tidied-up-desktop.jpg" alt="">
+<img class="shot__phone" src="thumbs/02-tidied-up-phone.jpg" alt=""></a>
+<div class="card__body">
+<h3 class="card__title"><span class="num">2</span>Tidied up</h3>
+<p>The site you know with the rough edges smoothed: a brighter photo, clearer headings, notices as tidy boxes and a picture on every blog card.</p>
+<p class="needs"><b>Needs from you:</b> Nothing new.</p>
+<div class="links"><a class="btn btn--fill" href="02-tidied-up/index.html">Home page</a><a class="btn" href="02-tidied-up/article.html">Article</a></div>
+</div></article>
+<article class="card">
+<a class="shot" href="03-traditional/index.html" aria-label="Open design 3, Traditional">
+<img class="shot__desk" src="thumbs/03-traditional-desktop.jpg" alt="">
+<img class="shot__phone" src="thumbs/03-traditional-phone.jpg" alt=""></a>
+<div class="card__body">
+<h3 class="card__title"><span class="num">3</span>Traditional</h3>
+<p>The same layout, dressed more like a church noticeboard: the name in a classic book typeface under a gold cross, and the welcome from the services page under the photo.</p>
+<p class="needs"><b>Needs from you:</b> Nothing new.</p>
+<div class="links"><a class="btn btn--fill" href="03-traditional/index.html">Home page</a><a class="btn" href="03-traditional/article.html">Article</a></div>
+</div></article>
+<article class="card">
+<a class="shot" href="04-easy-reading/index.html" aria-label="Open design 4, Easy reading">
+<img class="shot__desk" src="thumbs/04-easy-reading-desktop.jpg" alt="">
+<img class="shot__phone" src="thumbs/04-easy-reading-phone.jpg" alt=""></a>
+<div class="card__body">
+<h3 class="card__title"><span class="num">4</span>Easy reading</h3>
+<p>The same order of things, made for reading: larger text in a typeface designed for people with poor eyesight, a white header, big buttons and a text size switch.</p>
+<p class="needs"><b>Needs from you:</b> Nothing new.</p>
+<div class="links"><a class="btn btn--fill" href="04-easy-reading/index.html">Home page</a><a class="btn" href="04-easy-reading/article.html">Article</a></div>
+</div></article></div></section>
+<section class="group" aria-labelledby="g-layout"><div class="group__head"><h2 id="g-layout">Same colours, new layout</h2><p>Blue and gold stay, but the home page is arranged differently.</p></div>
+<div class="grid"><article class="card">
+<a class="shot" href="05-welcome-first/index.html" aria-label="Open design 5, Welcome first">
+<img class="shot__desk" src="thumbs/05-welcome-first-desktop.jpg" alt="">
+<img class="shot__phone" src="thumbs/05-welcome-first-phone.jpg" alt=""></a>
+<div class="card__body">
+<h3 class="card__title"><span class="num">5</span>Welcome first</h3>
+<p>The home page opens with what a visitor needs: service times, where to find the church and the next few Sundays. Notices and the blog follow.</p>
+<p class="needs"><b>Needs from you:</b> Service times kept in Site settings, updated when they change. The Sundays list fills itself from those.</p>
+<div class="links"><a class="btn btn--fill" href="05-welcome-first/index.html">Home page</a><a class="btn" href="05-welcome-first/article.html">Article</a></div>
+</div></article>
+<article class="card">
+<a class="shot" href="06-parish-magazine/index.html" aria-label="Open design 6, Parish magazine">
+<img class="shot__desk" src="thumbs/06-parish-magazine-desktop.jpg" alt="">
+<img class="shot__phone" src="thumbs/06-parish-magazine-phone.jpg" alt=""></a>
+<div class="card__body">
+<h3 class="card__title"><span class="num">6</span>Parish magazine</h3>
+<p>Laid out like the front page of the parish magazine: a masthead, the newest blog story large, other stories below and notices and service times down the side.</p>
+<p class="needs"><b>Needs from you:</b> Works best when blog articles have a picture. Service times kept in Site settings.</p>
+<div class="links"><a class="btn btn--fill" href="06-parish-magazine/index.html">Home page</a><a class="btn" href="06-parish-magazine/article.html">Article</a></div>
+</div></article>
+<article class="card">
+<a class="shot" href="07-signposts/index.html" aria-label="Open design 7, Signposts">
+<img class="shot__desk" src="thumbs/07-signposts-desktop.jpg" alt="">
+<img class="shot__phone" src="thumbs/07-signposts-phone.jpg" alt=""></a>
+<div class="card__body">
+<h3 class="card__title"><span class="num">7</span>Signposts</h3>
+<p>No dropdown menus. The home page is a set of big, clear buttons to every part of the site, with notices you tap to open. Easy on a phone.</p>
+<p class="needs"><b>Needs from you:</b> Nothing new.</p>
+<div class="links"><a class="btn btn--fill" href="07-signposts/index.html">Home page</a><a class="btn" href="07-signposts/article.html">Article</a></div>
+</div></article></div></section>
+<section class="group" aria-labelledby="g-overhaul"><div class="group__head"><h2 id="g-overhaul">Something new</h2><p>New colours and a new layout. The words and photos stay the same.</p></div>
+<div class="grid"><article class="card">
+<a class="shot" href="08-churchyard/index.html" aria-label="Open design 8, Churchyard">
+<img class="shot__desk" src="thumbs/08-churchyard-desktop.jpg" alt="">
+<img class="shot__phone" src="thumbs/08-churchyard-phone.jpg" alt=""></a>
+<div class="card__body">
+<h3 class="card__title"><span class="num">8</span>Churchyard</h3>
+<p>New colours from the churchyard photos: yew green, crocus purple and pale stone. A calmer page with more space, service times up front and a strip of church photos.</p>
+<p class="needs"><b>Needs from you:</b> Service times kept in Site settings. Uses photos already on the site.</p>
+<div class="links"><a class="btn btn--fill" href="08-churchyard/index.html">Home page</a><a class="btn" href="08-churchyard/article.html">Article</a></div>
+</div></article>
+<article class="card">
+<a class="shot" href="09-stained-glass/index.html" aria-label="Open design 9, Stained glass">
+<img class="shot__desk" src="thumbs/09-stained-glass-desktop.jpg" alt="">
+<img class="shot__phone" src="thumbs/09-stained-glass-phone.jpg" alt=""></a>
+<div class="card__body">
+<h3 class="card__title"><span class="num">9</span>Stained glass</h3>
+<p>Bold and colourful, taken from a stained glass window: ruby, sapphire, emerald and amber with dark lead lines. Each part of the site has its own colour, and photos sit in arched frames.</p>
+<p class="needs"><b>Needs from you:</b> Service times kept in Site settings.</p>
+<div class="links"><a class="btn btn--fill" href="09-stained-glass/index.html">Home page</a><a class="btn" href="09-stained-glass/article.html">Article</a></div>
+</div></article>
+<article class="card">
+<a class="shot" href="10-estuary/index.html" aria-label="Open design 10, Estuary">
+<img class="shot__desk" src="thumbs/10-estuary-desktop.jpg" alt="">
+<img class="shot__phone" src="thumbs/10-estuary-phone.jpg" alt=""></a>
+<div class="card__body">
+<h3 class="card__title"><span class="num">10</span>Estuary</h3>
+<p>Quiet and modern, in colours from the Ribble estuary: slate blue, pale sky and sand. Big, light lettering, a wide photo and the key facts on one line like a sign board.</p>
+<p class="needs"><b>Needs from you:</b> Service times kept in Site settings.</p>
+<div class="links"><a class="btn btn--fill" href="10-estuary/index.html">Home page</a><a class="btn" href="10-estuary/article.html">Article</a></div>
+</div></article></div></section>
+<p class="foot">Mockups made 20 October 2026. Nothing on the real website has changed.</p>
+</div>
+</body>
+</html>
