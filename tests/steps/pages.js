@@ -326,3 +326,7 @@ Then('the blog aside is hidden', async ({ ui }) => {
 Then('the {string} link anywhere on the page goes to {string}', async ({ ui }, name, href) => {
   await expect(ui.page.getByRole('link', { name, exact: true })).toHaveAttribute('href', href);
 });
+
+Then('the search description is {string}', async ({ ui }, text) => {
+  await expect(ui.page.locator('meta[name="description"]')).toHaveAttribute('content', text);
+});

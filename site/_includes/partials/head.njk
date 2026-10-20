@@ -1,8 +1,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% if page.url == '/' %}{{ site.title }}{% else %}{{ title }} | {{ site.title }}{% endif %}</title>
-{%- if summary %}
-<meta name="description" content="{{ summary }}">
+{#- An item's summary, else the page's own description; a topic page uses its section's. -#}
+{%- set metaDescription = summary or description %}
+{%- if not metaDescription and t and t.section %}{% set metaDescription = (collections.all | sectionIndex(t.section)).data.description %}{% endif %}
+{%- if metaDescription %}
+<meta name="description" content="{{ metaDescription }}">
 {%- endif %}
 {%- if page.url != "/404.html" %}
 <link rel="canonical" href="{{ site.url }}{{ page.url | href }}">
