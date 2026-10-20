@@ -8,8 +8,6 @@
   <p class="meta-line"><span class="status">{{ d | eventStatus }}</span> <span class="date-time">{{ d.date | date }} {{ d.date | time }}</span></p>
   {%- elif d.section == 'blog' %}
   <p class="meta-line"><span class="date-time">Published {{ d.date | date }}</span></p>
-  {%- else %}
-  <span class="date-time notice-date">{{ d.date | date }}</span>
   {%- endif %}
   {%- if d.location %}
   <p class="card__location">{{ d.location }}</p>

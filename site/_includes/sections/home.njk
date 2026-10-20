@@ -11,10 +11,12 @@
   </div>
 </section>
 
+{%- set notices = collections.notices | noticesHome %}
+{%- if notices.length %}
 <section class="home-section" aria-labelledby="home-notices">
   <h2 id="home-notices"><a href="/notices">Church Notices</a></h2>
   <div class="home-notices">
-    {%- for item in collections.notices | newestFirst %}
+    {%- for item in notices %}
     <a class="home-notice" href="{{ item.url | href }}">
       <h3>{{ item.data.title }}</h3>
       {%- if item.data.summary %}
@@ -24,6 +26,7 @@
     {%- endfor %}
   </div>
 </section>
+{%- endif %}
 
 <section class="home-section" aria-labelledby="home-articles">
   <h2 id="home-articles"><a href="/blog">Latest Blog Articles</a></h2>

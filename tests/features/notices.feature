@@ -14,11 +14,13 @@ Feature: Notices
       | Fixture dated    |
       | Fixture syntax   |
     And the "Fixture newer" link goes to "/notices/notice/newer"
-    And the "Fixture newer" card shows "01-Feb-26"
+    And I do not see "01-Feb-26"
     And the "Fixture newer" card shows "Newer summary"
 
-  Scenario: A future-dated notice is published
+  Scenario: A notice that has not started is published, but not on the home page
     Then "/notices/notice/future" exists
+    When I open "/"
+    Then I do not see "Fixture future"
 
   Scenario: A migrated notice keeps its live URL
     Then "/notices/notice/46/news-pew-sheets" exists
@@ -36,7 +38,7 @@ Feature: Notices
   Scenario: A notice page
     When I open "/notices/notice/newer"
     Then the page heading is "Fixture newer"
-    And I see "01-Feb-26"
+    And I do not see "01-Feb-26"
     And I see "Church Hall"
     And the "Church Events" link goes to "/notices/topic/church-events"
     And the body has a list item "Item one"

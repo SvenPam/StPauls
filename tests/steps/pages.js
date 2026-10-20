@@ -169,6 +169,11 @@ Then('the home notices are, in order:', async ({ ui }, table) => {
   expect(got.slice(0, want.length).map((t) => t.trim())).toEqual(want);
 });
 
+Then('the home notices are exactly:', async ({ ui }, table) => {
+  const got = await main(ui).locator('.home-notice h3').allTextContents();
+  expect(got.map((t) => t.trim())).toEqual(table.raw().map((r) => r[0]));
+});
+
 Then('the {string} card image is {int} by {int}', async ({ ui }, title, width, height) => {
   const card = main(ui).locator('.card').filter({ has: ui.page.getByRole('link', { name: title, exact: true }) });
   const img = card.locator('img');

@@ -8,11 +8,11 @@ pagination:
 permalink: "/{{ feedSection }}/index.xml"
 eleventyExcludeFromCollections: true
 ---
-{#- RSS 2.0 for a section: 20 items, events upcoming only. Autoescape escapes each value once. -#}
+{#- RSS 2.0 for a section: 20 items, events upcoming only, notices not ended. Autoescape escapes each value once. -#}
 {%- set base = site.url -%}
 {%- set sectionTitle = "" -%}
 {%- for p in collections.all %}{% if p.data.isIndex and p.data.section == feedSection %}{% set sectionTitle = p.data.title %}{% endif %}{% endfor -%}
-{%- if feedSection == 'calendar' %}{% set items = collections.calendar | upcoming %}{% else %}{% set items = collections[feedSection] | newestFirst %}{% endif -%}
+{%- if feedSection == 'calendar' %}{% set items = collections.calendar | upcoming %}{% elif feedSection == 'notices' %}{% set items = collections.notices | noticesCurrent %}{% else %}{% set items = collections[feedSection] | newestFirst %}{% endif -%}
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0">
   <channel>

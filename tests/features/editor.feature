@@ -66,3 +66,7 @@ Feature: Pages CMS
 
   Scenario: Embed types match the site's embeds
     Then the "page-about" collection offers the site embeds as "embed"
+
+  Scenario: Notices have a start and an optional end date
+    Then the "notices" collection has a required date "date" labelled "Show from"
+    And the "notices" collection has an optional date "until" labelled "Show until"

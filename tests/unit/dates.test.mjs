@@ -104,3 +104,31 @@ test('buildNow reads NOW', async () => {
     if (saved === undefined) delete process.env.NOW; else process.env.NOW = saved;
   }
 });
+
+test('a notice ends after its Show until day, UK time', async () => {
+  const { noticeEnded } = await import('../../config/dates.js');
+  const n = { date: '2030-05-01', until: '2030-06-15' };
+  assert.equal(noticeEnded(n, Date.parse('2030-06-15T23:59:00+01:00')), false);
+  assert.equal(noticeEnded(n, Date.parse('2030-06-16T00:00:00+01:00')), true);
+  for (const until of [undefined, '', 'nonsense']) assert.equal(noticeEnded({ date: '2030-05-01', until }, Date.parse('2099-01-01T00:00:00Z')), false);
+  assert.equal(noticeEnded({ until: new Date('2030-06-15T00:00:00Z') }, Date.parse('2030-06-16T00:00:00+01:00')), true);
+});
+
+test('a notice starts at the beginning of its Show from day, UK time', async () => {
+  const { noticeStarted } = await import('../../config/dates.js');
+  const n = { date: '2030-07-01' };
+  assert.equal(noticeStarted(n, Date.parse('2030-06-30T23:59:00+01:00')), false);
+  assert.equal(noticeStarted(n, Date.parse('2030-07-01T00:00:00+01:00')), true);
+});
+
+test('the home shows at most 5 started, current notices, newest first', async () => {
+  const { noticesHome, noticesCurrent } = await import('../../config/dates.js');
+  const item = (name, date, until) => ({ name, data: { date, until } });
+  const items = [
+    item('old', '2030-01-01'), item('a', '2030-06-01'), item('b', '2030-06-02'), item('c', '2030-06-03'),
+    item('d', '2030-06-04'), item('e', '2030-06-05'), item('ended', '2030-06-10', '2030-06-14'), item('later', '2030-07-01'),
+  ];
+  const now = Date.parse('2030-06-15T12:00:00+01:00');
+  assert.deepEqual(noticesHome(items, now).map((i) => i.name), ['e', 'd', 'c', 'b', 'a']);
+  assert.deepEqual(noticesCurrent(items, now).map((i) => i.name), ['later', 'e', 'd', 'c', 'b', 'a', 'old']);
+});

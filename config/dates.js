@@ -105,6 +105,38 @@ export function eventStatus(data, now = buildNow()) {
   return 'Future';
 }
 
+// Midnight UK time at the start of a wall date's day, as a real instant.
+const dayStart = (w) => {
+  const d = wall(w);
+  return londonInstant(new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))).getTime();
+};
+const readable = (w) => wall(w) instanceof Date && !Number.isNaN(wall(w).getTime());
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// A notice has started from 00:00 UK on its `date` (Show from) day.
+export function noticeStarted(data, now = buildNow()) {
+  return !readable(data.date) || dayStart(data.date) <= now;
+}
+
+// A notice has ended from 00:00 UK on the day after `until` (Show until). No readable `until` never ends.
+// The day after is worked out on the wall date, so a clock change that night does not shift it.
+export function noticeEnded(data, now = buildNow()) {
+  if (!readable(data.until)) return false;
+  return dayStart(new Date(wall(data.until).getTime() + DAY_MS)) <= now;
+}
+
+const byNewest = (a, b) => wall(b.data.date) - wall(a.data.date);
+
+// Notices that have not ended, newest Show from first. /notices, its feed and the site maps.
+export function noticesCurrent(items, now = buildNow()) {
+  return (items ?? []).filter((i) => !noticeEnded(i.data, now)).sort(byNewest);
+}
+
+// Started and not ended, newest first, at most 5, as live's home page.
+export function noticesHome(items, now = buildNow()) {
+  return noticesCurrent(items, now).filter((i) => noticeStarted(i.data, now)).slice(0, 5);
+}
+
 // Collection items whose end has not passed, soonest first.
 export function upcoming(items, now = buildNow()) {
   const nowMs = typeof now === 'number' ? now : now.getTime();
@@ -114,7 +146,7 @@ export function upcoming(items, now = buildNow()) {
 }
 
 export default function (eleventyConfig) {
-  for (const [name, fn] of Object.entries({ date, time, month, day, isoLondon, isoDay, rfc822London, eventEnd, eventStatus, upcoming })) {
+  for (const [name, fn] of Object.entries({ date, time, month, day, isoLondon, isoDay, rfc822London, eventEnd, eventStatus, upcoming, noticeEnded, noticesCurrent, noticesHome })) {
     eleventyConfig.addFilter(name, fn);
   }
 }

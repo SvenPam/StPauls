@@ -2,6 +2,7 @@
 // Eleventy's own Markdown library renders it with no template engine (markdownTemplateEngine: false in
 // eleventy.config.js), so {{ }} and {% %} stay as written.
 import path from 'node:path';
+import { noticeEnded } from './dates.js';
 
 // Relative to the working directory, because Eleventy globs and input paths are. An absolute CONTENT is converted.
 export const CONTENT_DIR = path.relative(process.cwd(), path.resolve(process.env.CONTENT ?? 'site/content')).split(path.sep).join('/');
@@ -93,6 +94,8 @@ export default function (eleventyConfig) {
     isIndex: (data) => isContent(data.page.inputPath) && isIndex(data.page.inputPath),
     topic: (data) => (isContent(data.page.inputPath) ? topicOf(sectionOf(data.page.inputPath), data) : undefined),
     permalink: (data) => (isContent(data.page.inputPath) ? itemPermalink(data.page.inputPath, data) : data.permalink),
+    // An ended notice keeps its page but leaves both site maps.
+    sitemap: (data) => (isContent(data.page.inputPath) && sectionOf(data.page.inputPath) === 'notices' && noticeEnded(data) ? false : data.sitemap),
   });
 
   // Items only, oldest first (Eleventy's default date order).
