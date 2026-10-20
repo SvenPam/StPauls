@@ -80,3 +80,12 @@ Feature: Pages
     When I open "/page/forms/null-layout"
     Then the page heading is "Null Layout"
     And the page has the site header and footer
+
+  Scenario: The hero is full width under the header, as on live
+    Given a wide screen
+    When I open "/"
+    Then the hero fills the width of the window
+    And the hero starts where the header ends
+    And the hero image offers a 1024 pixel copy
+    When I open "/page/about/about-us"
+    Then the page heading is inside the page column

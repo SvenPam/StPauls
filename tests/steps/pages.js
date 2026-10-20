@@ -256,3 +256,27 @@ Then('the home event months shown are {string}', async ({ ui }, list) => {
   const got = await main(ui).locator('.home-events__month:visible h3').allTextContents();
   expect(got.map((t) => t.trim())).toEqual(list.split(',').map((m) => m.trim()));
 });
+
+Given('a wide screen', async ({ ui }) => {
+  await ui.page.setViewportSize({ width: 1440, height: 900 });
+});
+
+Then('the hero fills the width of the window', async ({ ui }) => {
+  const box = await ui.page.locator('.hero').boundingBox();
+  expect(box.x).toBe(0);
+  expect(box.width).toBe(ui.page.viewportSize().width);
+});
+
+Then('the hero starts where the header ends', async ({ ui }) => {
+  const header = await ui.page.locator('.site-header').boundingBox();
+  const hero = await ui.page.locator('.hero').boundingBox();
+  expect(Math.round(hero.y)).toBe(Math.round(header.y + header.height));
+});
+
+Then('the hero image offers a 1024 pixel copy', async ({ ui }) => {
+  await expect(ui.page.locator('.hero source[type="image/webp"]')).toHaveAttribute('srcset', /\s1024w/);
+});
+
+Then('the page heading is inside the page column', async ({ ui }) => {
+  await expect(ui.page.locator('.site-main .container h1')).toHaveCount(1);
+});

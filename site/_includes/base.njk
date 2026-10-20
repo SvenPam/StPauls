@@ -6,7 +6,8 @@
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 {% include "partials/header.njk" %}
-<main id="main" class="site-main"><div class="container">{{ content | safe }}</div></main>
+{#- The home page lays out its own columns, so its hero can run edge to edge. -#}
+<main id="main" class="site-main">{% if page.url == '/' %}{{ content | safe }}{% else %}<div class="container">{{ content | safe }}</div>{% endif %}</main>
 {% include "partials/footer.njk" %}
 </body>
 </html>
