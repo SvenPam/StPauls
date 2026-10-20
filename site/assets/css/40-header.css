@@ -65,6 +65,8 @@
 }
 .site-nav a:hover, .site-nav summary:hover { color: var(--gold); }
 .site-nav a[aria-current="page"] { color: var(--gold); text-decoration: underline; }
+.site-nav .is-current { color: var(--gold); }
+.site-nav__divider { height: 1px; margin: 0.25rem 0; background: currentColor; opacity: 0.3; }
 .site-nav summary::after { content: " \25BE"; }
 .site-nav details[open] > summary { color: var(--gold); }
 .site-nav details ul { padding-left: 1rem; }

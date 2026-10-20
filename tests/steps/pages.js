@@ -295,3 +295,34 @@ Then('the {string} card has a {string} link named {string}', async ({ ui }, titl
   const link = cardOf(ui, title).getByRole('link', { name, exact: true });
   expect(await link.evaluate((a) => [...a.childNodes].filter((n) => !n.classList?.contains('visually-hidden')).map((n) => n.textContent).join('').trim())).toBe(text);
 });
+
+When('I scroll to the bottom', async ({ ui }) => {
+  await ui.page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await ui.page.waitForTimeout(300);
+});
+
+When('I print {string}', async ({ ui, baseURL }, path) => {
+  await ui.page.emulateMedia({ media: 'print' });
+  await ui.page.goto(new URL(path, baseURL).href);
+});
+
+Then('the {string} link is hidden', async ({ ui }, name) => {
+  await expect(ui.page.getByRole('link', { name, exact: true })).not.toBeVisible();
+});
+
+Then('the {string} link is shown', async ({ ui }, name) => {
+  await expect(ui.page.getByRole('link', { name, exact: true })).toBeVisible();
+});
+
+Then('the footer map is {word}', async ({ ui }, state) => {
+  const map = ui.page.locator('.find-us__map');
+  if (state === 'hidden') await expect(map).not.toBeVisible(); else await expect(map).toBeVisible();
+});
+
+Then('the blog aside is hidden', async ({ ui }) => {
+  await expect(ui.page.locator('.blog-aside')).not.toBeVisible();
+});
+
+Then('the {string} link anywhere on the page goes to {string}', async ({ ui }, name, href) => {
+  await expect(ui.page.getByRole('link', { name, exact: true })).toHaveAttribute('href', href);
+});

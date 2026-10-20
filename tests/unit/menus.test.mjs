@@ -24,7 +24,7 @@ test('fixed items, then page types in weight order', () => {
 });
 
 test('a type with one menu page is a plain link named after the type', () => {
-  assert.deepEqual(menuItems(collections).find((i) => i.name === 'Groups'), { name: 'Groups', url: '/page/groups/church-groups' });
+  assert.deepEqual(menuItems(collections).find((i) => i.name === 'Groups'), { name: 'Groups', section: 'page/groups', url: '/page/groups/church-groups' });
 });
 
 test('a type with several menu pages is a dropdown in weight order, without a url', () => {
@@ -33,6 +33,7 @@ test('a type with several menu pages is a dropdown in weight order, without a ur
   assert.deepEqual(about.children, [
     { name: 'About Us', url: '/page/about/about-us' },
     { name: 'Contact Us', url: '/contact' },
+    { divider: true },
     { name: 'Privacy Policy', url: '/page/about/privacy-policy' },
   ]);
 });
@@ -62,4 +63,13 @@ test('pagesByType lists every page of every type, menu flags ignored', () => {
   const groups = pagesByType(collections);
   assert.deepEqual(groups.map((g) => g.title), ['About', 'Services', 'Groups', 'Forms']);
   assert.deepEqual(groups.at(-1).pages, [{ name: 'Hidden', url: '/page/forms/hidden' }]);
+});
+
+test('About has a divider after Contact Us, as on live', () => {
+  const about = menuItems(collections).find((i) => i.name === 'About');
+  assert.deepEqual(about.children.map((c) => c.name ?? 'divider'), ['About Us', 'Contact Us', 'divider', 'Privacy Policy']);
+});
+
+test('every top item names the section it highlights on', () => {
+  assert.deepEqual(menuItems(collections).map((i) => i.section), ['', 'blog', 'calendar', 'page/about', 'page/services', 'page/groups']);
 });

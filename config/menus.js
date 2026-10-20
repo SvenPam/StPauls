@@ -2,10 +2,11 @@
 // pages opt in with `header` and `footer`. The shapes are those the old menus.yaml had.
 import { href } from './filters.js';
 
+// `section` is what the header highlights the item on: a page whose section is it, or under /{section}/.
 const FIXED_ITEMS = [
-  { name: 'Home', url: '/' },
-  { name: 'Blog', url: '/blog' },
-  { name: 'Calendar', url: '/calendar' },
+  { name: 'Home', url: '/', section: '' },
+  { name: 'Blog', url: '/blog', section: 'blog' },
+  { name: 'Calendar', url: '/calendar', section: 'calendar' },
 ];
 
 const FIXED_LINKS = [
@@ -41,10 +42,20 @@ export function pagesByType(collections) {
   return typesWith(collections).map((t) => ({ title: t.title, pages: t.pages.map(link) }));
 }
 
+// Live's About menu has a divider after Contact Us, before the policies.
+const withDivider = (t, links) => {
+  const i = links.findIndex((l) => l.url === '/contact');
+  return t.type === 'about' && i >= 0 && i < links.length - 1 ? [...links.slice(0, i + 1), { divider: true }, ...links.slice(i + 1)] : links;
+};
+
 export function menuItems(collections) {
   const types = flagged(collections, 'header')
     .filter((t) => t.pages.length)
-    .map((t) => (t.pages.length === 1 ? { name: t.title, url: href(t.pages[0].url) } : { name: t.title, children: t.pages.map(link) }));
+    .map((t) => ({
+      name: t.title,
+      section: `page/${t.type}`,
+      ...(t.pages.length === 1 ? { url: href(t.pages[0].url) } : { children: withDivider(t, t.pages.map(link)) }),
+    }));
   return [...FIXED_ITEMS, ...types];
 }
 

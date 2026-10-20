@@ -34,3 +34,8 @@
 @media (min-width: 768px) {
   .site-footer__inner { grid-template-columns: 2fr 1fr; }
 }
+
+/* Live hides the map on phones. */
+@media (max-width: 767.98px) {
+  .find-us__map { display: none; }
+}
