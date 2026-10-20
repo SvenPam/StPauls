@@ -57,7 +57,8 @@ export function itemPermalink(inputPath, data) {
   }
   const [top, type, ...deeper] = section.split('/');
   if (top === 'page') {
-    if (isIndex(inputPath) || !type || deeper.length) return false;
+    // A hidden page is not built, as live's hidden pages gave 404.
+    if (isIndex(inputPath) || !type || deeper.length || data.hidden === true) return false;
     return url ? `${url}/index.html` : `/page/${type}/${name}/index.html`;
   }
   if (!SECTIONS.includes(section)) return false;
@@ -108,6 +109,6 @@ export default function (eleventyConfig) {
   // Page types carry the menu label and order, pages their menu flags. config/menus.js sorts both.
   eleventyConfig.addCollection('pageTypes', (api) => api.getFilteredByGlob(`${CONTENT_DIR}/page/*/_index.md`));
   eleventyConfig.addCollection('pages', (api) =>
-    api.getFilteredByGlob(`${CONTENT_DIR}/page/*/*.md`).filter((item) => !isIndex(item.inputPath)),
+    api.getFilteredByGlob(`${CONTENT_DIR}/page/*/*.md`).filter((item) => !isIndex(item.inputPath) && item.data.hidden !== true),
   );
 }

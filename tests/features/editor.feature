@@ -60,7 +60,7 @@ Feature: Pages CMS
       | page-gallery      |
       | page-forms        |
       | page-safeguarding |
-    And every page collection saves to its type folder with the fields "title, summary, header, footer, weight, image, image_alt, body, embed, embed_src, url, layout"
+    And every page collection saves to its type folder with the fields "title, summary, header, footer, hidden, weight, image, image_alt, body, embed, embed_src, url, layout"
     And the "page-about" collection has a hidden "url" field
     And the "page-about" collection has a hidden "layout" field
 
@@ -73,3 +73,6 @@ Feature: Pages CMS
 
   Scenario: Articles have a required author
     Then the "blog" collection has a required string "author" labelled "Author"
+
+  Scenario: A page can be hidden
+    Then every page collection has a "hidden" tick box labelled "Hidden"

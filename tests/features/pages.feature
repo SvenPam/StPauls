@@ -89,3 +89,22 @@ Feature: Pages
     And the hero image offers a 1024 pixel copy
     When I open "/page/about/about-us"
     Then the page heading is inside the page column
+
+  Scenario: A hidden page is not on the site
+    Then "/page/about/put-away" does not exist
+    When I open "/"
+    Then I do not see "Put Away"
+    And I do not see "Only Hidden"
+    And the main menu items are, in order:
+      | Home     |
+      | Blog     |
+      | Calendar |
+      | About    |
+      | Services |
+      | Groups   |
+      | Gallery  |
+    When I open "/sitemap"
+    Then I do not see "Put Away"
+    When I read the site map "/sitemap.xml"
+    Then it does not list:
+      | https://stpaulswarton.co.uk/page/about/put-away |
