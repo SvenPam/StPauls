@@ -6,6 +6,15 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const SOON_MS = 168 * 60 * 60 * 1000;
 
+// "Now" for the build: NOW (an ISO instant) when set, so tests build against a fixed clock, else the real clock.
+// A NOW that does not parse stops the build rather than quietly using the real clock.
+export function buildNow() {
+  if (process.env.NOW === undefined) return Date.now();
+  const ms = Date.parse(process.env.NOW);
+  if (Number.isNaN(ms)) throw new Error(`NOW is not a date: ${process.env.NOW}`);
+  return ms;
+}
+
 const WALL_STRING = /^(\d{4})-(\d\d)-(\d\d)(?:T(\d\d):(\d\d)(?::(\d\d))?)?$/;
 
 // YAML hands over a Date for an unquoted timestamp but a string for a quoted one, or one without seconds.
@@ -87,7 +96,7 @@ export function eventEnd(data) {
 }
 
 // Expired, Active, Soon (starts within 168 hours) or Future, as event-status.html did.
-export function eventStatus(data, now = Date.now()) {
+export function eventStatus(data, now = buildNow()) {
   const nowMs = typeof now === 'number' ? now : now.getTime();
   if (londonInstant(eventEnd(data)).getTime() < nowMs) return 'Expired';
   const start = londonInstant(wall(data.date)).getTime();
@@ -97,7 +106,7 @@ export function eventStatus(data, now = Date.now()) {
 }
 
 // Collection items whose end has not passed, soonest first.
-export function upcoming(items, now = Date.now()) {
+export function upcoming(items, now = buildNow()) {
   const nowMs = typeof now === 'number' ? now : now.getTime();
   return (items ?? [])
     .filter((item) => londonInstant(eventEnd(item.data)).getTime() >= nowMs)

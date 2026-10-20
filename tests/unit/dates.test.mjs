@@ -89,3 +89,18 @@ test('isoDay is the London wall date, for site map lastmod', () => {
   assert.equal(isoDay('2026-02-01'), '2026-02-01');
   assert.equal(isoDay('2026-10-17T19:30'), '2026-10-17');
 });
+
+test('buildNow reads NOW', async () => {
+  const { buildNow } = await import('../../config/dates.js');
+  const saved = process.env.NOW;
+  try {
+    process.env.NOW = '2030-06-15T12:00:00+01:00';
+    assert.equal(buildNow(), Date.parse('2030-06-15T12:00:00+01:00'));
+    delete process.env.NOW;
+    assert.ok(Math.abs(buildNow() - Date.now()) < 1000);
+    process.env.NOW = 'not a date';
+    assert.throws(() => buildNow(), /NOW/);
+  } finally {
+    if (saved === undefined) delete process.env.NOW; else process.env.NOW = saved;
+  }
+});

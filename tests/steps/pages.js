@@ -2,7 +2,7 @@ import { expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { parse } from 'yaml';
-import { EMPTY_SITE, Given, KEYED_SITE, Then, When } from './fixtures.js';
+import { CLOCK_NOW, CLOCK_SITE, EMPTY_SITE, Given, KEYED_SITE, Then, When } from './fixtures.js';
 
 const REPO = resolve('..');
 
@@ -188,4 +188,15 @@ Then('there are no cards', async ({ ui }) => {
 Then('the page has the site header and footer', async ({ ui }) => {
   await expect(ui.page.locator('header.site-header')).toHaveCount(1);
   await expect(ui.page.locator('footer.site-footer')).toHaveCount(1);
+});
+
+// The clock site is built at CLOCK_NOW; the browser starts at the same time so site.js agrees with the build.
+When('I open {string} on the clock site', async ({ ui }, path) => {
+  await ui.page.clock.setFixedTime(new Date(CLOCK_NOW));
+  await ui.page.goto(CLOCK_SITE + path);
+});
+
+When('I open {string} on the clock site at {string}', async ({ ui }, path, when) => {
+  await ui.page.clock.setFixedTime(new Date(when));
+  await ui.page.goto(CLOCK_SITE + path);
 });

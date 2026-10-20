@@ -3,6 +3,7 @@
 // Usage: node serve.js <content dir> <port> [--uploads] [--data <dir>]
 // --uploads writes the fixture uploads (tests/fixtures/uploads.mjs) into a temporary folder and builds with UPLOADS set to it.
 // Without it UPLOADS is an empty folder, so Paul's real uploads never reach a fixture build.
+// --now <iso> builds with NOW set, a fixed clock for the date rules (config/dates.js).
 // --data builds with DATA set to <dir>, so its data files (fixture settings) win over site/data.
 import { execFileSync } from 'node:child_process';
 import { createReadStream, existsSync, mkdtempSync, statSync } from 'node:fs';
@@ -13,10 +14,11 @@ import { parseArgs } from 'node:util';
 import { writeFixtureUploads } from './fixtures/uploads.mjs';
 
 const REPO = resolve(import.meta.dirname, '..');
-const { values, positionals } = parseArgs({ allowPositionals: true, options: { uploads: { type: 'boolean' }, data: { type: 'string' } } });
+const { values, positionals } = parseArgs({ allowPositionals: true, options: { uploads: { type: 'boolean' }, data: { type: 'string' }, now: { type: 'string' } } });
 const [content, port] = positionals;
 const out = mkdtempSync(join(tmpdir(), 'stpauls-'));
 const env = { ...process.env, CONTENT: relative(REPO, resolve(content)), UPLOADS: mkdtempSync(join(tmpdir(), 'stpauls-uploads-')) };
+if (values.now) env.NOW = values.now;
 if (values.data) env.DATA = relative(REPO, resolve(values.data));
 if (values.uploads) await writeFixtureUploads(env.UPLOADS);
 execFileSync('npx', ['@11ty/eleventy', `--output=${out}`, '--quiet'], { cwd: REPO, env, stdio: 'inherit' });
