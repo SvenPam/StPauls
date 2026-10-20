@@ -26,11 +26,9 @@ Feature: Pages
     And the "Solo picture" image is centred
     And the "Inline picture" image is not centred
 
-  Scenario: The contact placeholder
+  Scenario: The contact page
     When I open "/contact"
     Then the page heading is "Contact Us"
-    And I see "PR4 1BD"
-    And the "Church contact list" link goes to "/page/about/contact-list"
 
   Scenario: A page outside the known types still builds
     Then "/page/extra/stray" exists

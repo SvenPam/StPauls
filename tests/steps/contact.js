@@ -56,3 +56,16 @@ Then('the spam trap is hidden and cannot be reached with Tab', async ({ ui }) =>
 When('I choose {string} as the enquiry type', async ({ ui }, type) => {
   await form(ui).getByLabel('Enquiry type', { exact: true }).selectOption(type);
 });
+
+Then('the {string} field takes at most {int} characters', async ({ ui }, label, max) => {
+  await expect(form(ui).getByLabel(label, { exact: true })).toHaveAttribute('maxlength', String(max));
+});
+
+// Each text appears in the page after the one before it.
+Then('the contact page reads, in order: {string}, {string}, {string}, {string}', async ({ ui }, a, b, c, d) => {
+  const texts = [a, b, c, d];
+  const text = await ui.page.locator('main').innerText();
+  const at = texts.map((t) => text.indexOf(t));
+  expect(at.every((i) => i >= 0), texts.join(' / ')).toBe(true);
+  expect([...at].sort((a, b) => a - b)).toEqual(at);
+});

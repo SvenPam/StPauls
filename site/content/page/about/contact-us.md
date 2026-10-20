@@ -6,4 +6,9 @@ header: true
 footer: true
 weight: 2
 ---
-We would love to hear from you. Find us at the church, or use the details below.
+| Position | Name | Email | Telephone |
+| --- | --- | --- | --- |
+| Vicar | Rev. Tracy Swindells | [revtswindells@aol.com](mailto:revtswindells@aol.com) | T: 01772 679515 |
+| Church Warden | Jackie Ridealgh | [j](mailto:jackieridealghcwstpauls@gmail.com)[ackieridealghcwstpauls@gmail.com](mailto:ackieridealghcwstpauls@gmail.com) |  |
+| Church Warden |  |  |  |
+| Website Administrator | Paul Barfoot | [wartonstpauls](mailto:wartonstpauls@gmail.com)[@gmail.com](mailto:barfootp@gmail.com) |  |

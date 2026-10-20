@@ -6,4 +6,8 @@ header: true
 footer: true
 weight: 2
 ---
-<p>We would love to hear from you. Find us at the church, or use the details below.</p>
+| Position | Name |
+| --- | --- |
+| Vicar | Fixture Vicar |
+
+[Booking form](/uploads/booking-form.docx)

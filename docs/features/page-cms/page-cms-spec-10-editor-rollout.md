@@ -83,14 +83,14 @@ After the saves, `npm run build` on `main` must still pass and show each saved i
 Written for Paul: second person, short sentences, no jargon, no mention of Git, Markdown, Eleventy, YAML, files or folders. Each task is numbered steps with a `[screenshot: ...]` marker where the maintainer adds an image. Tasks:
 
 1. Signing in for the first time from the email invite, and after that.
-2. Adding a notice.
+2. Adding a notice, with "Show from" and "Show until". A notice appears or goes away overnight, or at the next save (parity spec 02).
 3. Adding an event with start and end times.
-4. Writing a blog article with a picture.
-5. Changing a page, and adding a new page to the top menu.
-6. Adding a picture or a PDF and describing it.
+4. Writing a blog article with a picture, and the Author box (parity spec 03).
+5. Changing a page, adding a new page to the top menu, and hiding a page with the Hidden tick box (parity spec 03). Renaming anything keeps its web address.
+6. Adding a picture, a PDF or a Word document and describing it.
 7. Changing the church diary or gallery embed address.
 8. Changing contact details or the Facebook link in Site settings.
-9. What Save does (the site updates in about two minutes), and that there is no draft or preview.
+9. What Save does (the site updates in about three minutes), and that there is no draft or preview.
 10. Mistakes: deleted something or broke a page, who to ask, and that every change can be put back.
 11. During practice: anything saved before the switchover is thrown away, so use made-up content.
 
