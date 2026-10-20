@@ -1,7 +1,6 @@
 <article>
   <h1>{{ title }}</h1>
   <div class="meta">
-    <span class="date-time notice-date">{{ date | date }}</span>
     {%- if location %}
     <address class="notice-location">{{ location }}</address>
     {%- endif %}
@@ -11,6 +10,9 @@
     <p class="topic-line">Topic: {{ topicLink | safe }}</p>
     {%- endif %}
   </div>
+  {%- if { until: until } | noticeEnded %}
+  <div class="alert alert-expired" role="note"><strong>Expired</strong> This notice has now expired and should be ignored.</div>
+  {%- endif %}
   <div class="prose">
     {{ content | safe }}
   </div>

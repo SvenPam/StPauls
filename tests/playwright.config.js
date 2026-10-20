@@ -18,6 +18,8 @@ const sites = [
   ['fixtures/content', 1313, '--uploads --data fixtures/data/no-key'],
   ['fixtures/empty', 1314, '--data fixtures/data/no-key'],
   ['fixtures/content', 1315, '--uploads --data fixtures/data/with-key'],
+  // Built at a fixed time, for the notice and event date rules. Scenarios set the browser to the same time.
+  ['fixtures/clock', 1316, '--data fixtures/data/no-key --now 2030-06-15T12:00:00+01:00'],
 ];
 
 export default defineConfig({

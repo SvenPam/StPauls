@@ -1,7 +1,7 @@
 ---
 date: 2026-10-19
 tags: [spec, plan, stpauls, parity]
-status: agreed
+status: done
 ---
 
 # Spec 01: repo and build
@@ -98,11 +98,11 @@ Not runnable in the sandbox: the workflow on GitHub, Azure, Pages CMS, the rules
 
 ## Acceptance
 
-- [ ] A content-only push skips Bicep; an `infra/` push, a manual run and a first push run it.
-- [ ] The deploy job still uploads with the right token when Bicep is skipped.
-- [ ] `CODEOWNERS` owns everything except the Pages CMS paths.
-- [ ] Admin and login links 302 to Pages CMS.
-- [ ] How-to updated. `npm test` green.
+- [x] A content-only push skips Bicep; an `infra/` push, a manual run and a first push run it.
+- [x] The deploy job still uploads with the right token when Bicep is skipped.
+- [x] `CODEOWNERS` owns everything except the Pages CMS paths.
+- [x] Admin and login links 302 to Pages CMS.
+- [x] How-to updated. `npm test` green.
 
 ## Implementation plan
 

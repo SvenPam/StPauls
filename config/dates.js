@@ -5,6 +5,16 @@ const ZONE = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', timeZ
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const SOON_MS = 168 * 60 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// "Now" for the build: NOW (an ISO instant) when set, so tests build against a fixed clock, else the real clock.
+// A NOW that does not parse stops the build rather than quietly using the real clock.
+export function buildNow() {
+  if (process.env.NOW === undefined) return Date.now();
+  const ms = Date.parse(process.env.NOW);
+  if (Number.isNaN(ms)) throw new Error(`NOW is not a date: ${process.env.NOW}`);
+  return ms;
+}
 
 const WALL_STRING = /^(\d{4})-(\d\d)-(\d\d)(?:T(\d\d):(\d\d)(?::(\d\d))?)?$/;
 
@@ -51,12 +61,13 @@ export const date = (v) => {
   const d = wall(v);
   return `${pad(d.getUTCDate())}-${MONTHS[d.getUTCMonth()].slice(0, 3)}-${pad(d.getUTCFullYear() % 100)}`;
 };
-// 12-hour time, as 7:30 PM.
+// 24-hour time, as 19:30.
 export const time = (v) => {
   const d = wall(v);
-  return `${d.getUTCHours() % 12 || 12}:${pad(d.getUTCMinutes())} ${d.getUTCHours() < 12 ? 'AM' : 'PM'}`;
+  return `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
 };
 export const month = (v) => MONTHS[wall(v).getUTCMonth()];
+export const shortMonth = (v) => month(v).slice(0, 3);
 export const day = (v) => String(wall(v).getUTCDate());
 
 const wallClock = (d) =>
@@ -79,15 +90,20 @@ export const rfc822London = (v) => {
 };
 
 // An event's end. Pages CMS writes 2026-10-17T19:30 as a string; migrated files have a Date. Both go through wall().
-// Missing, empty, unreadable or not after the start falls back to the start.
+// Missing, empty, unreadable or not after the start: 24 hours after the start, as live.
 export function eventEnd(data) {
   const start = wall(data.date);
-  const end = wall(data.end);
-  return end instanceof Date && !Number.isNaN(end.getTime()) && end > start ? end : start;
+  return hasEnd(data) ? wall(data.end) : new Date(start.getTime() + DAY_MS);
 }
 
-// Expired, Active, Soon (starts within 168 hours) or Future, as event-status.html did.
-export function eventStatus(data, now = Date.now()) {
+// Whether an event has its own end: readable and after the start.
+export function hasEnd(data) {
+  const end = wall(data.end);
+  return end instanceof Date && !Number.isNaN(end.getTime()) && end > wall(data.date);
+}
+
+// Expired, Active, Soon (starts within 7 days, the maintainer's call; live used 24 hours) or Future.
+export function eventStatus(data, now = buildNow()) {
   const nowMs = typeof now === 'number' ? now : now.getTime();
   if (londonInstant(eventEnd(data)).getTime() < nowMs) return 'Expired';
   const start = londonInstant(wall(data.date)).getTime();
@@ -96,8 +112,72 @@ export function eventStatus(data, now = Date.now()) {
   return 'Future';
 }
 
+// Midnight UK time at the start of a wall date's day, as a real instant.
+const dayStart = (w) => {
+  const d = wall(w);
+  return londonInstant(new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))).getTime();
+};
+const readable = (w) => wall(w) instanceof Date && !Number.isNaN(wall(w).getTime());
+
+// A notice has started from 00:00 UK on its `date` (Show from) day.
+export function noticeStarted(data, now = buildNow()) {
+  return !readable(data.date) || dayStart(data.date) <= now;
+}
+
+// A notice has ended from 00:00 UK on the day after `until` (Show until). No readable `until` never ends.
+// The day after is worked out on the wall date, so a clock change that night does not shift it.
+export function noticeEnded(data, now = buildNow()) {
+  if (!readable(data.until)) return false;
+  return dayStart(new Date(wall(data.until).getTime() + DAY_MS)) <= now;
+}
+
+const byNewest = (a, b) => wall(b.data.date) - wall(a.data.date);
+
+// Notices that have not ended, newest Show from first. /notices, its feed and the site maps.
+export function noticesCurrent(items, now = buildNow()) {
+  return (items ?? []).filter((i) => !noticeEnded(i.data, now)).sort(byNewest);
+}
+
+// Started and not ended, newest first, at most 5, as live's home page.
+export function noticesHome(items, now = buildNow()) {
+  return noticesCurrent(items, now).filter((i) => noticeStarted(i.data, now)).slice(0, 5);
+}
+
+// The event page's countdown, as live: Expired, In Progress, then minutes under an hour, hours under a day, else days.
+// Whole numbers rounded down, never singular. site.js repeats these rules in the visitor's browser.
+export function countdown(data, now = buildNow()) {
+  const status = eventStatus(data, now);
+  if (status === 'Expired') return 'Expired';
+  if (status === 'Active') return 'In Progress';
+  const ms = londonInstant(wall(data.date)).getTime() - now;
+  if (ms < 60 * 60 * 1000) return `${Math.max(1, Math.floor(ms / 60000))} minutes to go`;
+  if (ms < DAY_MS) return `${Math.floor(ms / 3600000)} hours to go`;
+  return `${Math.floor(ms / DAY_MS)} days to go`;
+}
+
+// The label on calendar cards and the home column: nothing for Future. Active reads "In Progress" on cards, "Active" at home.
+export function eventLabel(data, active = 'In Progress', now = buildNow()) {
+  const status = eventStatus(data, now);
+  return { Expired: 'Expired', Active: active, Soon: 'Soon', Future: '' }[status];
+}
+
+// Every item, soonest start first. Calendar topic pages keep past events, as live.
+export const soonestFirst = (items) => [...(items ?? [])].sort((a, b) => wall(a.data.date) - wall(b.data.date));
+
+// Items grouped under their start month, in order: [{ month, items }]. A new group starts whenever the month changes.
+export function byMonth(items) {
+  const groups = [];
+  for (const item of items ?? []) {
+    const d = wall(item.data.date);
+    const key = `${d.getUTCFullYear()}-${d.getUTCMonth()}`;
+    if (groups.at(-1)?.key !== key) groups.push({ key, month: MONTHS[d.getUTCMonth()], items: [] });
+    groups.at(-1).items.push(item);
+  }
+  return groups;
+}
+
 // Collection items whose end has not passed, soonest first.
-export function upcoming(items, now = Date.now()) {
+export function upcoming(items, now = buildNow()) {
   const nowMs = typeof now === 'number' ? now : now.getTime();
   return (items ?? [])
     .filter((item) => londonInstant(eventEnd(item.data)).getTime() >= nowMs)
@@ -105,7 +185,7 @@ export function upcoming(items, now = Date.now()) {
 }
 
 export default function (eleventyConfig) {
-  for (const [name, fn] of Object.entries({ date, time, month, day, isoLondon, isoDay, rfc822London, eventEnd, eventStatus, upcoming })) {
+  for (const [name, fn] of Object.entries({ date, time, month, shortMonth, day, isoLondon, isoDay, rfc822London, eventEnd, eventStatus, upcoming, hasEnd, countdown, eventLabel, soonestFirst, byMonth, noticeEnded, noticesCurrent, noticesHome })) {
     eleventyConfig.addFilter(name, fn);
   }
 }

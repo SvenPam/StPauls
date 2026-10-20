@@ -2,7 +2,7 @@ import { expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { parse } from 'yaml';
-import { EMPTY_SITE, Given, KEYED_SITE, Then, When } from './fixtures.js';
+import { CLOCK_NOW, CLOCK_SITE, EMPTY_SITE, Given, KEYED_SITE, Then, When } from './fixtures.js';
 
 const REPO = resolve('..');
 
@@ -169,6 +169,11 @@ Then('the home notices are, in order:', async ({ ui }, table) => {
   expect(got.slice(0, want.length).map((t) => t.trim())).toEqual(want);
 });
 
+Then('the home notices are exactly:', async ({ ui }, table) => {
+  const got = await main(ui).locator('.home-notice h3').allTextContents();
+  expect(got.map((t) => t.trim())).toEqual(table.raw().map((r) => r[0]));
+});
+
 Then('the {string} card image is {int} by {int}', async ({ ui }, title, width, height) => {
   const card = main(ui).locator('.card').filter({ has: ui.page.getByRole('link', { name: title, exact: true }) });
   const img = card.locator('img');
@@ -188,4 +193,66 @@ Then('there are no cards', async ({ ui }) => {
 Then('the page has the site header and footer', async ({ ui }) => {
   await expect(ui.page.locator('header.site-header')).toHaveCount(1);
   await expect(ui.page.locator('footer.site-footer')).toHaveCount(1);
+});
+
+// The clock site is built at CLOCK_NOW; the browser starts at the same time so site.js agrees with the build.
+When('I open {string} on the clock site', async ({ ui }, path) => {
+  await ui.page.clock.setFixedTime(new Date(CLOCK_NOW));
+  await ui.page.goto(CLOCK_SITE + path);
+});
+
+When('I open {string} on the clock site at {string}', async ({ ui }, path, when) => {
+  await ui.page.clock.setFixedTime(new Date(when));
+  await ui.page.goto(CLOCK_SITE + path);
+});
+
+// The event page's Start and End blocks, as their visible text.
+const when = (ui, label) => main(ui).locator('.event-when div').filter({ has: ui.page.locator('dt', { hasText: label }) }).locator('dd');
+
+Then('the event starts {string}', async ({ ui }, text) => {
+  await expect(when(ui, 'Start')).toHaveText(text);
+});
+
+Then('the event ends {string}', async ({ ui }, text) => {
+  await expect(when(ui, 'End')).toHaveText(text);
+});
+
+Then('the event has no end', async ({ ui }) => {
+  await expect(when(ui, 'End')).toHaveCount(0);
+});
+
+Then('the {string} card has no status', async ({ ui }, title) => {
+  const card = main(ui).locator('.card').filter({ has: ui.page.getByRole('link', { name: title, exact: true }) });
+  await expect(card.locator('.status')).toHaveText('');
+});
+
+Then('the page title is {string}', async ({ ui }, title) => {
+  await expect(ui.page).toHaveTitle(title);
+});
+
+// Visible lines of the home Upcoming Events column: month heading, day, title, label.
+Then('the home events are:', async ({ ui }, table) => {
+  const rows = await main(ui).locator('.home-events li:visible').evaluateAll((lis) =>
+    lis.map((li) => [
+      li.closest('.home-events__month').querySelector('h3').textContent.trim(),
+      li.querySelector('strong').textContent.trim(),
+      li.querySelector('a').textContent.trim(),
+      li.querySelector('.status').textContent.trim(),
+    ]));
+  expect(rows).toEqual(table.raw().map((r) => r.map((c) => c.trim())));
+});
+
+Then('the home notices do not include {string}', async ({ ui }, title) => {
+  const got = await main(ui).locator('.home-notice h3').allTextContents();
+  expect(got.map((t) => t.trim())).not.toContain(title);
+});
+
+Then('the home event {string} is labelled {string}', async ({ ui }, title, label) => {
+  const li = main(ui).locator('.home-events li').filter({ has: ui.page.getByRole('link', { name: title, exact: true }) });
+  await expect(li.locator('.status')).toHaveText(label);
+});
+
+Then('the home event months shown are {string}', async ({ ui }, list) => {
+  const got = await main(ui).locator('.home-events__month:visible h3').allTextContents();
+  expect(got.map((t) => t.trim())).toEqual(list.split(',').map((m) => m.trim()));
 });

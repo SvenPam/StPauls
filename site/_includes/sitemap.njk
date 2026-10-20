@@ -22,7 +22,7 @@ layout: base.njk
     </li>
     <li><a href="/notices">Notices</a>
       <ul>
-        {%- for item in collections.notices | newestFirst %}
+        {%- for item in collections.notices | noticesCurrent %}
         <li><a href="{{ item.url | href }}">{{ item.data.title }}</a></li>
         {%- endfor %}
       </ul>

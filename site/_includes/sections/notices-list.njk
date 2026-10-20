@@ -1,5 +1,5 @@
 <h1>{{ title }}</h1>
-{%- set items = collections.notices | newestFirst %}
+{%- set items = collections.notices | noticesCurrent %}
 {%- if items.length %}
 <div class="card-list">
   {%- asyncEach item in items %}

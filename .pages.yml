@@ -163,9 +163,14 @@ content:
           regex: "^(?![Ii]ndex$).+"
           message: Pick another title
       - name: date
-        label: Date
+        label: Show from
+        description: The notice shows on the home page from this day
         type: date
         required: true
+      - name: until
+        label: Show until
+        description: Optional. The notice is taken down after this day
+        type: date
       - name: summary
         label: Summary
         description: Short text shown on the list of notices

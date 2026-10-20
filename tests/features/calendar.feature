@@ -9,7 +9,8 @@ Feature: Calendar
       | Fixture later     |
       | Fixture backwards |
     And the "Fixture future" card shows "Future"
-    And the "Fixture future" card shows "01-Jun-99 10:00 AM"
+    And the "Fixture future" card shows "10:00"
+    And the "Fixture future" card shows "June"
     And the "Fixture future" card shows "Church Hall"
     And I do not see "Fixture past"
     And I do not see "Could not find any events."
@@ -18,22 +19,22 @@ Feature: Calendar
     When I open "/calendar/event/16/mu-advent-carol-service"
     Then the page heading is "Fixture past"
     And I see "Expired"
-    And I see "7:30 PM"
+    And I see "19:30"
 
   Scenario: An event page
     When I open "/calendar/event/future"
     Then the page heading is "Fixture future"
-    And I see "10:00 AM"
-    And I see "12:00 PM"
+    And the event starts "10:00 June 1"
+    And the event ends "12:00 June 1"
     And I see "June"
     And I see "Church Hall"
     And the summary "Future summary" is the lead
     And the "Church Events" link goes to "/calendar/topic/church-events"
 
-  Scenario: An end before the start is treated as the start
+  Scenario: An end before the start is ignored
     When I open "/calendar/event/backwards"
-    Then I see "August"
-    And I do not see "July"
+    Then the event starts "1 Aug 10:00"
+    And the event has no end
 
   Scenario: An event that ended since the last build is hidden
     Given it is "2099-06-01T13:00:00+01:00"
@@ -54,13 +55,13 @@ Feature: Calendar
     Then I do not see "Fixture future"
     And I see "Could not find any events."
 
-  Scenario: Topic pages show upcoming events only
+  Scenario: Topic pages keep past events, as live
     When I open "/calendar/topic/church-events"
     Then I see "Topic: Church Events"
     And the cards are, in order:
       | Fixture future |
     When I open "/calendar/topic/other-events"
-    Then I do not see "Fixture past"
+    Then I see "Fixture past"
 
   Scenario: No events
     When I open "/calendar" on the empty site

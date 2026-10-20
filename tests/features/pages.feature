@@ -51,11 +51,12 @@ Feature: Pages
     Then the hero shows "St Paul's Warton" and "Serving Christ - Serving the Community"
     And the hero image loads straight away
     And the "Church Notices" link goes to "/notices"
-    And the home notices are, in order:
-      | Fixture future   |
+    And the home notices are exactly:
       | Fixture newer    |
       | Fixture older    |
       | Fixture migrated |
+      | Fixture wide content with a very long title that has to wrap on a phone screen without pushing the page sideways |
+      | Fixture images   |
     And the cards are, in order:
       | Fixture article 8 |
       | Fixture article 7 |
@@ -68,7 +69,7 @@ Feature: Pages
 
   Scenario: The home page with no content
     When I open "/" on the empty site
-    Then I see "Church Notices"
+    Then I do not see "Church Notices"
     And I see "Latest Blog Articles"
     And there are no cards
 

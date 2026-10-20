@@ -103,3 +103,13 @@ Then('the real content builds', async () => {
     rmSync(out, { recursive: true, force: true });
   }
 });
+
+Then('the {string} collection has a required date {string} labelled {string}', async ({ ui }, name, key, label) => {
+  expect(field(ui.cfg, name, key)).toMatchObject({ type: 'date', label, required: true });
+});
+
+Then('the {string} collection has an optional date {string} labelled {string}', async ({ ui }, name, key, label) => {
+  const f = field(ui.cfg, name, key);
+  expect(f).toMatchObject({ type: 'date', label });
+  expect(f.required).toBeFalsy();
+});

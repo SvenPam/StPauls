@@ -1,3 +1,4 @@
 ---
-title: Upcoming Events
+title: Calendar
+heading: Upcoming Events
 ---

@@ -12,10 +12,10 @@ eleventyComputed:
 ---
 {#- One section filtered to one topic. The heading is the section's own title. -#}
 {%- set all = collections[t.section] | withTopic(t.slug) %}
-{%- if t.section == 'calendar' %}{% set items = all | upcoming %}{% else %}{% set items = all | newestFirst %}{% endif %}
+{%- if t.section == 'calendar' %}{% set items = all | soonestFirst %}{% else %}{% set items = all | newestFirst %}{% endif %}
 <div{% if t.section == 'blog' %} class="with-aside"{% endif %}>
 <div>
-<h1>{% for p in collections.all %}{% if p.data.isIndex and p.data.section == t.section %}{{ p.data.title }}{% endif %}{% endfor %}</h1>
+<h1>{% for p in collections.all %}{% if p.data.isIndex and p.data.section == t.section %}{{ p.data.heading or p.data.title }}{% endif %}{% endfor %}</h1>
 <p class="lead">Topic: {{ t.label }}</p>
 {%- if items.length %}
 <div class="card-list">

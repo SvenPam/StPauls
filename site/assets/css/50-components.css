@@ -63,6 +63,19 @@
 .blog-aside ul { margin: 0; padding-left: 1.25rem; }
 .blog-aside li { margin: 0.25rem 0; }
 
+.event-card__when { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 0.5rem; margin: 0 0 0.25rem; }
+.event-card__day { font-size: 2rem; font-weight: 700; line-height: 1; color: var(--navy); }
+.status:empty { display: none; }
+.card .status, .home-events .status { font-size: 0.875rem; font-weight: 600; text-transform: uppercase; color: var(--navy); }
+
+/* Notices and live's Upcoming Events column: side by side on a wide screen, notices first and wider. */
+@media (min-width: 768px) {
+  .home-columns--two { display: grid; grid-template-columns: 3fr 1fr; gap: 0 2rem; align-items: start; }
+}
+.home-events__month h3 { margin: 0.75rem 0 0.25rem; font-size: 1rem; color: var(--navy); }
+.home-events ul { margin: 0; padding: 0; list-style: none; }
+.home-events li { margin: 0 0 0.25rem; }
+
 .event-list { display: grid; gap: 1rem; max-width: 48rem; margin: 0 0 1.5rem; }
 .event-when { display: flex; flex-wrap: wrap; gap: 0.5rem 2rem; margin: 0 0 1rem; }
 .event-when dt { font-weight: 600; }
@@ -90,6 +103,9 @@
 .hero__lead { margin: 0.75rem 0 0; font-size: 1.25rem; }
 
 .home-section { margin: 0 0 2rem; }
+
+/* Live's expired notice warning. */
+.alert-expired { margin: 0 0 1.5rem; padding: 0.75rem 1rem; border-left: 4px solid var(--gold); background: var(--surface); }
 .home-section h2 a { color: var(--navy); }
 .home-notices { display: grid; gap: 1rem; }
 .home-notice {

@@ -2,14 +2,16 @@
     With `cardFill` ('WxH') the image is cropped to that aspect. -#}
 {%- set d = item.data -%}
 {%- set event = d.section == 'calendar' -%}
-<article class="card"{% if event %} data-end="{{ d | eventEnd | isoLondon }}"{% endif %}>
+<article class="card{% if event %} card--event{% endif %}"{% if event %} data-start="{{ d.date | isoLondon }}" data-end="{{ d | eventEnd | isoLondon }}"{% endif %}>
+  {%- if event %}
+  {#- Live's calendar card: day number, status (none for Future), 24-hour time and month, then title, location, summary. #}
+  {%- set label = d | eventLabel %}
+  <p class="event-card__when"><span class="event-card__day">{{ d.date | day }}</span> <span class="status">{{ label }}</span> <span class="event-time">{{ d.date | time }}</span> <span class="event-month">{{ d.date | month }}</span></p>
+  {%- endif %}
   <h2 class="card__title"><a href="{{ item.url | href }}">{{ d.title }}</a></h2>
   {%- if event %}
-  <p class="meta-line"><span class="status">{{ d | eventStatus }}</span> <span class="date-time">{{ d.date | date }} {{ d.date | time }}</span></p>
   {%- elif d.section == 'blog' %}
   <p class="meta-line"><span class="date-time">Published {{ d.date | date }}</span></p>
-  {%- else %}
-  <span class="date-time notice-date">{{ d.date | date }}</span>
   {%- endif %}
   {%- if d.location %}
   <p class="card__location">{{ d.location }}</p>
@@ -18,10 +20,12 @@
   {%- if d.summary %}
   <p class="{% if d.section == 'notices' %}notice-summary{% else %}card__summary{% endif %}">{{ d.summary }}</p>
   {%- endif %}
+  {%- if not event %}
   {%- set topicSlug = d.topic %}{% set topicSection = d.section %}
   {%- set topicLink %}{% include "partials/topic-link.njk" %}{% endset %}
   {%- if topicLink | trim %}
   <p class="card__topic">{{ topicLink | safe }}</p>
+  {%- endif %}
   {%- endif %}
   {%- if d.section == 'blog' %}
   <p><a href="{{ item.url | href }}">Read more<span class="visually-hidden"> about {{ d.title }}</span></a></p>
