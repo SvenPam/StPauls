@@ -19,16 +19,18 @@ Do not reopen these without being asked.
 | Comments | Disqus removed |
 | Analytics | Universal Analytics removed. Nothing in its place for now |
 | Personal details | Do not put the maintainer's name, LinkedIn or personal site in the site. The legacy footer has them; leave them out |
-| Content source | The live site is the source of truth. Content is small and mostly HTML blocks. URLs must stay identical to live (`/blog/article/{slug}`, `/calendar/event/{id}/{slug}`, `/notices/notice/{id}/{slug}`, `/page/{type}/{slug}`) |
+| Content source | The live site is the source of truth. Content is small and mostly HTML blocks. URLs must stay identical to live (`/blog/article/{slug}`, `/calendar/event/{id}/{slug}`, `/notices/notice/{id}/{slug}`, `/page/{type}/{slug}`). Other live URL variants and old email links are not carried (2026-10-19) |
 | Subscribers | Export found three or four old subscribers. Publish emails dropped. RSS feeds instead, a one-off note to them, then the export is deleted (spec 12) |
 | Trial | Go for the static site (2026-10-17). Phase 1 plan in `docs/features/page-cms/page-cms-feature.md` |
 | Look | Keep the colours and general layout. Readability fixes only. Formal design options are phase 2, after Paul is settled |
-| Logins | Removed. Paul is a Pages CMS collaborator. `/account/*` redirects home |
+| Logins | Removed. Paul is a Pages CMS collaborator. `/account*` and old admin links 302 to Pages CMS (2026-10-19, parity spec 01) |
 | Contact form | Web3Forms, one inbox, key in Site settings, hidden until a real key is set |
 | Domain | Bare `stpaulswarton.co.uk` is primary. Cloudflare redirects `www` to it |
 | Cookie policy | Google Calendar's embed sets `NID`, so the page stays: a short note naming the embeds' cookies, and click-to-load for embeds that set any (spec 09, 2026-10-18) |
 | Cutover | DNS to Cloudflare early, Paul practises on the test URL, short freeze and re-extraction on the day |
 | Body format | Pure Markdown, no HTML in bodies, Pages CMS `format: markdown`. Simple editing beats looking like live: jump menus, image widths and centring go (2026-10-19, spec 07a) |
+| Build | Bicep runs only when `infra/` changes, on a manual run, or when a push cannot be compared. Tests always run (2026-10-19) |
+| Repo protection | `.github/CODEOWNERS` plus a ruleset on `main`: maintainer approval for anything Pages CMS does not write. Pages CMS app and admin bypass (2026-10-19) |
 | Content edits | Migrated content is never corrected, broken links and typos included. The maintainer is not the author (2026-10-19) |
 
 ## Who is who
@@ -98,9 +100,9 @@ The legacy CSS, images and views needed for reference are on `archive/umbraco-20
 
 ## Next steps
 
-1. Spec 07 is done (content match deferred, see Open items). Next is spec 08, `docs/features/page-cms/page-cms-spec-08-contact-form-and-settings.md`. Build the rest in order, one per session. Read `docs/features/page-cms/page-cms-spec-conventions.md` first.
+1. Parity work before Paul edits: [plan](docs/features/parity-check/parity-check-feature.md). Spec 01 is done. Next is parity spec 02, `docs/features/parity-check/parity-check-spec-02-notices-and-events.md`, then 03 and 04. They go before Page CMS spec 10 (editor rollout) and 11 (cutover).
 2. Each spec ends with the maintainer's manual steps. Say plainly when blocked on one.
-3. After spec 12, phase 2 (design options) gets its own design.
+3. After Page CMS spec 12, phase 2 (design options) gets its own design.
 
 ## Open items
 
