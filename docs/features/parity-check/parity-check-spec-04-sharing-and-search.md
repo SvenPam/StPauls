@@ -44,9 +44,15 @@ A link to the home page or an article shared on Facebook shows a title, descript
 
 - Article page `<article itemscope itemtype="https://schema.org/BlogPosting">` with `itemprop` `headline` (h1), `datePublished` (a `<time datetime>` with `isoDay`), `author` (the author span, as `itemprop="author"` with a nested `name`), `articleBody` (the prose div). Microdata only.
 
+### Changed while building (2026-10-20)
+
+- **Section descriptions:** one Pages CMS file entry each ("Blog page", "Calendar page", "Notices page"), showing only "Search description". `content.merge` keeps their other keys. Topic pages read their section's description through a `sectionIndex` filter.
+- **Share picture:** an async shortcode `shareImage(src, siteUrl)` in `config/images.js`, a JPEG up to 1200 wide. The article's picture follows `cardImage` (spec 03), so it matches the card.
+- **Test URL:** share addresses use `site.url`, the real domain. Before cutover a preview of the test URL points at pictures that only exist once the domain moves, so the Facebook check waits for cutover.
+
 ## Manual steps (maintainer)
 
-1. After deploy, paste the test URL of an article into the [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/): title, description and picture show. Repeat on the real domain after cutover.
+1. After cutover, paste an article's address on the real domain into the [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/): title, description and picture show. Before cutover, View Source on the test URL shows the `og:` tags; the picture addresses only work once the domain moves.
 
 ## Acceptance
 

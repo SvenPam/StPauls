@@ -1,11 +1,12 @@
 <div class="with-aside">
-<article>
-  <h1>{{ title }}</h1>
+{#- schema.org BlogPosting microdata, as live. Microdata, not JSON-LD: the content security policy blocks inline scripts. -#}
+<article itemscope itemtype="https://schema.org/BlogPosting">
+  <h1 itemprop="headline">{{ title }}</h1>
   {%- if author %}
-  <p class="author-attribution">by <span>{{ author }}</span></p>
+  <p class="author-attribution">by <span itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="name">{{ author }}</span></span></p>
   {%- endif %}
   <div class="meta">
-    <span class="date-time">Published {{ date | date }}</span>
+    <span class="date-time">Published <time itemprop="datePublished" datetime="{{ date | isoDay }}">{{ date | date }}</time></span>
     {%- set topicSlug = topic %}{% set topicSection = section %}
     {%- set topicLink %}{% include "partials/topic-link.njk" %}{% endset %}
     {%- if topicLink | trim %}
@@ -16,7 +17,7 @@
   <p class="lead">{{ summary }}</p>
   {%- endif %}
   {% set imageSrc = image %}{% set imageAlt = image_alt %}{% include "partials/image.njk" %}
-  <div class="prose">
+  <div class="prose" itemprop="articleBody">
     {{ content | safe }}
   </div>
 </article>

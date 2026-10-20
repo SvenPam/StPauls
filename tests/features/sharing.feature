@@ -38,3 +38,11 @@ Feature: Sharing and search, as on live
   Scenario: Other pages have no Facebook preview
     When I open "/page/about/about-us"
     Then the page has no share tags
+
+  Scenario: An article is marked up as a blog post, as on live
+    When I open "/blog/article/a2"
+    Then the article is a "https://schema.org/BlogPosting"
+    And its "headline" is "Fixture article 2"
+    And its "datePublished" is dated "2015-02-01"
+    And its "author" is "Ann Example"
+    And its "articleBody" holds "Body of article 2."

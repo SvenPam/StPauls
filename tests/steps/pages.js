@@ -354,3 +354,22 @@ Then('the share picture is an absolute address on {string}', async ({ ui }, pref
 Then('the page has no share tags', async ({ ui }) => {
   await expect(ui.page.locator('meta[property^="og:"]')).toHaveCount(0);
 });
+
+const posting = (ui) => ui.page.locator('article[itemscope]');
+const prop = (ui, name) => posting(ui).locator(`[itemprop="${name}"]`).first();
+
+Then('the article is a {string}', async ({ ui }, type) => {
+  await expect(posting(ui)).toHaveAttribute('itemtype', type);
+});
+
+Then('its {string} is {string}', async ({ ui }, name, text) => {
+  await expect(prop(ui, name)).toHaveText(text);
+});
+
+Then('its {string} is dated {string}', async ({ ui }, name, day) => {
+  await expect(prop(ui, name)).toHaveAttribute('datetime', day);
+});
+
+Then('its {string} holds {string}', async ({ ui }, name, text) => {
+  await expect(prop(ui, name)).toContainText(text);
+});
