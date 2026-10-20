@@ -197,6 +197,25 @@ export async function optimiseImages(html, { assets = ASSETS, uploads = UPLOADS_
   return result + html.slice(last);
 }
 
+// The picture for a Facebook preview, as an absolute URL: a JPEG up to 1200 wide of an asset or upload.
+// Another site's picture, or an upload that is missing or not a photo, is used as it is.
+export async function shareImage(src, siteUrl, { assets = ASSETS, uploads = UPLOADS_DIR, out = '_site' } = {}) {
+  const absolute = (u) => (/^https?:/i.test(u) ? u : `${siteUrl}${u}`);
+  let file;
+  if (src.startsWith('/uploads/')) file = await uploadFile(src, uploads);
+  else if (!/^(\/|https?:)/i.test(src)) file = path.join(assets, src);
+  if (!file || !/\.(jpe?g|png|webp)$/i.test(file) || !(await exists(file))) return absolute(src);
+  try {
+    const input = await readFile(file);
+    const { width } = await sharp(input).metadata();
+    const srcHash = createHash('sha256').update(input).digest('hex');
+    const name = path.basename(file, path.extname(file)).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    return absolute(await variant(input, srcHash, name, Math.min(1200, width), 'jpeg', out));
+  } catch {
+    return absolute(src);
+  }
+}
+
 export default function (eleventyConfig) {
   eleventyConfig.on('eleventy.before', () => memo.clear());
   eleventyConfig.addTransform('images', function (content) {
@@ -204,6 +223,9 @@ export default function (eleventyConfig) {
     return optimiseImages(content, { assets: ASSETS, uploads: UPLOADS_DIR, out: eleventyConfig.directories.output });
   });
   eleventyConfig.addFilter('assetPath', (src) => assetPath(src));
+  eleventyConfig.addAsyncShortcode('shareImage', (src, siteUrl) =>
+    shareImage(src, siteUrl, { assets: ASSETS, uploads: UPLOADS_DIR, out: eleventyConfig.directories.output }),
+  );
   eleventyConfig.addAsyncShortcode('picture', (opts) =>
     pictureHtml(opts, { assets: ASSETS, uploads: UPLOADS_DIR, out: eleventyConfig.directories.output }),
   );

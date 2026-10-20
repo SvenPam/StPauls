@@ -7,6 +7,24 @@
 {%- if metaDescription %}
 <meta name="description" content="{{ metaDescription }}">
 {%- endif %}
+{#- Facebook previews, as live: the home page and blog articles only. -#}
+{%- if page.url == '/' %}
+{%- set shareSrc = (hero_image | assetPath) or hero_image or 'images/hero.jpg' %}
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ site.title }}">
+{%- if metaDescription %}
+<meta property="og:description" content="{{ metaDescription }}">
+{%- endif %}
+<meta property="og:url" content="{{ site.url }}/">
+<meta property="og:image" content="{% shareImage shareSrc, site.url %}">
+{%- elif section == 'blog' and not isIndex %}
+{%- set shareSrc = ({ data: { image: image, image_alt: image_alt }, inputPath: page.inputPath } | cardImage).src %}
+<meta property="og:type" content="article">
+<meta property="og:title" content="{{ title }}">
+<meta property="og:description" content="{{ summary or (collections.all | sectionIndex('blog')).data.description }}">
+<meta property="og:url" content="{{ site.url }}{{ page.url | href }}">
+<meta property="og:image" content="{% shareImage shareSrc, site.url %}">
+{%- endif %}
 {%- if page.url != "/404.html" %}
 <link rel="canonical" href="{{ site.url }}{{ page.url | href }}">
 {%- endif %}
