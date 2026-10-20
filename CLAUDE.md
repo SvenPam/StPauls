@@ -100,7 +100,7 @@ The legacy CSS, images and views needed for reference are on `archive/umbraco-20
 
 ## Next steps
 
-1. Parity work before Paul edits: [plan](docs/features/parity-check/parity-check-feature.md). Spec 01 is done. Next is parity spec 02, `docs/features/parity-check/parity-check-spec-02-notices-and-events.md`, then 03 and 04. They go before Page CMS spec 10 (editor rollout) and 11 (cutover).
+1. Parity work before Paul edits: [plan](docs/features/parity-check/parity-check-feature.md). Specs 01 and 02 are done. Next is parity spec 03, `docs/features/parity-check/parity-check-spec-03-home-blog-menus-contact.md`, then 04. They go before Page CMS spec 10 (editor rollout) and 11 (cutover).
 2. Each spec ends with the maintainer's manual steps. Say plainly when blocked on one.
 3. After Page CMS spec 12, phase 2 (design options) gets its own design.
 

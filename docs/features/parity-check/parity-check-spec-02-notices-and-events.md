@@ -1,7 +1,7 @@
 ---
 date: 2026-10-19
 tags: [spec, plan, stpauls, parity]
-status: agreed
+status: done
 ---
 
 # Spec 02: notices and events
@@ -92,11 +92,11 @@ From `data-start` and `data-end` (ISO with offset) and the visitor's clock, on l
 
 ## Acceptance
 
-- [ ] Notices follow start and end as above on home, `/notices`, pages, cards, feed, sitemaps and topic pages.
-- [ ] Events: 7-day Soon, 24-hour default end, 24-hour times, live date blocks and countdown, live card fields.
-- [ ] Home "Upcoming Events" column as above, hidden when empty.
-- [ ] `site.js` corrects labels, countdowns and ended items between builds.
-- [ ] `npm test` green.
+- [x] Notices follow start and end as above on home, `/notices`, pages, cards, feed, sitemaps and topic pages.
+- [x] Events: 7-day Soon, 24-hour default end, 24-hour times, live date blocks and countdown, live card fields.
+- [x] Home "Upcoming Events" column as above, hidden when empty.
+- [x] `site.js` corrects labels, countdowns and ended items between builds.
+- [x] `npm test` green.
 
 ## Implementation plan
 
