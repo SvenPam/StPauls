@@ -40,7 +40,7 @@
     <ul>
       {%- for item in group.items %}
       {%- set label = item.data | eventLabel('Active') %}
-      <li data-start="{{ item.data.date | isoLondon }}" data-end="{{ item.data | eventEnd | isoLondon }}"><strong>{{ item.data.date | day }}</strong> <a href="{{ item.url | href }}">{{ item.data.title }}</a>{% if label %} <span class="status">{{ label }}</span>{% endif %}</li>
+      <li data-start="{{ item.data.date | isoLondon }}" data-end="{{ item.data | eventEnd | isoLondon }}"><strong>{{ item.data.date | day }}</strong> <a href="{{ item.url | href }}">{{ item.data.title }}</a> <span class="status">{{ label }}</span></li>
       {%- endfor %}
     </ul>
   </div>

@@ -6,7 +6,7 @@
   {%- if event %}
   {#- Live's calendar card: day number, status (none for Future), 24-hour time and month, then title, location, summary. #}
   {%- set label = d | eventLabel %}
-  <p class="event-card__when"><span class="event-card__day">{{ d.date | day }}</span>{% if label %} <span class="status">{{ label }}</span>{% endif %} <span class="event-time">{{ d.date | time }}</span> <span class="event-month">{{ d.date | month }}</span></p>
+  <p class="event-card__when"><span class="event-card__day">{{ d.date | day }}</span> <span class="status">{{ label }}</span> <span class="event-time">{{ d.date | time }}</span> <span class="event-month">{{ d.date | month }}</span></p>
   {%- endif %}
   <h2 class="card__title"><a href="{{ item.url | href }}">{{ d.title }}</a></h2>
   {%- if event %}

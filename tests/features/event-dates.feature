@@ -73,3 +73,30 @@ Feature: Event dates
   Scenario: No upcoming events, no column
     When I open "/" on the empty site
     Then I do not see "Upcoming Events"
+
+  Scenario: The countdown follows the visitor's clock
+    When I open "/calendar/event/soon" on the clock site at "2030-06-15T15:00:00+01:00"
+    Then I see "30 minutes to go"
+    When I open "/calendar/event/soon" on the clock site at "2030-06-15T16:00:00+01:00"
+    Then I see "In Progress"
+
+  Scenario: Labels follow the visitor's clock
+    When I open "/calendar" on the clock site at "2030-06-15T16:00:00+01:00"
+    Then the "Soon event" card shows "In Progress"
+    When I open "/" on the clock site at "2030-06-15T16:00:00+01:00"
+    Then the home event "Soon event" is labelled "Active"
+
+  Scenario: The home column drops events and months that have ended
+    When I open "/" on the clock site at "2030-06-20T12:30:00+01:00"
+    Then the home events are:
+      | June | 20 | Two days   | Active |
+      | June | 20 | Next month | Active |
+      | July | 5  | July event |        |
+    When I open "/" on the clock site at "2030-07-10T12:00:00+01:00"
+    Then the home events are:
+      | June | 20 | Next month | Active |
+    And the home event months shown are "June"
+
+  Scenario: The home column goes when every event has ended
+    When I open "/" on the clock site at "2030-08-01T00:00:00+01:00"
+    Then I do not see "Upcoming Events"
