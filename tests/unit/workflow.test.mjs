@@ -35,7 +35,7 @@ test('the top level can only read contents', () => {
   assert.deepEqual(wf.permissions, { contents: 'read' });
 });
 test('pushes watch everything the build reads', () => {
-  for (const p of ['site/**', 'config/**', 'eleventy.config.js', 'package.json', 'package-lock.json', '.nvmrc', 'infra/**', '.pages.yml', 'tests/**', '.github/workflows/deploy.yml']) {
+  for (const p of ['site/**', 'config/**', 'eleventy.config.js', 'package.json', 'package-lock.json', '.nvmrc', 'infra/**', '.pages.yml', 'tests/**', '.github/workflows/deploy.yml', '.github/scripts/**']) {
     assert.ok(wf.on.push.paths.includes(p), p);
   }
 });
@@ -78,4 +78,54 @@ test('every action is pinned to a commit with its version', () => {
     assert.match(ref, /^[\w.-]+\/[\w.-]+@[0-9a-f]{40}$/, ref);
     assert.match(rest, /^\s+# v\d+(\.\d+)*$/, ref);
   }
+});
+
+// infra-changed.sh decides whether the deploy job runs Bicep. Run it in a throwaway repo.
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+
+const script = path.resolve('.github/scripts/infra-changed.sh');
+const repo = mkdtempSync(path.join(tmpdir(), 'infra-'));
+const git = (...args) => execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', ...args], { cwd: repo, encoding: 'utf8' }).trim();
+const commit = (file, text) => {
+  mkdirSync(path.dirname(path.join(repo, file)), { recursive: true });
+  writeFileSync(path.join(repo, file), text);
+  git('add', '-A');
+  git('commit', '-qm', file);
+  return git('rev-parse', 'HEAD');
+};
+git('init', '-q');
+const A = commit('infra/main.bicep', 'a');
+const B = commit('site/a.md', 'b');
+const C = commit('infra/main.bicep', 'c');
+const decide = (event, before, head) => execFileSync('bash', [script, event, before, head], { cwd: repo, encoding: 'utf8' }).trim();
+
+test('infra-changed: content-only push skips Bicep', () => {
+  assert.equal(decide('push', A, B), 'infra=false');
+});
+test('infra-changed: infra push runs Bicep', () => {
+  assert.equal(decide('push', B, C), 'infra=true');
+  assert.equal(decide('push', A, C), 'infra=true');
+});
+test('infra-changed: unknown before runs Bicep', () => {
+  for (const before of ['0000000000000000000000000000000000000000', '', 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeef']) {
+    assert.equal(decide('push', before, C), 'infra=true', before);
+  }
+});
+test('infra-changed: manual runs Bicep, schedule never', () => {
+  assert.equal(decide('workflow_dispatch', A, B), 'infra=true');
+  assert.equal(decide('schedule', B, C), 'infra=false');
+});
+test('the deploy job runs Bicep only when infra changed', () => {
+  const steps = wf.jobs.deploy.steps;
+  const byId = (id) => steps.find((s) => s.id === id);
+  assert.match(byId('changes').run, /\.github\/scripts\/infra-changed\.sh/);
+  assert.equal(byId('infra').if, "steps.changes.outputs.infra == 'true'");
+  assert.equal(byId('last').if, "steps.changes.outputs.infra != 'true'");
+  assert.match(byId('last').run, /az deployment group show/);
+  assert.match(byId('last').run, /--name stpauls-web/);
+  assert.equal(byId('token').env.NAME, '${{ steps.infra.outputs.name || steps.last.outputs.name }}');
+  assert.equal(steps.find((s) => /actions\/checkout/.test(s.uses ?? '')).with['fetch-depth'], 0);
 });
