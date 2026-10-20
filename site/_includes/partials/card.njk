@@ -16,7 +16,11 @@
   {%- if d.location %}
   <p class="card__location">{{ d.location }}</p>
   {%- endif %}
-  {%- ifAsync d.section == 'blog' %}{% set imageSrc = d.image %}{% set imageAlt = d.image_alt %}{% set imageFill = cardFill %}{% include "partials/image.njk" %}{% endif %}
+  {%- if d.section == 'blog' and showAuthor and d.author %}
+  <p class="author-attribution">by <span>{{ d.author }}</span></p>
+  {%- endif %}
+  {#- Live's card picture: the image field, else the first picture in the body, else a stock picture. #}
+  {%- ifAsync d.section == 'blog' %}{% set pic = item | cardImage %}{% set imageSrc = pic.src %}{% set imageAlt = pic.alt %}{% set imageFill = cardFill %}{% include "partials/image.njk" %}{% endif %}
   {%- if d.summary %}
   <p class="{% if d.section == 'notices' %}notice-summary{% else %}card__summary{% endif %}">{{ d.summary }}</p>
   {%- endif %}
@@ -28,6 +32,6 @@
   {%- endif %}
   {%- endif %}
   {%- if d.section == 'blog' %}
-  <p><a href="{{ item.url | href }}">Read more<span class="visually-hidden"> about {{ d.title }}</span></a></p>
+  <p><a href="{{ item.url | href }}">Read<span class="visually-hidden"> about {{ d.title }}</span> <span aria-hidden="true">→</span></a></p>
   {%- endif %}
 </article>

@@ -1,6 +1,7 @@
 ---
 title: Fundraising for Church
 date: 2015-11-08
+author: Paul Barfoot
 summary: How to raise funds for Church through your online shopping.
 blogtopics: church-events
 ---

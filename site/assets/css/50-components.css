@@ -136,3 +136,6 @@
   font: inherit;
 }
 .contact-form__trap { display: none; }
+
+/* Live's "by {author}" line on articles and the blog list. */
+.author-attribution { margin: 0 0 0.5rem; color: var(--muted); }

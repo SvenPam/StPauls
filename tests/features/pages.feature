@@ -26,11 +26,9 @@ Feature: Pages
     And the "Solo picture" image is centred
     And the "Inline picture" image is not centred
 
-  Scenario: The contact placeholder
+  Scenario: The contact page
     When I open "/contact"
     Then the page heading is "Contact Us"
-    And I see "PR4 1BD"
-    And the "Church contact list" link goes to "/page/about/contact-list"
 
   Scenario: A page outside the known types still builds
     Then "/page/extra/stray" exists
@@ -80,3 +78,31 @@ Feature: Pages
     When I open "/page/forms/null-layout"
     Then the page heading is "Null Layout"
     And the page has the site header and footer
+
+  Scenario: The hero is full width under the header, as on live
+    Given a wide screen
+    When I open "/"
+    Then the hero fills the width of the window
+    And the hero starts where the header ends
+    And the hero image offers a 1024 pixel copy
+    When I open "/page/about/about-us"
+    Then the page heading is inside the page column
+
+  Scenario: A hidden page is not on the site
+    Then "/page/about/put-away" does not exist
+    When I open "/"
+    Then I do not see "Put Away"
+    And I do not see "Only Hidden"
+    And the main menu items are, in order:
+      | Home     |
+      | Blog     |
+      | Calendar |
+      | About    |
+      | Services |
+      | Groups   |
+      | Gallery  |
+    When I open "/sitemap"
+    Then I do not see "Put Away"
+    When I read the site map "/sitemap.xml"
+    Then it does not list:
+      | https://stpaulswarton.co.uk/page/about/put-away |

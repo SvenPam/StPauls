@@ -40,3 +40,24 @@
 @media (min-width: 768px) {
   .with-aside { display: grid; grid-template-columns: minmax(0, 1fr) 16rem; gap: 2rem; }
 }
+
+/* Live hides the blog aside on phones and in print. */
+@media (max-width: 767.98px) {
+  .blog-aside { display: none; }
+}
+@media print {
+  .blog-aside, .back-to-top { display: none; }
+}
+
+/* Live's back-to-top button. Where the browser supports scroll-driven animation it fades in once the page
+   has scrolled a screen; elsewhere it is always shown. */
+.back-to-top {
+  position: fixed; right: 1rem; bottom: 1rem; z-index: 10;
+  padding: 0.5rem 0.75rem; border-radius: var(--radius);
+  background: var(--navy); color: #ffffff; text-decoration: none;
+}
+.back-to-top:hover, .back-to-top:focus-visible { background: var(--gold); color: var(--navy); }
+@supports (animation-timeline: scroll()) {
+  .back-to-top { animation: back-to-top linear both; animation-timeline: scroll(root); animation-range: 0 100vh; }
+  @keyframes back-to-top { from { opacity: 0; visibility: hidden; } 99% { opacity: 0; visibility: hidden; } to { opacity: 1; visibility: visible; } }
+}

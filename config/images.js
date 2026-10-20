@@ -74,7 +74,7 @@ async function uploadFile(src, uploads) {
 // Width and height when sharp can read them, else null.
 const sizeOf = (file) => sharp(file).metadata().then(({ width, height }) => (width && height ? { width, height } : null), () => null);
 
-export async function pictureHtml({ src, alt = '', sizes = '100vw', eager = false, fill }, { assets = ASSETS, uploads = UPLOADS_DIR, out = '_site' } = {}) {
+export async function pictureHtml({ src, alt = '', sizes = '100vw', eager = false, fill, full = false }, { assets = ASSETS, uploads = UPLOADS_DIR, out = '_site' } = {}) {
   alt ??= '';
   let file;
   if (src.startsWith('/uploads/')) {
@@ -108,6 +108,8 @@ export async function pictureHtml({ src, alt = '', sizes = '100vw', eager = fals
   if (fill && !crop) throw new Error(`picture: fill "${fill}" is not WxH`);
   let widths = (crop ? [crop[0], crop[0] * 2] : WIDTHS).filter((w) => w <= srcWidth);
   if (!widths.length) widths = [srcWidth];
+  // `full`: also offer the source's own width when it falls between two steps (the 1024-wide hero shown edge to edge).
+  else if (full && !crop && srcWidth < WIDTHS.at(-1) && srcWidth > widths.at(-1)) widths.push(srcWidth);
 
   const webp = [];
   const orig = [];

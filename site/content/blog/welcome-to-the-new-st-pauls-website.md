@@ -1,6 +1,7 @@
 ---
 title: Welcome to the new St. Paul's website
 date: 2015-11-08
+author: Paul Barfoot
 summary: The trials and tribulations of getting this site up and running...
 blogtopics: website
 ---

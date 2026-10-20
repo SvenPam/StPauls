@@ -1,6 +1,9 @@
 <div class="with-aside">
 <article>
   <h1>{{ title }}</h1>
+  {%- if author %}
+  <p class="author-attribution">by <span>{{ author }}</span></p>
+  {%- endif %}
   <div class="meta">
     <span class="date-time">Published {{ date | date }}</span>
     {%- set topicSlug = topic %}{% set topicSection = section %}

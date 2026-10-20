@@ -1,11 +1,13 @@
 ---
 layout: base.njk
 ---
-{#- The contact page (layout: contact.njk). The address comes from Site settings, as in the footer.
-    The form shows only when Site settings hold a whole Web3Forms key. -#}
+{#- The contact page (layout: contact.njk), as live: the page body (the church contacts table), then
+    "Alternatively" and the form. The form shows only when Site settings hold a whole Web3Forms key. -#}
 {% include "sections/page.njk" %}
 {%- set key = settings | contactKey %}
 {%- if key %}
+<h2>Alternatively</h2>
+<h3>Send an Enquiry</h3>
 <form class="contact-form" action="https://api.web3forms.com/submit" method="POST">
   <input type="hidden" name="access_key" value="{{ key }}">
   <input type="hidden" name="subject" value="{{ settings.contact_subject }}" data-subject="{{ settings.contact_subject }}">
@@ -14,7 +16,7 @@ layout: base.njk
   <input type="checkbox" name="botcheck" class="contact-form__trap" tabindex="-1" autocomplete="off" aria-hidden="true">
   <p class="contact-form__field">
     <label for="name">Name</label>
-    <input type="text" id="name" name="name" required autocomplete="name">
+    <input type="text" id="name" name="name" required maxlength="100" autocomplete="name">
   </p>
   <p class="contact-form__field">
     <label for="enquiry_type">Enquiry type</label>
@@ -40,8 +42,3 @@ layout: base.njk
   <button type="submit" class="button">Send</button>
 </form>
 {%- endif %}
-<section class="contact-details" aria-labelledby="contact-address">
-  <h2 id="contact-address">Find us</h2>
-  {% include "partials/address.njk" %}
-  <p><a href="/page/about/contact-list">Church contact list</a></p>
-</section>

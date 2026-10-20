@@ -85,3 +85,21 @@ Then('the {string} footer group links to, in order:', async ({ ui }, title, tabl
   const hrefs = await footerGroup(ui, title).locator('a').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
   expect(hrefs).toEqual(column(table));
 });
+
+Then('the {string} menu has a divider between {string} and {string}', async ({ ui }, name, before, after) => {
+  const items = await ui.page.locator('.site-nav__group', { has: ui.page.locator('summary', { hasText: name }) }).locator('li')
+    .evaluateAll((lis) => lis.map((li) => (li.getAttribute('role') === 'separator' ? '|' : li.textContent.trim())));
+  const i = items.indexOf(before);
+  expect(items.slice(i, i + 3)).toEqual([before, '|', after]);
+});
+
+const topItem = (ui, name) => ui.page.locator('.site-nav__list > li').filter({ has: ui.page.locator(':scope > a, :scope > details > summary', { hasText: new RegExp(`^${name}$`) }) })
+  .locator(':scope > a, :scope > details > summary');
+
+Then('the {string} menu item is highlighted', async ({ ui }, name) => {
+  await expect(topItem(ui, name)).toHaveClass(/\bis-current\b/);
+});
+
+Then('the {string} menu item is not highlighted', async ({ ui }, name) => {
+  await expect(topItem(ui, name)).not.toHaveClass(/\bis-current\b/);
+});

@@ -64,6 +64,13 @@ In: everything under Requirements. Out: notices and events (spec 02), Open Graph
 - Pages CMS `media` accepts `.doc` and `.docx` (check `.pages.yml` `media.extensions` or equivalent; add them if a list exists). A fixture body linking `/uploads/x.docx` keeps the link as written.
 - Spec 10's editor guide gets two lines: renaming an item keeps its address; notices appear and disappear overnight (or on the next save).
 
+### Changed while building (2026-10-20)
+
+- **Card pictures:** live's 4 articles without an `image` all have a picture in their body, and live's card and `og:image` use it. So the rule is `image`, else the first body picture, else a stock picture by a fixed rule from the file name (`cardImage`, `stockPicture`, `firstImage` in `config/filters.js`). No `stock-pictures.yaml` map. The stock pictures are `site/assets/images/generic-1.jpg` to `generic-6.jpg`; `generic-2.jpg` is byte for byte the one "Church Roof Completed" already uses.
+- **Back-to-top:** a plain link after the footer, shown by a CSS scroll-driven animation once the page has scrolled a screen (always shown where unsupported), not `site.js`. `site.js` had under 100 bytes left of its 2 KB budget.
+- **Hero widths:** `picture` takes `full: true` to also offer the source's own width; only the hero uses it, so other images keep spec 06's widths.
+- **Media:** `.pages.yml` has no file-type list, so `.doc` and `.docx` already upload. No change.
+
 ## Manual steps (maintainer)
 
 1. After merge, look at home on a phone and a big screen: the hero is edge to edge.

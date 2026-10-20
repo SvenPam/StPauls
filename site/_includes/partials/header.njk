@@ -1,4 +1,8 @@
 {%- set here = page.url | href -%}
+{#- Live highlights the top item for the section you are in: Blog on an article, Calendar on an event, a page type on its pages. -#}
+{%- macro current(item) -%}
+{%- if (item.section == '' and here == '/') or (item.section and (section == item.section or here.startsWith('/' + item.section + '/'))) %} class="is-current"{% endif -%}
+{%- endmacro -%}
 <header class="site-header">
   <div class="site-header__bar">
     <a class="site-brand" href="/">{{ site.title }}</a>
@@ -8,14 +12,18 @@
     <ul class="site-nav__list">
       {%- for item in collections | menuItems %}
       {%- if item.children %}
-      <li><details class="site-nav__group" name="site-nav"><summary>{{ item.name }}</summary>
+      <li><details class="site-nav__group" name="site-nav"><summary{{ current(item) }}>{{ item.name }}</summary>
         <ul>
           {%- for child in item.children %}
+          {%- if child.divider %}
+          <li role="separator" class="site-nav__divider"></li>
+          {%- else %}
           <li><a href="{{ child.url }}"{% if child.url == here %} aria-current="page"{% endif %}>{{ child.name }}</a></li>
+          {%- endif %}
           {%- endfor %}
         </ul></details></li>
       {%- else %}
-      <li><a href="{{ item.url }}"{% if item.url == here %} aria-current="page"{% endif %}>{{ item.name }}</a></li>
+      <li><a href="{{ item.url }}"{{ current(item) }}{% if item.url == here %} aria-current="page"{% endif %}>{{ item.name }}</a></li>
       {%- endif %}
       {%- endfor %}
     </ul>

@@ -2,6 +2,7 @@
 <div>
 <h1>{{ title }}</h1>
 {%- set items = collections.blog | newestFirst %}
+{%- set showAuthor = true %}
 {%- if items.length %}
 <div class="card-list">
   {%- asyncEach item in items %}

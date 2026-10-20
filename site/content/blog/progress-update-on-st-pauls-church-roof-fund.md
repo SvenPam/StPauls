@@ -1,6 +1,7 @@
 ---
 title: Progress Update on St. Paul’s Church Roof Fund
 date: 2019-01-18
+author: Paul Barfoot
 summary: An update on where we are with raising the funds needed to repair our roof
 blogtopics: church-events
 ---

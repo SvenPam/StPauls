@@ -256,3 +256,73 @@ Then('the home event months shown are {string}', async ({ ui }, list) => {
   const got = await main(ui).locator('.home-events__month:visible h3').allTextContents();
   expect(got.map((t) => t.trim())).toEqual(list.split(',').map((m) => m.trim()));
 });
+
+Given('a wide screen', async ({ ui }) => {
+  await ui.page.setViewportSize({ width: 1440, height: 900 });
+});
+
+Then('the hero fills the width of the window', async ({ ui }) => {
+  const box = await ui.page.locator('.hero').boundingBox();
+  expect(box.x).toBe(0);
+  expect(box.width).toBe(ui.page.viewportSize().width);
+});
+
+Then('the hero starts where the header ends', async ({ ui }) => {
+  const header = await ui.page.locator('.site-header').boundingBox();
+  const hero = await ui.page.locator('.hero').boundingBox();
+  expect(Math.round(hero.y)).toBe(Math.round(header.y + header.height));
+});
+
+Then('the hero image offers a 1024 pixel copy', async ({ ui }) => {
+  await expect(ui.page.locator('.hero source[type="image/webp"]')).toHaveAttribute('srcset', /\s1024w/);
+});
+
+Then('the page heading is inside the page column', async ({ ui }) => {
+  await expect(ui.page.locator('.site-main .container h1')).toHaveCount(1);
+});
+
+const cardOf = (ui, title) => main(ui).locator('.card').filter({ has: ui.page.getByRole('link', { name: title, exact: true }) });
+
+Then('the {string} card picture comes from {string}', async ({ ui }, title, prefix) => {
+  await expect(cardOf(ui, title).locator('img')).toHaveAttribute('src', new RegExp(`^${prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+});
+
+Then('the {string} card picture is decorative', async ({ ui }, title) => {
+  await expect(cardOf(ui, title).locator('img')).toHaveAttribute('alt', '');
+});
+
+Then('the {string} card has a {string} link named {string}', async ({ ui }, title, text, name) => {
+  const link = cardOf(ui, title).getByRole('link', { name, exact: true });
+  expect(await link.evaluate((a) => [...a.childNodes].filter((n) => !n.classList?.contains('visually-hidden')).map((n) => n.textContent).join('').trim())).toBe(text);
+});
+
+When('I scroll to the bottom', async ({ ui }) => {
+  await ui.page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await ui.page.waitForTimeout(300);
+});
+
+When('I print {string}', async ({ ui, baseURL }, path) => {
+  await ui.page.emulateMedia({ media: 'print' });
+  await ui.page.goto(new URL(path, baseURL).href);
+});
+
+Then('the {string} link is hidden', async ({ ui }, name) => {
+  await expect(ui.page.getByRole('link', { name, exact: true })).not.toBeVisible();
+});
+
+Then('the {string} link is shown', async ({ ui }, name) => {
+  await expect(ui.page.getByRole('link', { name, exact: true })).toBeVisible();
+});
+
+Then('the footer map is {word}', async ({ ui }, state) => {
+  const map = ui.page.locator('.find-us__map');
+  if (state === 'hidden') await expect(map).not.toBeVisible(); else await expect(map).toBeVisible();
+});
+
+Then('the blog aside is hidden', async ({ ui }) => {
+  await expect(ui.page.locator('.blog-aside')).not.toBeVisible();
+});
+
+Then('the {string} link anywhere on the page goes to {string}', async ({ ui }, name, href) => {
+  await expect(ui.page.getByRole('link', { name, exact: true })).toHaveAttribute('href', href);
+});

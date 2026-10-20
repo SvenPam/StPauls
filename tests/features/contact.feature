@@ -6,11 +6,19 @@ Feature: Contact form and site settings
     Then the footer shows "St Paul's & Hall"
     And the footer "Find us on Facebook" link goes to "https://www.facebook.com/fixture"
 
-  Scenario: Without a key the contact page shows the address
+  Scenario: Without a key the contact page shows the contacts table only, as live
     When I open "/contact"
     Then there is no contact form
-    And I see "PR4 1BD"
-    And the "Church contact list" link goes to "/page/about/contact-list"
+    And the body has a table with the header cells "Position, Name"
+    And I do not see "Alternatively"
+    And I do not see "Find us"
+    And the "Booking form" link goes to "/uploads/booking-form.docx"
+
+  Scenario: With a key the table comes first, then the form, as live
+    When I open "/contact" on the site with a contact key
+    Then the contact page reads, in order: "Fixture Vicar", "Alternatively", "Send an Enquiry", "Send"
+    And I do not see "Church contact list"
+    And the "Name" field takes at most 100 characters
 
   Scenario: The form posts to Web3Forms and comes back to the real domain
     When I open "/contact" on the site with a contact key

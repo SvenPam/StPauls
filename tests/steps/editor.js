@@ -113,3 +113,13 @@ Then('the {string} collection has an optional date {string} labelled {string}', 
   expect(f).toMatchObject({ type: 'date', label });
   expect(f.required).toBeFalsy();
 });
+
+Then('the {string} collection has a required string {string} labelled {string}', async ({ ui }, name, key, label) => {
+  expect(field(ui.cfg, name, key)).toMatchObject({ type: 'string', label, required: true });
+});
+
+Then('every page collection has a {string} tick box labelled {string}', async ({ ui }, key, label) => {
+  const pages = entries(ui.cfg).filter((c) => String(c.path ?? '').startsWith('site/content/page/'));
+  expect(pages.length).toBeGreaterThan(0);
+  for (const c of pages) expect(c.fields.find((f) => f.name === key), c.name).toMatchObject({ type: 'boolean', label });
+});

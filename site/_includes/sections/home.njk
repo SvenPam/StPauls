@@ -2,7 +2,7 @@
     An empty hero_alt makes the image decorative. -#}
 {%- set heroSrc = (hero_image | assetPath) or hero_image or 'images/hero.jpg' %}
 <section class="hero">
-  {% picture { src: heroSrc, alt: hero_alt or '', sizes: '100vw', eager: true } %}
+  {% picture { src: heroSrc, alt: hero_alt or '', sizes: '100vw', eager: true, full: true } %}
   <div class="hero__text">
     <h1>{{ title }}</h1>
     {%- if lead %}
@@ -11,6 +11,7 @@
   </div>
 </section>
 
+<div class="container">
 {%- set notices = collections.notices | noticesHome %}
 {%- set events = (collections.calendar | upcoming).slice(0, 20) %}
 {%- if notices.length or events.length %}
@@ -59,3 +60,4 @@
     {%- endeach %}
   </div>
 </section>
+</div>
