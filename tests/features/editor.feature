@@ -70,3 +70,6 @@ Feature: Pages CMS
   Scenario: Notices have a start and an optional end date
     Then the "notices" collection has a required date "date" labelled "Show from"
     And the "notices" collection has an optional date "until" labelled "Show until"
+
+  Scenario: Articles have a required author
+    Then the "blog" collection has a required string "author" labelled "Author"

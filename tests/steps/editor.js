@@ -113,3 +113,7 @@ Then('the {string} collection has an optional date {string} labelled {string}', 
   expect(f).toMatchObject({ type: 'date', label });
   expect(f.required).toBeFalsy();
 });
+
+Then('the {string} collection has a required string {string} labelled {string}', async ({ ui }, name, key, label) => {
+  expect(field(ui.cfg, name, key)).toMatchObject({ type: 'string', label, required: true });
+});

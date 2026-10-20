@@ -35,6 +35,11 @@ content:
         label: Date
         type: date
         required: true
+      - name: author
+        label: Author
+        description: Who wrote it, shown as "by ..." on the article
+        type: string
+        required: true
       - name: summary
         label: Summary
         description: Short text shown on the blog list and at the top of the article

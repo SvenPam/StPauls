@@ -1,6 +1,7 @@
 ---
 title: Night-time shots of our Church
 date: 2016-02-21
+author: Paul Barfoot
 summary: See the latest picture of our Church and read how Jon Byles Hardman came to take it.
 blogtopics: church-events
 ---

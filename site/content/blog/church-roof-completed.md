@@ -1,6 +1,7 @@
 ---
 title: Church Roof Completed
 date: 2020-05-05
+author: Paul Barfoot
 summary: Update on the completion of the church roof works
 blogtopics: other-events
 image: /uploads/content/generic-2.jpg

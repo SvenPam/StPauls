@@ -1,6 +1,7 @@
 ---
 title: St Paul's Churchyard in Bloom
 date: 2022-03-02
+author: Paul Barfoot
 summary: Pictures of St Paul's churchyard with the crocus on full display
 blogtopics: website
 image: /uploads/acny/e0602c3ff16aebee9d69855cf771ce34.jpg

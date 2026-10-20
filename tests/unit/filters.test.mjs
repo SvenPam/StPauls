@@ -43,3 +43,18 @@ test('sitemapPages keeps HTML pages not opted out, sorted by address', () => {
   ];
   assert.deepEqual(sitemapPages(all).map((p) => p.url), ['/', '/blog/', '/blog-x/']);
 });
+
+test('a stock picture is one of live 6, the same every build, whatever the name', async () => {
+  const { stockPicture } = await import('../../config/filters.js');
+  for (const name of ['church-roof-completed', 'église-été', '2026-10-20-harvest', '']) {
+    assert.match(stockPicture(name), /^images\/generic-[1-6]\.jpg$/, name);
+    assert.equal(stockPicture(name), stockPicture(name));
+  }
+});
+
+test('the first picture in a Markdown body', async () => {
+  const { firstImage } = await import('../../config/filters.js');
+  assert.equal(firstImage('Text\n\n![St Paul at night](/uploads/a b.jpg)\n\n![](/uploads/b.jpg)'), '/uploads/a b.jpg');
+  assert.equal(firstImage('<p><img src="/uploads/c.jpg"></p>'), '/uploads/c.jpg');
+  assert.equal(firstImage('no pictures [a link](/x)'), '');
+});

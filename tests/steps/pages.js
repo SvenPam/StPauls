@@ -280,3 +280,18 @@ Then('the hero image offers a 1024 pixel copy', async ({ ui }) => {
 Then('the page heading is inside the page column', async ({ ui }) => {
   await expect(ui.page.locator('.site-main .container h1')).toHaveCount(1);
 });
+
+const cardOf = (ui, title) => main(ui).locator('.card').filter({ has: ui.page.getByRole('link', { name: title, exact: true }) });
+
+Then('the {string} card picture comes from {string}', async ({ ui }, title, prefix) => {
+  await expect(cardOf(ui, title).locator('img')).toHaveAttribute('src', new RegExp(`^${prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+});
+
+Then('the {string} card picture is decorative', async ({ ui }, title) => {
+  await expect(cardOf(ui, title).locator('img')).toHaveAttribute('alt', '');
+});
+
+Then('the {string} card has a {string} link named {string}', async ({ ui }, title, text, name) => {
+  const link = cardOf(ui, title).getByRole('link', { name, exact: true });
+  expect(await link.evaluate((a) => [...a.childNodes].filter((n) => !n.classList?.contains('visually-hidden')).map((n) => n.textContent).join('').trim())).toBe(text);
+});

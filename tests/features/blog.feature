@@ -64,3 +64,24 @@ Feature: Blog
       | Fixture article 4 |
       | Fixture article 3 |
       | Fixture article 2 |
+
+  Scenario: An article names its author, as on live
+    When I open "/blog/article/a2"
+    Then I see "by Ann Example"
+    When I open "/blog"
+    Then the "Fixture article 2" card shows "by Ann Example"
+    When I open "/blog/article/a8"
+    Then I do not see "by "
+
+  Scenario: Home cards show no author
+    When I open "/"
+    Then I do not see "by Ann Example"
+
+  Scenario: A card with no picture of its own uses the first picture in the body, else a stock picture
+    When I open "/blog"
+    Then the "Fixture article 1" card picture comes from "/images/generic-"
+    And the "Fixture article 1" card picture is decorative
+
+  Scenario: The card button reads as on live and still names the article
+    When I open "/blog"
+    Then the "Fixture article 8" card has a "Read →" link named "Read about Fixture article 8"

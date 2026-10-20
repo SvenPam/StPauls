@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { decodeHTML } from 'entities';
 
 // Internal links are written without a trailing slash, except "/".
@@ -40,10 +42,35 @@ export function sitemapPages(all) {
     .sort((a, b) => (href(a.url) < href(b.url) ? -1 : href(a.url) > href(b.url) ? 1 : 0));
 }
 
+// One of live's 6 stock pictures (site/assets/images/generic-1.jpg to generic-6.jpg), from the item's file name, so it never changes between builds.
+export function stockPicture(name) {
+  let sum = 0;
+  for (const ch of String(name ?? '')) sum += ch.codePointAt(0);
+  return `images/generic-${1 + (sum % 6)}.jpg`;
+}
+
+// The first picture in a body: Markdown ![alt](src), or an <img> left in an old fixture.
+export function firstImage(body) {
+  const m = /!\[[^\]]*\]\(<?([^)>]+?)>?(?:\s+"[^"]*")?\)|<img\b[^>]*\bsrc=["']([^"']+)/i.exec(String(body ?? ''));
+  return m ? (m[1] ?? m[2]) : '';
+}
+
+// A blog card's picture, as live: the image field, else the first picture in the body, else a stock picture.
+// The body is read from the file: collection items do not keep their raw input.
+export function cardImage(item) {
+  if (item.data.image) return { src: item.data.image, alt: item.data.image_alt ?? '' };
+  const body = readFileSync(item.inputPath, 'utf8');
+  const first = firstImage(body);
+  if (first) return { src: first, alt: '' };
+  return { src: stockPicture(path.basename(item.inputPath, '.md')), alt: '' };
+}
+
 export default function (eleventyConfig) {
   eleventyConfig.addFilter('href', href);
   eleventyConfig.addFilter('newestFirst', newestFirst);
   eleventyConfig.addFilter('plainText', plainText);
   eleventyConfig.addFilter('excerpt', excerpt);
   eleventyConfig.addFilter('sitemapPages', sitemapPages);
+  eleventyConfig.addFilter('stockPicture', stockPicture);
+  eleventyConfig.addFilter('cardImage', cardImage);
 }

@@ -1,6 +1,7 @@
 ---
 title: St Paul's, Warton Graveyard Now Recognised by CWGC
 date: 2020-08-16
+author: Paul Barfoot
 summary: Our graveyard has now been recognised by the Commonwealth War Graves Commission
 blogtopics: church-events
 image: /uploads/acny/IMG_20200816_104753.jpg
