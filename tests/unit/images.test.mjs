@@ -180,3 +180,13 @@ test('a truncated upload is a plain image, never an error', async () => {
   writeFileSync(join(uploads, 'truncated.jpg'), whole.subarray(0, Math.floor(whole.length / 2)));
   assert.equal(await up('/uploads/truncated.jpg'), '<img src="/uploads/truncated.jpg" alt="A" loading="lazy" decoding="async">');
 });
+
+test('a share picture is a JPEG up to 1200 wide, absolute, and other sites pass through', async () => {
+  const { shareImage } = await import('../../config/images.js');
+  const dirs = { assets: tmp, uploads, out };
+  const url = await shareImage('images/t.png', 'https://example.org', dirs);
+  assert.match(url, /^https:\/\/example\.org\/images\/t-1000\.\w{8}\.jpg$/);
+  assert.ok(existsSync(join(out, new URL(url).pathname)));
+  assert.equal(await shareImage('https://media.example/x.jpg', 'https://example.org', dirs), 'https://media.example/x.jpg');
+  assert.equal(await shareImage('/uploads/missing.jpg', 'https://example.org', dirs), 'https://example.org/uploads/missing.jpg');
+});

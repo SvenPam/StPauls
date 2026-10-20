@@ -37,7 +37,7 @@ Feature: Pages CMS
 
   Scenario: The home page is one entry Paul cannot delete
     Then the "home" entry edits the file "site/content/_index.md"
-    And the "home" entry has the fields "title, lead, hero_image, hero_alt"
+    And the "home" entry has the fields "title, lead, hero_image, hero_alt, description"
 
   Scenario: Site settings are one entry Paul cannot delete
     Then the "settings" entry edits the file "site/data/settings.yaml"
@@ -76,3 +76,11 @@ Feature: Pages CMS
 
   Scenario: A page can be hidden
     Then every page collection has a "hidden" tick box labelled "Hidden"
+
+  Scenario: Section pages have an editable search description
+    Then the "blog-index" entry edits the file "site/content/blog/_index.md"
+    And the "blog-index" entry has the fields "description"
+    And the "calendar-index" entry edits the file "site/content/calendar/_index.md"
+    And the "calendar-index" entry has the fields "description"
+    And the "notices-index" entry edits the file "site/content/notices/_index.md"
+    And the "notices-index" entry has the fields "description"

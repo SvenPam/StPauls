@@ -230,6 +230,43 @@ content:
         label: Hero image description
         description: Leave empty if the picture is only decoration
         type: string
+      - name: description
+        label: Search description
+        description: Shown under the link in search results and on Facebook
+        type: string
+  - name: blog-index
+    label: Blog page
+    type: file
+    path: site/content/blog/_index.md
+    operations:
+      delete: false
+    fields:
+      - name: description
+        label: Search description
+        description: Shown under the link in search results
+        type: string
+  - name: calendar-index
+    label: Calendar page
+    type: file
+    path: site/content/calendar/_index.md
+    operations:
+      delete: false
+    fields:
+      - name: description
+        label: Search description
+        description: Shown under the link in search results
+        type: string
+  - name: notices-index
+    label: Notices page
+    type: file
+    path: site/content/notices/_index.md
+    operations:
+      delete: false
+    fields:
+      - name: description
+        label: Search description
+        description: Shown under the link in search results
+        type: string
   - name: settings
     label: Site settings
     type: file

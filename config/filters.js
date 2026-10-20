@@ -65,6 +65,9 @@ export function cardImage(item) {
   return { src: stockPicture(path.basename(item.inputPath, '.md')), alt: '' };
 }
 
+// A section's own _index.md page from collections.all, or an empty stand-in.
+export const sectionIndex = (all, section) => (all ?? []).find((p) => p.data.isIndex && p.data.section === section) ?? { data: {} };
+
 export default function (eleventyConfig) {
   eleventyConfig.addFilter('href', href);
   eleventyConfig.addFilter('newestFirst', newestFirst);
@@ -73,4 +76,5 @@ export default function (eleventyConfig) {
   eleventyConfig.addFilter('sitemapPages', sitemapPages);
   eleventyConfig.addFilter('stockPicture', stockPicture);
   eleventyConfig.addFilter('cardImage', cardImage);
+  eleventyConfig.addFilter('sectionIndex', sectionIndex);
 }

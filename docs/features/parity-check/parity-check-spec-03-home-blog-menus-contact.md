@@ -1,7 +1,7 @@
 ---
 date: 2026-10-19
 tags: [spec, plan, stpauls, parity]
-status: agreed
+status: done
 ---
 
 # Spec 03: home, blog, menus and contact
@@ -78,12 +78,12 @@ In: everything under Requirements. Out: notices and events (spec 02), Open Graph
 
 ## Acceptance
 
-- [ ] Hero full width at 1024 max.
-- [ ] Author field and line; stock pictures as live; "Read →".
-- [ ] About divider, section highlight, back-to-top, footer map hidden on phones, hidden pages.
-- [ ] Contact page as live; name max 100.
-- [ ] `.doc`/`.docx` uploads; guide lines added.
-- [ ] `npm test` green.
+- [x] Hero full width at 1024 max.
+- [x] Author field and line; stock pictures as live; "Read →".
+- [x] About divider, section highlight, back-to-top, footer map hidden on phones, hidden pages.
+- [x] Contact page as live; name max 100.
+- [x] `.doc`/`.docx` uploads; guide lines added.
+- [x] `npm test` green.
 
 ## Implementation plan
 
