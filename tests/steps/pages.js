@@ -205,3 +205,18 @@ When('I open {string} on the clock site at {string}', async ({ ui }, path, when)
   await ui.page.clock.setFixedTime(new Date(when));
   await ui.page.goto(CLOCK_SITE + path);
 });
+
+// The event page's Start and End blocks, as their visible text.
+const when = (ui, label) => main(ui).locator('.event-when div').filter({ has: ui.page.locator('dt', { hasText: label }) }).locator('dd');
+
+Then('the event starts {string}', async ({ ui }, text) => {
+  await expect(when(ui, 'Start')).toHaveText(text);
+});
+
+Then('the event ends {string}', async ({ ui }, text) => {
+  await expect(when(ui, 'End')).toHaveText(text);
+});
+
+Then('the event has no end', async ({ ui }) => {
+  await expect(when(ui, 'End')).toHaveCount(0);
+});

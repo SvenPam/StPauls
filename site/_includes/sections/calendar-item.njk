@@ -1,9 +1,12 @@
+{#- Live's date blocks: the same wall date reads time, month, day; otherwise day, short month, time, and End only when set. -#}
 {%- set data = { date: date, end: end } -%}
 {%- set endsAt = data | eventEnd -%}
+{%- set ownEnd = data | hasEnd -%}
+{%- set sameDay = ownEnd and (date | isoDay) == (endsAt | isoDay) -%}
 <article>
   <h1>{{ title }}</h1>
+  <p class="countdown" data-start="{{ date | isoLondon }}" data-end="{{ endsAt | isoLondon }}">{{ data | countdown }}</p>
   <div class="meta">
-    <span class="status">{{ data | eventStatus }}</span>
     {%- set topicSlug = topic %}{% set topicSection = section %}
     {%- set topicLink %}{% include "partials/topic-link.njk" %}{% endset %}
     {%- if topicLink | trim %}
@@ -11,10 +14,15 @@
     {%- endif %}
   </div>
   <dl class="event-when">
-    {%- for when in [{ label: 'Start', t: date }, { label: 'End', t: endsAt }] %}
+    {%- set whens = [{ label: 'Start', t: date }] %}
+    {%- if ownEnd %}{% set whens = (whens.push({ label: 'End', t: endsAt }), whens) %}{% endif %}
+    {%- for w in whens %}
     <div>
-      <dt>{{ when.label }}</dt>
-      <dd><time datetime="{{ when.t | isoLondon }}"><span class="event-time">{{ when.t | time }}</span> <span class="event-month">{{ when.t | month }}</span> <span class="event-day">{{ when.t | day }}</span></time></dd>
+      <dt>{{ w.label }}</dt>
+      <dd><time datetime="{{ w.t | isoLondon }}">
+        {%- if sameDay %}<span class="event-time">{{ w.t | time }}</span> <span class="event-month">{{ w.t | month }}</span> <span class="event-day">{{ w.t | day }}</span>
+        {%- else %}<span class="event-day">{{ w.t | day }}</span> <span class="event-month">{{ w.t | shortMonth }}</span> <span class="event-time">{{ w.t | time }}</span>{% endif -%}
+      </time></dd>
     </div>
     {%- endfor %}
   </dl>
