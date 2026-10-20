@@ -20,7 +20,7 @@ Feature: Notices
   Scenario: A notice that has not started is published, but not on the home page
     Then "/notices/notice/future" exists
     When I open "/"
-    Then I do not see "Fixture future"
+    Then the home notices do not include "Fixture future"
 
   Scenario: A migrated notice keeps its live URL
     Then "/notices/notice/46/news-pew-sheets" exists

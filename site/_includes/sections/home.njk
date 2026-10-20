@@ -12,6 +12,9 @@
 </section>
 
 {%- set notices = collections.notices | noticesHome %}
+{%- set events = (collections.calendar | upcoming).slice(0, 20) %}
+{%- if notices.length or events.length %}
+<div class="home-columns{% if notices.length and events.length %} home-columns--two{% endif %}">
 {%- if notices.length %}
 <section class="home-section" aria-labelledby="home-notices">
   <h2 id="home-notices"><a href="/notices">Church Notices</a></h2>
@@ -26,6 +29,25 @@
     {%- endfor %}
   </div>
 </section>
+{%- endif %}
+{%- if events.length %}
+{#- Live's Upcoming Events column: the next 20, under their month, day in bold, Soon or Active when it applies. #}
+<section class="home-section home-events" aria-labelledby="home-events">
+  <h2 id="home-events"><a href="/calendar">Upcoming Events</a></h2>
+  {%- for group in events | byMonth %}
+  <div class="home-events__month">
+    <h3>{{ group.month }}</h3>
+    <ul>
+      {%- for item in group.items %}
+      {%- set label = item.data | eventLabel('Active') %}
+      <li data-start="{{ item.data.date | isoLondon }}" data-end="{{ item.data | eventEnd | isoLondon }}"><strong>{{ item.data.date | day }}</strong> <a href="{{ item.url | href }}">{{ item.data.title }}</a>{% if label %} <span class="status">{{ label }}</span>{% endif %}</li>
+      {%- endfor %}
+    </ul>
+  </div>
+  {%- endfor %}
+</section>
+{%- endif %}
+</div>
 {%- endif %}
 
 <section class="home-section" aria-labelledby="home-articles">

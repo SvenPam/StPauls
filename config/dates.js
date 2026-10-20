@@ -155,6 +155,27 @@ export function countdown(data, now = buildNow()) {
   return `${Math.floor(ms / DAY_MS)} days to go`;
 }
 
+// The label on calendar cards and the home column: nothing for Future. Active reads "In Progress" on cards, "Active" at home.
+export function eventLabel(data, active = 'In Progress', now = buildNow()) {
+  const status = eventStatus(data, now);
+  return { Expired: 'Expired', Active: active, Soon: 'Soon', Future: '' }[status];
+}
+
+// Every item, soonest start first. Calendar topic pages keep past events, as live.
+export const soonestFirst = (items) => [...(items ?? [])].sort((a, b) => wall(a.data.date) - wall(b.data.date));
+
+// Items grouped under their start month, in order: [{ month, items }]. A new group starts whenever the month changes.
+export function byMonth(items) {
+  const groups = [];
+  for (const item of items ?? []) {
+    const d = wall(item.data.date);
+    const key = `${d.getUTCFullYear()}-${d.getUTCMonth()}`;
+    if (groups.at(-1)?.key !== key) groups.push({ key, month: MONTHS[d.getUTCMonth()], items: [] });
+    groups.at(-1).items.push(item);
+  }
+  return groups;
+}
+
 // Collection items whose end has not passed, soonest first.
 export function upcoming(items, now = buildNow()) {
   const nowMs = typeof now === 'number' ? now : now.getTime();
@@ -164,7 +185,7 @@ export function upcoming(items, now = buildNow()) {
 }
 
 export default function (eleventyConfig) {
-  for (const [name, fn] of Object.entries({ date, time, month, shortMonth, day, isoLondon, isoDay, rfc822London, eventEnd, eventStatus, upcoming, hasEnd, countdown, noticeEnded, noticesCurrent, noticesHome })) {
+  for (const [name, fn] of Object.entries({ date, time, month, shortMonth, day, isoLondon, isoDay, rfc822London, eventEnd, eventStatus, upcoming, hasEnd, countdown, eventLabel, soonestFirst, byMonth, noticeEnded, noticesCurrent, noticesHome })) {
     eleventyConfig.addFilter(name, fn);
   }
 }

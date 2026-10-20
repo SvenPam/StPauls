@@ -9,7 +9,8 @@ Feature: Calendar
       | Fixture later     |
       | Fixture backwards |
     And the "Fixture future" card shows "Future"
-    And the "Fixture future" card shows "01-Jun-99 10:00"
+    And the "Fixture future" card shows "10:00"
+    And the "Fixture future" card shows "June"
     And the "Fixture future" card shows "Church Hall"
     And I do not see "Fixture past"
     And I do not see "Could not find any events."
@@ -54,13 +55,13 @@ Feature: Calendar
     Then I do not see "Fixture future"
     And I see "Could not find any events."
 
-  Scenario: Topic pages show upcoming events only
+  Scenario: Topic pages keep past events, as live
     When I open "/calendar/topic/church-events"
     Then I see "Topic: Church Events"
     And the cards are, in order:
       | Fixture future |
     When I open "/calendar/topic/other-events"
-    Then I do not see "Fixture past"
+    Then I see "Fixture past"
 
   Scenario: No events
     When I open "/calendar" on the empty site

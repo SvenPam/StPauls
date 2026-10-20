@@ -220,3 +220,29 @@ Then('the event ends {string}', async ({ ui }, text) => {
 Then('the event has no end', async ({ ui }) => {
   await expect(when(ui, 'End')).toHaveCount(0);
 });
+
+Then('the {string} card has no status', async ({ ui }, title) => {
+  const card = main(ui).locator('.card').filter({ has: ui.page.getByRole('link', { name: title, exact: true }) });
+  await expect(card.locator('.status')).toHaveCount(0);
+});
+
+Then('the page title is {string}', async ({ ui }, title) => {
+  await expect(ui.page).toHaveTitle(title);
+});
+
+// Visible lines of the home Upcoming Events column: month heading, day, title, label.
+Then('the home events are:', async ({ ui }, table) => {
+  const rows = await main(ui).locator('.home-events li:visible').evaluateAll((lis) =>
+    lis.map((li) => [
+      li.closest('.home-events__month').querySelector('h3').textContent.trim(),
+      li.querySelector('strong').textContent.trim(),
+      li.querySelector('a').textContent.trim(),
+      li.querySelector('.status')?.textContent.trim() ?? '',
+    ]));
+  expect(rows).toEqual(table.raw().map((r) => r.map((c) => c.trim())));
+});
+
+Then('the home notices do not include {string}', async ({ ui }, title) => {
+  const got = await main(ui).locator('.home-notice h3').allTextContents();
+  expect(got.map((t) => t.trim())).not.toContain(title);
+});
