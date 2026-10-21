@@ -21,7 +21,10 @@ The maintainer, in a desktop browser. The sandbox cannot reach the embeds.
 4. Click each domain listed under **Cookies** and note every cookie name with its domain.
 5. Close the private window and start a new one for the next page.
 
-Pages, on the test URL `https://brave-coast-006318103.5.azurestaticapps.net`:
+- h
+- /
+
+Pages, on the test URL `https://agreeable-island-0c85bb703.4.azurestaticapps.net`:
 
 | Page | Embed |
 |---|---|
@@ -37,9 +40,10 @@ Fill in the table and tell Claude.
 
 | Page | Cookie | Domain | Checked |
 |---|---|---|---|
-| `/` | | | |
-| `/page/about/church-diary` | `NID` (from response headers, 2026-10-18, not yet in a browser) | `.google.com` | |
-| `/page/gallery/church-gallery` | | | |
+| `/` | | https://agreeable-island-0c85bb703.4.azurestaticapps.net | [x] |
+| `/page/about/church-diary` | `NID` | `.google.com` | [x] |
+| `/page/about/church-diary` | `OTZ` | `calendar.google.com` | [x] |
+| `/page/gallery/church-gallery` | Empty | `embedsocial.com` | [x] |
 
 ## What happens next
 

@@ -82,7 +82,7 @@ The Contact Us page has the church address and contact list, and a form that ema
 
 At the bottom of every page: links to the main sections and pages, the map, the address and the Facebook link.
 
-- **Edit in:** Site settings (the address, Facebook, map and directions links). A page joins the footer when you tick "Show in the footer" on it.
+- **Edit in:** Site settings (the address, Facebook, map and directions links). A page joins the footer when you switch on "Show in the footer" on it.
 - **Changed:** the old footer's personal links have gone. The map is hidden on phones, as before.
 
 ## When changes show
