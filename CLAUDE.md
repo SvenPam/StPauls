@@ -101,13 +101,15 @@ The legacy CSS, images and views needed for reference are on `archive/umbraco-20
 
 ## Next steps
 
-1. Parity specs 01 to 04 and Page CMS spec 07a are done. Next is Page CMS spec 10, `docs/features/page-cms/page-cms-spec-10-editor-rollout.md`: it writes the maintainer checklist first, then the Pages CMS guide and the site guide. Specs 08 and 09 are part-built and still need their acceptance checked before 11 (cutover).
+1. Page CMS spec 10 (editor rollout) is in progress on `claude/site-design-variations-3m9dpk`: Pages CMS polish, the maintainer checklist, the editor guide, the site guide and the policy suggestions are written (2026-10-21). Its Task 3, the round-trip check, waits on the maintainer's no-change saves in Pages CMS (checklist section 6). Specs 08 and 09 are part-built and still need their acceptance checked before 11 (cutover).
 2. Every maintainer step lives in one list, `docs/features/page-cms/page-cms-how-to-run-the-maintainer-checklist.md` (from spec 10). New specs add their steps there. Say plainly when blocked on one.
-3. The Cloudflare runbook (`page-cms-runbook-cloudflare.md`) is a placeholder; the maintainer is writing it in another session.
-4. After Page CMS spec 12, phase 2 (design options) starts from `docs/features/redesign/redesign-feature.md` (placeholder).
+3. The Cloudflare runbook (`page-cms-runbook-cloudflare.md`) is a placeholder with the status so far; the maintainer is writing it in another session.
+4. After Page CMS spec 12, phase 2 starts from `docs/features/redesign/redesign-feature.md`. Paul is choosing between ten design options now.
 
 ## Open items
 
-- Design options (2026-10-20): ten mockups in `docs/features/design-options/`, link sent to Paul. Waiting on his pick before any phase 2 spec.
-- The contact form inbox is not chosen yet. The form stays hidden until a Web3Forms key is set.
+- Design options (2026-10-20): ten mockups in `docs/features/design-options/`, link going to Paul. Waiting on his pick before any phase 2 spec.
+- Contact form inbox: `wartonstpauls@gmail.com` (Paul, 2026-10-21). The form stays hidden until the maintainer creates the Web3Forms key and pastes it into Site settings.
+- Safeguarding page: the personal contact details stay. The Diocese requires the information (Paul, 2026-10-21). Paul may update it after talking to the vicar.
+- DNS: Cloudflare zone added (2026-10-21), waiting for the church contact to change the nameservers at 123 Reg.
 - Easter 2026 and other seasonal pages are still being edited in the legacy back office by the church. Spec 11 re-extracts on cutover day.

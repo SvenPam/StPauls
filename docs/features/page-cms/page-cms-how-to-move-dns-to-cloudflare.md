@@ -248,7 +248,7 @@ Once the old nameservers answer with the records in the table, the old DNS works
 | Renewal date | 2035-08-18 |
 | Who holds the registrar login | Known to the maintainer, not recorded in the repo |
 | Old nameservers | `ns47.domaincontrol.com`, `ns48.domaincontrol.com` |
-| Cloudflare nameservers | |
+| Cloudflare nameservers | `ben.ns.cloudflare.com`, `melinda.ns.cloudflare.com` (zone added on Free, 2026-10-21) |
 | DNSSEC before | Off (unsigned) |
 | Zone active on | |
 | Site check | |
