@@ -158,7 +158,7 @@ Actions, Deploy, Run workflow, branch `main`. The run updates the Static Web App
 
 ## 8. Invite the editor
 
-In the project's Settings, Collaborators, invite Paul by email. He signs in with the emailed link. He does not need a GitHub account.
+In the project's Settings, Collaborators, invite Paul by email. He joins from the button in the invite email, then signs in with a 6-digit code Pages CMS emails him each time (valid 5 minutes). He does not need a GitHub account.
 
 ---
 

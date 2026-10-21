@@ -1,6 +1,8 @@
 media:
   input: site/static/uploads
   output: /uploads
+  rename: safe
+  categories: [image, document]
 
 # Keep front matter keys the form does not show, such as the hidden url on migrated items.
 settings:
@@ -8,142 +10,6 @@ settings:
     merge: true
 
 content:
-  - name: blog
-    label: Blog
-    type: collection
-    path: site/content/blog
-    filename: "{year}-{month}-{day}-{primary}.md"
-    exclude: [_index.md]
-    view:
-      fields: [title, date]
-      primary: title
-      sort: [date, title]
-      default:
-        sort: date
-        order: desc
-    operations:
-      rename: false
-    fields:
-      - name: title
-        label: Title
-        type: string
-        required: true
-        pattern:
-          regex: "^(?![Ii]ndex$).+"
-          message: Pick another title
-      - name: date
-        label: Date
-        type: date
-        required: true
-      - name: author
-        label: Author
-        description: Who wrote it, shown as "by ..." on the article
-        type: string
-        required: true
-      - name: summary
-        label: Summary
-        description: Short text shown on the blog list and at the top of the article
-        type: string
-      - name: image
-        label: Image
-        type: image
-      - name: image_alt
-        label: Image description
-        type: string
-      - name: blogtopics
-        label: Topic
-        type: select
-        options:
-          values:
-            - name: website
-              label: Website
-            - name: church-services
-              label: Church Services
-            - name: church-events
-              label: Church Events
-            - name: other-events
-              label: Other Events
-      - name: url
-        type: string
-        hidden: true
-      - name: body
-        label: Article
-        type: rich-text
-        required: true
-        options:
-          format: markdown
-  - name: events
-    label: Events
-    type: collection
-    path: site/content/calendar
-    filename: "{year}-{month}-{day}-{primary}.md"
-    exclude: [_index.md]
-    view:
-      fields: [title, date, end]
-      primary: title
-      sort: [date, title]
-      default:
-        sort: date
-        order: desc
-    operations:
-      rename: false
-    fields:
-      - name: title
-        label: Title
-        type: string
-        required: true
-        pattern:
-          regex: "^(?![Ii]ndex$).+"
-          message: Pick another title
-      - name: date
-        label: Starts
-        type: date
-        required: true
-        options:
-          time: true
-          format: yyyy-MM-dd'T'HH:mm:ss
-      - name: end
-        label: Ends
-        type: date
-        required: true
-        options:
-          time: true
-          format: yyyy-MM-dd'T'HH:mm:ss
-      - name: summary
-        label: Summary
-        description: Short text shown on the calendar and at the top of the event
-        type: string
-      - name: location
-        label: Location
-        type: string
-      - name: image
-        label: Image
-        type: image
-      - name: image_alt
-        label: Image description
-        type: string
-      - name: eventtopics
-        label: Topic
-        type: select
-        options:
-          values:
-            - name: website
-              label: Website
-            - name: church-services
-              label: Church Services
-            - name: church-events
-              label: Church Events
-            - name: other-events
-              label: Other Events
-      - name: url
-        type: string
-        hidden: true
-      - name: body
-        label: Event details
-        type: rich-text
-        required: true
-        options:
-          format: markdown
   - name: notices
     label: Notices
     type: collection
@@ -185,6 +51,7 @@ content:
         type: string
       - name: noticetopics
         label: Topic
+        description: Groups items under Website, Church Services, Church Events or Other Events
         type: select
         options:
           values:
@@ -205,12 +72,21 @@ content:
         required: true
         options:
           format: markdown
-  - name: home
-    label: Home page
-    type: file
-    path: site/content/_index.md
+  - name: events
+    label: Events
+    type: collection
+    path: site/content/calendar
+    filename: "{year}-{month}-{day}-{primary}.md"
+    exclude: [_index.md]
+    view:
+      fields: [title, date, end]
+      primary: title
+      sort: [date, title]
+      default:
+        sort: date
+        order: desc
     operations:
-      delete: false
+      rename: false
     fields:
       - name: title
         label: Title
@@ -219,90 +95,125 @@ content:
         pattern:
           regex: "^(?![Ii]ndex$).+"
           message: Pick another title
-      - name: lead
-        label: Strapline
-        description: The line under the title on the big picture
+      - name: date
+        label: Starts
+        description: When it starts. It drops off the calendar after it ends
+        type: date
+        required: true
+        options:
+          time: true
+          format: yyyy-MM-dd'T'HH:mm:ss
+      - name: end
+        label: Ends
+        description: When it ends. It drops off the calendar after this
+        type: date
+        required: true
+        options:
+          time: true
+          format: yyyy-MM-dd'T'HH:mm:ss
+      - name: summary
+        label: Summary
+        description: Short text shown on the calendar and at the top of the event
         type: string
-      - name: hero_image
-        label: Hero image
+      - name: location
+        label: Location
+        type: string
+      - name: image
+        label: Image
         type: image
-      - name: hero_alt
-        label: Hero image description
-        description: Leave empty if the picture is only decoration
+      - name: image_alt
+        label: Image description
+        description: Describe the picture for people who cannot see it. Leave empty if it is only decoration
         type: string
-      - name: description
-        label: Search description
-        description: Shown under the link in search results and on Facebook
+      - name: eventtopics
+        label: Topic
+        description: Groups items under Website, Church Services, Church Events or Other Events
+        type: select
+        options:
+          values:
+            - name: website
+              label: Website
+            - name: church-services
+              label: Church Services
+            - name: church-events
+              label: Church Events
+            - name: other-events
+              label: Other Events
+      - name: url
         type: string
-  - name: blog-index
-    label: Blog page
-    type: file
-    path: site/content/blog/_index.md
+        hidden: true
+      - name: body
+        label: Event details
+        type: rich-text
+        required: true
+        options:
+          format: markdown
+  - name: blog
+    label: Blog
+    type: collection
+    path: site/content/blog
+    filename: "{year}-{month}-{day}-{primary}.md"
+    exclude: [_index.md]
+    view:
+      fields: [title, date]
+      primary: title
+      sort: [date, title]
+      default:
+        sort: date
+        order: desc
     operations:
-      delete: false
+      rename: false
     fields:
-      - name: description
-        label: Search description
-        description: Shown under the link in search results
-        type: string
-  - name: calendar-index
-    label: Calendar page
-    type: file
-    path: site/content/calendar/_index.md
-    operations:
-      delete: false
-    fields:
-      - name: description
-        label: Search description
-        description: Shown under the link in search results
-        type: string
-  - name: notices-index
-    label: Notices page
-    type: file
-    path: site/content/notices/_index.md
-    operations:
-      delete: false
-    fields:
-      - name: description
-        label: Search description
-        description: Shown under the link in search results
-        type: string
-  - name: settings
-    label: Site settings
-    type: file
-    path: site/data/settings.yaml
-    format: yaml
-    operations:
-      delete: false
-    fields:
-      - name: contact_access_key
-        label: Contact form key
-        description: From web3forms.com. Leave empty to hide the form.
-        type: string
-        pattern:
-          regex: "^$|^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
-          message: Paste the whole key, or leave it empty
-      - name: contact_subject
-        label: Email subject
+      - name: title
+        label: Title
         type: string
         required: true
-      - name: enquiry_types
-        label: Enquiry types
+        pattern:
+          regex: "^(?![Ii]ndex$).+"
+          message: Pick another title
+      - name: date
+        label: Date
+        type: date
+        required: true
+      - name: author
+        label: Author
+        description: Who wrote it, shown as "by ..." on the article
         type: string
-        list: true
-      - name: address
-        label: Address lines
+        required: true
+      - name: summary
+        label: Summary
+        description: Short text shown on the blog list and at the top of the article
         type: string
-        list: true
-      - name: facebook_url
-        label: Facebook page
+      - name: image
+        label: Image
+        type: image
+      - name: image_alt
+        label: Image description
+        description: Describe the picture for people who cannot see it. Leave empty if it is only decoration
         type: string
-      - name: map_url
-        label: Map link
+      - name: blogtopics
+        label: Topic
+        description: Groups items under Website, Church Services, Church Events or Other Events
+        type: select
+        options:
+          values:
+            - name: website
+              label: Website
+            - name: church-services
+              label: Church Services
+            - name: church-events
+              label: Church Events
+            - name: other-events
+              label: Other Events
+      - name: url
         type: string
-      - name: directions_url
-        label: Directions link
-        type: string
+        hidden: true
+      - name: body
+        label: Article
+        type: rich-text
+        required: true
+        options:
+          format: markdown
   - name: pages
     label: Pages
     type: group
@@ -332,16 +243,19 @@ content:
             type: string
           - name: header
             label: Show in the top menu
+            description: Tick to show this page in the top menu
             type: boolean
           - name: footer
             label: Show in the footer
+            description: Tick to show this page in the footer
             type: boolean
           - name: hidden
             label: Hidden
             description: Hidden pages are not on the site
             type: boolean
           - name: weight
-            label: Order in menu (lower comes first)
+            label: Order in menu
+            description: Lower numbers come first in the menu
             type: number
             default: 100
           - name: image
@@ -349,6 +263,7 @@ content:
             type: image
           - name: image_alt
             label: Image description
+            description: Describe the picture for people who cannot see it. Leave empty if it is only decoration
             type: string
           - name: body
             label: Page
@@ -400,16 +315,19 @@ content:
             type: string
           - name: header
             label: Show in the top menu
+            description: Tick to show this page in the top menu
             type: boolean
           - name: footer
             label: Show in the footer
+            description: Tick to show this page in the footer
             type: boolean
           - name: hidden
             label: Hidden
             description: Hidden pages are not on the site
             type: boolean
           - name: weight
-            label: Order in menu (lower comes first)
+            label: Order in menu
+            description: Lower numbers come first in the menu
             type: number
             default: 100
           - name: image
@@ -417,6 +335,7 @@ content:
             type: image
           - name: image_alt
             label: Image description
+            description: Describe the picture for people who cannot see it. Leave empty if it is only decoration
             type: string
           - name: body
             label: Page
@@ -468,16 +387,19 @@ content:
             type: string
           - name: header
             label: Show in the top menu
+            description: Tick to show this page in the top menu
             type: boolean
           - name: footer
             label: Show in the footer
+            description: Tick to show this page in the footer
             type: boolean
           - name: hidden
             label: Hidden
             description: Hidden pages are not on the site
             type: boolean
           - name: weight
-            label: Order in menu (lower comes first)
+            label: Order in menu
+            description: Lower numbers come first in the menu
             type: number
             default: 100
           - name: image
@@ -485,6 +407,7 @@ content:
             type: image
           - name: image_alt
             label: Image description
+            description: Describe the picture for people who cannot see it. Leave empty if it is only decoration
             type: string
           - name: body
             label: Page
@@ -536,16 +459,19 @@ content:
             type: string
           - name: header
             label: Show in the top menu
+            description: Tick to show this page in the top menu
             type: boolean
           - name: footer
             label: Show in the footer
+            description: Tick to show this page in the footer
             type: boolean
           - name: hidden
             label: Hidden
             description: Hidden pages are not on the site
             type: boolean
           - name: weight
-            label: Order in menu (lower comes first)
+            label: Order in menu
+            description: Lower numbers come first in the menu
             type: number
             default: 100
           - name: image
@@ -553,6 +479,7 @@ content:
             type: image
           - name: image_alt
             label: Image description
+            description: Describe the picture for people who cannot see it. Leave empty if it is only decoration
             type: string
           - name: body
             label: Page
@@ -604,16 +531,19 @@ content:
             type: string
           - name: header
             label: Show in the top menu
+            description: Tick to show this page in the top menu
             type: boolean
           - name: footer
             label: Show in the footer
+            description: Tick to show this page in the footer
             type: boolean
           - name: hidden
             label: Hidden
             description: Hidden pages are not on the site
             type: boolean
           - name: weight
-            label: Order in menu (lower comes first)
+            label: Order in menu
+            description: Lower numbers come first in the menu
             type: number
             default: 100
           - name: image
@@ -621,6 +551,7 @@ content:
             type: image
           - name: image_alt
             label: Image description
+            description: Describe the picture for people who cannot see it. Leave empty if it is only decoration
             type: string
           - name: body
             label: Page
@@ -672,16 +603,19 @@ content:
             type: string
           - name: header
             label: Show in the top menu
+            description: Tick to show this page in the top menu
             type: boolean
           - name: footer
             label: Show in the footer
+            description: Tick to show this page in the footer
             type: boolean
           - name: hidden
             label: Hidden
             description: Hidden pages are not on the site
             type: boolean
           - name: weight
-            label: Order in menu (lower comes first)
+            label: Order in menu
+            description: Lower numbers come first in the menu
             type: number
             default: 100
           - name: image
@@ -689,6 +623,7 @@ content:
             type: image
           - name: image_alt
             label: Image description
+            description: Describe the picture for people who cannot see it. Leave empty if it is only decoration
             type: string
           - name: body
             label: Page
@@ -740,16 +675,19 @@ content:
             type: string
           - name: header
             label: Show in the top menu
+            description: Tick to show this page in the top menu
             type: boolean
           - name: footer
             label: Show in the footer
+            description: Tick to show this page in the footer
             type: boolean
           - name: hidden
             label: Hidden
             description: Hidden pages are not on the site
             type: boolean
           - name: weight
-            label: Order in menu (lower comes first)
+            label: Order in menu
+            description: Lower numbers come first in the menu
             type: number
             default: 100
           - name: image
@@ -757,6 +695,7 @@ content:
             type: image
           - name: image_alt
             label: Image description
+            description: Describe the picture for people who cannot see it. Leave empty if it is only decoration
             type: string
           - name: body
             label: Page
@@ -808,16 +747,19 @@ content:
             type: string
           - name: header
             label: Show in the top menu
+            description: Tick to show this page in the top menu
             type: boolean
           - name: footer
             label: Show in the footer
+            description: Tick to show this page in the footer
             type: boolean
           - name: hidden
             label: Hidden
             description: Hidden pages are not on the site
             type: boolean
           - name: weight
-            label: Order in menu (lower comes first)
+            label: Order in menu
+            description: Lower numbers come first in the menu
             type: number
             default: 100
           - name: image
@@ -825,6 +767,7 @@ content:
             type: image
           - name: image_alt
             label: Image description
+            description: Describe the picture for people who cannot see it. Leave empty if it is only decoration
             type: string
           - name: body
             label: Page
@@ -851,3 +794,101 @@ content:
           - name: layout
             type: string
             hidden: true
+  - name: home
+    label: Home page
+    type: file
+    path: site/content/_index.md
+    operations:
+      delete: false
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+        pattern:
+          regex: "^(?![Ii]ndex$).+"
+          message: Pick another title
+      - name: lead
+        label: Strapline
+        description: The line under the title on the main picture
+        type: string
+      - name: hero_image
+        label: Main picture
+        type: image
+      - name: hero_alt
+        label: Main picture description
+        description: Describe the picture for people who cannot see it. Leave empty if it is only decoration
+        type: string
+      - name: description
+        label: Search description
+        description: Shown under the link in search results and on Facebook
+        type: string
+  - name: settings
+    label: Site settings
+    type: file
+    path: site/data/settings.yaml
+    format: yaml
+    operations:
+      delete: false
+    fields:
+      - name: contact_access_key
+        label: Contact form key
+        description: From web3forms.com. Leave empty to hide the form.
+        type: string
+        pattern:
+          regex: "^$|^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+          message: Paste the whole key, or leave it empty
+      - name: contact_subject
+        label: Email subject
+        type: string
+        required: true
+      - name: enquiry_types
+        label: Enquiry types
+        type: string
+        list: true
+      - name: address
+        label: Address lines
+        type: string
+        list: true
+      - name: facebook_url
+        label: Facebook page
+        type: string
+      - name: map_url
+        label: Map link
+        type: string
+      - name: directions_url
+        label: Directions link
+        type: string
+  - name: blog-index
+    label: Blog page
+    type: file
+    path: site/content/blog/_index.md
+    operations:
+      delete: false
+    fields:
+      - name: description
+        label: Search description
+        description: Shown under the link in search results
+        type: string
+  - name: calendar-index
+    label: Calendar page
+    type: file
+    path: site/content/calendar/_index.md
+    operations:
+      delete: false
+    fields:
+      - name: description
+        label: Search description
+        description: Shown under the link in search results
+        type: string
+  - name: notices-index
+    label: Notices page
+    type: file
+    path: site/content/notices/_index.md
+    operations:
+      delete: false
+    fields:
+      - name: description
+        label: Search description
+        description: Shown under the link in search results
+        type: string
