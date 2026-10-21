@@ -73,6 +73,8 @@ In: everything under Requirements. Out: notices and events (spec 02), Open Graph
 
 ## Manual steps (maintainer)
 
+_Tracked in [the maintainer checklist](../page-cms/page-cms-how-to-run-the-maintainer-checklist.md) (spec 10), which is the one list to run through. Kept here for detail._
+
 1. After merge, look at home on a phone and a big screen: the hero is edge to edge.
 2. In Pages CMS, open a page and tick "Hidden", save, check it is gone from the menu and gives "not found", then untick.
 
