@@ -3,6 +3,7 @@ title: Cookie Policy
 header: true
 footer: true
 weight: 4
+hidden: true
 ---
 It is important you know this site uses cookies and that by accessing the site, you consent to their use and agree to this policy. It is under UK and EU website regulations that the details of these cookies are disclosed.
 
