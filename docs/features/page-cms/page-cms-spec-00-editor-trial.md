@@ -96,6 +96,8 @@ Files live at `site/content/notices/`. Pages CMS names new files `{yyyy}-{mm}-{d
 
 ## Manual steps (maintainer)
 
+_Tracked in [the maintainer checklist](page-cms-how-to-run-the-maintainer-checklist.md) (spec 10), which is the one list to run through. Kept here for detail._
+
 1. ~~GitHub: set the default branch to `main`. Optionally delete `master`.~~ Done.
 2. Azure: create a resource group (e.g. `rg-stpauls-web`, West Europe).
 3. Entra ID: create an app registration with a federated credential for `repo:SvenPam@3789646/StPauls@1423163125:ref:refs/heads/main` (case matters). Grant it Contributor on the resource group.

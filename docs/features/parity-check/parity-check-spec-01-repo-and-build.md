@@ -89,6 +89,8 @@ Replace the "no ruleset" paragraph at section 6 of `docs/features/page-cms/page-
 
 ## Manual steps (maintainer)
 
+_Tracked in [the maintainer checklist](../page-cms/page-cms-how-to-run-the-maintainer-checklist.md) (spec 10), which is the one list to run through. Kept here for detail._
+
 1. After this merges, create the ruleset on `main` as the how-to says.
 2. Save once in Pages CMS signed in with GitHub, once as an email collaborator. Both must land on `main`. If yours is refused, set the admin bypass to "always".
 3. Check the next content-only deploy skips "Deploy infrastructure" and reports the site URL.

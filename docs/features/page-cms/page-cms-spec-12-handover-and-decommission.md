@@ -99,6 +99,8 @@ For the church, not technical, short: who looks after what (Paul edits, the main
 
 ## Manual steps (maintainer)
 
+_Tracked in [the maintainer checklist](page-cms-how-to-run-the-maintainer-checklist.md) (spec 10), which is the one list to run through. Kept here for detail._
+
 1. Confirm there will be no rollback.
 2. Send the subscriber note, then delete the export.
 3. Work through the decommission checklist.

@@ -1,7 +1,7 @@
 ---
 date: 2026-10-19
 tags: [spec, plan, stpauls, parity]
-status: agreed
+status: done
 ---
 
 # Spec 04: sharing and search
@@ -52,14 +52,16 @@ A link to the home page or an article shared on Facebook shows a title, descript
 
 ## Manual steps (maintainer)
 
+_Tracked in [the maintainer checklist](../page-cms/page-cms-how-to-run-the-maintainer-checklist.md) (spec 10), which is the one list to run through. Kept here for detail._
+
 1. After cutover, paste an article's address on the real domain into the [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/): title, description and picture show. Before cutover, View Source on the test URL shows the `og:` tags; the picture addresses only work once the domain moves.
 
 ## Acceptance
 
-- [ ] Open Graph on home and articles as above, absolute URLs.
-- [ ] Live's descriptions on home, blog, calendar, notices and topic pages, editable in Pages CMS.
-- [ ] `BlogPosting` microdata on articles.
-- [ ] `npm test` green.
+- [x] Open Graph on home and articles as above, absolute URLs.
+- [x] Live's descriptions on home, blog, calendar, notices and topic pages, editable in Pages CMS.
+- [x] `BlogPosting` microdata on articles.
+- [x] `npm test` green.
 
 ## Implementation plan
 

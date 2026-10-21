@@ -143,6 +143,8 @@ A bad key and an empty list of enquiry types are covered by unit tests on `conta
 
 ## Manual steps (maintainer)
 
+_Tracked in [the maintainer checklist](page-cms-how-to-run-the-maintainer-checklist.md) (spec 10), which is the one list to run through. Kept here for detail._
+
 1. After merge, check Site settings appears in Pages CMS and that changing the Facebook link changes the footer after the deploy (then change it back).
 2. When the church picks an inbox: follow the how-to with them.
 

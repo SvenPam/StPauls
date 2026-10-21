@@ -83,6 +83,8 @@ The how-to says how to undo step 7: put the old nameservers back at the registra
 
 ## Manual steps (maintainer)
 
+_Tracked in [the maintainer checklist](page-cms-how-to-run-the-maintainer-checklist.md) (spec 10), which is the one list to run through. Kept here for detail._
+
 All of steps 1 to 9 above. This spec only writes the documents; nothing in it can be run from the sandbox.
 
 ---

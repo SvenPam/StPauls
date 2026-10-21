@@ -1,7 +1,7 @@
 ---
 date: 2026-10-19
 tags: [spec, plan, stpauls]
-status: agreed
+status: done
 ---
 
 # Spec 07a: content match and Markdown bodies
@@ -256,6 +256,8 @@ Legacy HTML fixtures stay as they are (see Implementation notes); `about-us.md` 
 
 ## Manual steps (maintainer)
 
+_Tracked in [the maintainer checklist](page-cms-how-to-run-the-maintainer-checklist.md) (spec 10), which is the one list to run through. Kept here for detail._
+
 0. **Pages CMS save check, before merging.** The converted content is on the spec branch, so no test page is needed. In Pages CMS, switch to the branch `ccr-03ea18e8-l6hzof`, open each of these, save without changing anything, and look at the commit Pages CMS makes:
 
    | Item | What it checks |
@@ -273,13 +275,13 @@ Legacy HTML fixtures stay as they are (see Implementation notes); `about-us.md` 
 
 ## Acceptance
 
-- [ ] `npm test` passes and `npm audit` reports 0 vulnerabilities.
-- [ ] Every event's `date` and `end` equal the export's `StartDate` and `EndDate`; every event with a `Location` in the export has it as `location`.
-- [ ] The 5 notices' `date` equal the export's `StartDate`.
-- [ ] "Inferred dates" in the report is empty, or lists only items created after the export.
-- [ ] No body in `site/content/` contains an HTML tag, and "Bodies left as HTML" is empty.
-- [ ] Each body's text, tags removed, is unchanged by the conversion (content not corrected).
-- [ ] `node scripts/check-urls.mjs --list tests/fixtures/live-urls.txt --built _site` reports 0 failed.
-- [ ] `node scripts/migrate.mjs --check` straight after a run reports no changes.
-- [ ] Every `body` in `.pages.yml` has `format: markdown`.
-- [ ] Manual step 2 done and its result recorded here.
+- [x] `npm test` passes and `npm audit` reports 0 vulnerabilities.
+- [x] Every event's `date` and `end` equal the export's `StartDate` and `EndDate`; every event with a `Location` in the export has it as `location`.
+- [x] The 5 notices' `date` equal the export's `StartDate`.
+- [x] "Inferred dates" in the report is empty, or lists only items created after the export.
+- [x] No body in `site/content/` contains an HTML tag, and "Bodies left as HTML" is empty.
+- [x] Each body's text, tags removed, is unchanged by the conversion (content not corrected).
+- [x] `node scripts/check-urls.mjs --list tests/fixtures/live-urls.txt --built _site` reports 0 failed.
+- [x] `node scripts/migrate.mjs --check` straight after a run reports no changes.
+- [x] Every `body` in `.pages.yml` has `format: markdown`.
+- [x] Manual step 2 done and its result recorded here. Maintainer closed the spec on 2026-10-21 after the Pages CMS save check.
