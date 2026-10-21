@@ -123,3 +123,31 @@ Then('every page collection has a {string} tick box labelled {string}', async ({
   expect(pages.length).toBeGreaterThan(0);
   for (const c of pages) expect(c.fields.find((f) => f.name === key), c.name).toMatchObject({ type: 'boolean', label });
 });
+
+// Every field Paul can see, in every collection and file, groups included.
+const visibleFields = (cfg) => entries(cfg).flatMap((c) => c.fields.map((f) => ({ ...f, entry: c.name }))).filter((f) => !f.hidden);
+
+Then('the sidebar is, in order:', async ({ ui }, table) => {
+  expect(ui.cfg.content.map((c) => c.name)).toEqual(table.raw().map((r) => r[0]));
+});
+
+Then('every field that is not hidden has a label', async ({ ui }) => {
+  for (const f of visibleFields(ui.cfg)) expect(String(f.label ?? '').trim(), `${f.entry}.${f.name}`).not.toBe('');
+});
+
+Then('no label is one of {string}', async ({ ui }, list) => {
+  const banned = names(list).map((n) => n.toLowerCase());
+  for (const f of visibleFields(ui.cfg)) expect(banned, `${f.entry}.${f.name}: "${f.label}"`).not.toContain(String(f.label).toLowerCase());
+});
+
+Then('a field description says {string}', async ({ ui }, text) => {
+  expect(visibleFields(ui.cfg).some((f) => String(f.description ?? '').includes(text))).toBe(true);
+});
+
+Then('uploads are renamed to safe names', async ({ ui }) => {
+  expect(ui.cfg.media.rename).toBe('safe');
+});
+
+Then('uploads can be images or documents', async ({ ui }) => {
+  expect(ui.cfg.media.categories).toEqual(['image', 'document']);
+});

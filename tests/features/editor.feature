@@ -84,3 +84,32 @@ Feature: Pages CMS
     And the "calendar-index" entry has the fields "description"
     And the "notices-index" entry edits the file "site/content/notices/_index.md"
     And the "notices-index" entry has the fields "description"
+
+  Scenario: The sidebar is in the order Paul uses it
+    Then the sidebar is, in order:
+      | notices        |
+      | events         |
+      | blog           |
+      | pages          |
+      | home           |
+      | settings       |
+      | blog-index     |
+      | calendar-index |
+      | notices-index  |
+
+  Scenario: Every field Paul sees has a label
+    Then every field that is not hidden has a label
+
+  Scenario: Labels are plain words
+    Then no label is one of "weight, embed_src, image_alt, url, slug, header, footer, hero image"
+
+  Scenario: Fields that need it are explained
+    Then a field description says "drops off the calendar"
+    And a field description says "people who cannot see it"
+    And a field description says "Lower numbers come first"
+    And a field description says "Website, Church Services, Church Events or Other Events"
+    And a field description says "Tick to show this page in the top menu"
+
+  Scenario: Uploads get safe names
+    Then uploads are renamed to safe names
+    And uploads can be images or documents
