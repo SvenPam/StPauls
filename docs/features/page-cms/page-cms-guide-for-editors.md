@@ -5,7 +5,7 @@ tags: [guide, stpauls, editor]
 
 # Editing the St Paul's website
 
-This guide is for Paul and anyone else who edits the church website. Each section is one job, set out in steps. Pictures of the screens go where you see **[screenshot]**.
+This guide is for anyone who edits the church website. Each section is one job, set out in steps. Pictures of the screens go where you see **[screenshot]**.
 
 You edit the website in Pages CMS. It runs in your web browser on a computer, tablet or phone, and you don't need anything else.
 

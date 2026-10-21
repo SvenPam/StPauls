@@ -5,7 +5,7 @@ tags: [guide, stpauls, site]
 
 # A guide to the new church website
 
-This is for Paul and anyone at the church who wants to know what is on the new website and what has changed from the old one. It goes page by page, in the order of the top menu. Where it says "edit in", that is where you change it in Pages CMS. The [editing guide](page-cms-guide-for-editors.md) has the steps.
+This is for anyone at the church who wants to know what is on the new website and what has changed from the old one. It goes page by page, in the order of the top menu. Where it says "edit in", that is where you change it in Pages CMS. The [editing guide](page-cms-guide-for-editors.md) has the steps.
 
 Most things look and work as before. The colours and layout are the same, with some tidying to make the text easier to read.
 
