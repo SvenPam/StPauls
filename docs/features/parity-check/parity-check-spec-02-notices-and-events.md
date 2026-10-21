@@ -87,6 +87,8 @@ From `data-start` and `data-end` (ISO with offset) and the visitor's clock, on l
 
 ## Manual steps (maintainer)
 
+_Tracked in [the maintainer checklist](../page-cms/page-cms-how-to-run-the-maintainer-checklist.md) (spec 10), which is the one list to run through. Kept here for detail._
+
 1. After merge, add a test notice on the test site with "Show until" yesterday: next build it is gone from home and `/notices`, and its page shows the Expired box. Delete it.
 2. Add a test event starting in 2 hours: home shows it with "Soon", the event page shows "2 hours to go". Delete it.
 

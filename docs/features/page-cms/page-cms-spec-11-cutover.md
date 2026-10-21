@@ -103,6 +103,8 @@ Two short messages in the runbook, humanised, no em dash: to Paul the day before
 
 ## Manual steps (maintainer)
 
+_Tracked in [the maintainer checklist](page-cms-how-to-run-the-maintainer-checklist.md) (spec 10), which is the one list to run through. Kept here for detail._
+
 1. A week ahead: in Azure Cloud Shell, run `az staticwebapp hostname set --name swa-stpauls-web --resource-group <rg> --hostname stpaulswarton.co.uk --validation-method dns-txt-token --no-wait`, then `az staticwebapp hostname show --name swa-stpauls-web --resource-group <rg> --hostname stpaulswarton.co.uk --query validationToken -o tsv`, and add the value as a `TXT` record in Cloudflare at the host Azure shows (`@` or `_dnsauth`). Wait for the domain status **Ready** in the portal. Then merge the parameter change.
 2. The Cloudflare preparation and cutover settings.
 3. Agree the cutover date and time with Paul.

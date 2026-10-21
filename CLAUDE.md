@@ -100,12 +100,12 @@ The legacy CSS, images and views needed for reference are on `archive/umbraco-20
 
 ## Next steps
 
-1. Parity work before Paul edits: [plan](docs/features/parity-check/parity-check-feature.md). Specs 01 to 03 are done. Next is parity spec 04, `docs/features/parity-check/parity-check-spec-04-sharing-and-search.md`. They go before Page CMS spec 10 (editor rollout) and 11 (cutover).
-2. Each spec ends with the maintainer's manual steps. Say plainly when blocked on one.
-3. After Page CMS spec 12, phase 2 (design options) gets its own design.
+1. Parity specs 01 to 04 and Page CMS spec 07a are done. Next is Page CMS spec 10, `docs/features/page-cms/page-cms-spec-10-editor-rollout.md`: it writes the maintainer checklist first, then the Pages CMS guide and the site guide. Specs 08 and 09 are part-built and still need their acceptance checked before 11 (cutover).
+2. Every maintainer step lives in one list, `docs/features/page-cms/page-cms-how-to-run-the-maintainer-checklist.md` (from spec 10). New specs add their steps there. Say plainly when blocked on one.
+3. The Cloudflare runbook (`page-cms-runbook-cloudflare.md`) is a placeholder; the maintainer is writing it in another session.
+4. After Page CMS spec 12, phase 2 (design options) starts from `docs/features/redesign/redesign-feature.md` (placeholder).
 
 ## Open items
 
-- Content match, spec 07a (2026-10-19): built on its branch. Dates and locations from the SQL export are in the migrated files (export deleted), bodies are Markdown. Waiting on the maintainer's Pages CMS save check (spec 07a, manual step 0) before it merges.
 - The contact form inbox is not chosen yet. The form stays hidden until a Web3Forms key is set.
 - Easter 2026 and other seasonal pages are still being edited in the legacy back office by the church. Spec 11 re-extracts on cutover day.

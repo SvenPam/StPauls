@@ -32,6 +32,9 @@ Paul can do every routine edit on his own from the guide, and nothing he saves d
 - `docs/features/page-cms/page-cms-guide-for-editors.md`: Paul's guide, with places marked for the maintainer's screenshots.
 - `docs/features/page-cms/page-cms-policy-updates.md`: suggested wording for the privacy policy (and the cookie policy if spec 09 kept it), for the church to adopt.
 - Inviting Paul and a practice checklist.
+- `docs/features/page-cms/page-cms-guide-to-the-site.md`: the site page by page for Paul and the church, with what changed from live, the short delay before a save shows, and what happens at cutover.
+- `docs/features/page-cms/page-cms-how-to-run-the-maintainer-checklist.md`: every outstanding maintainer step from all specs in one ordered checklist (see [Maintainer checklist](#maintainer-checklist)). From this spec on, specs add their manual steps to it rather than keeping their own list.
+- Linking the [Cloudflare runbook](page-cms-runbook-cloudflare.md) (placeholder, written in another session) and the [redesign placeholder](../redesign/redesign-feature.md) from the checklist.
 
 ## Out of scope
 
@@ -96,6 +99,30 @@ Written for Paul: second person, short sentences, no jargon, no mention of Git, 
 
 Front matter `tags: [guide, stpauls, editor]`. The maintainer exports it to PDF for Paul.
 
+### Site guide (`docs/features/page-cms/page-cms-guide-to-the-site.md`)
+
+Same writing rules as the Pages CMS guide. For Paul and anyone at the church who wants to know what is different.
+
+1. One section per page or page type, in menu order: home, notices, calendar and events, blog, each page group, gallery, contact, footer. Each says what is on it, where Paul edits it in Pages CMS, and what changed from the live site (from parity specs 01 to 04 and spec 07a: logins gone, Disqus gone, jump menus and image widths gone, RSS feeds added, notices and events drop off by themselves, sharing previews).
+2. Publishing: a save shows on the site in about three minutes. Notices that start or end on a date change overnight. There is no preview, so check the page after a few minutes.
+3. Cutover: what Paul sees before, on and after the day. Practice content is thrown away, there is a short freeze on the old site, then Pages CMS is the only place to edit. Points to the spec 11 messages for dates.
+
+### Maintainer checklist
+
+`page-cms-how-to-run-the-maintainer-checklist.md` is the one list of the maintainer's steps, in the order to run them, each with a tick box, the spec it came from and what to tell Claude afterwards. Other specs' "Manual steps" sections point here. The builder writes it first, checks with the maintainer which earlier steps are already done, and ticks them.
+
+| Stage | Steps (source) |
+|---|---|
+| Already set up, confirm | Resource group, OIDC app registration, secrets, Pages CMS app install (spec 00 steps 2 to 7). Ruleset on `main`, both Pages CMS save routes land on `main`, content-only deploy skips infrastructure, `/account/login` lands on Pages CMS (parity 01) |
+| Test site checks | Expired notice and "Soon" event (parity 02). Edge-to-edge hero and the Hidden tick box (parity 03). `og:` tags in View Source (parity 04). Site settings and the Facebook link (spec 08 step 1) |
+| Security | HSTS header check, then headers, embeds and the contact form under the CSP, the cookie check, Dependabot alerts and secret scanning, Pages CMS app limited to this repo, `audit` not a required check (spec 09 steps 1 to 5) |
+| Editor rollout | Round-trip saves, screenshots and PDF, invite Paul, practice, policy wording to the church (this spec, steps 1 to 5 below). Send Paul the site guide |
+| DNS | The [Cloudflare runbook](page-cms-runbook-cloudflare.md) and [DNS how-to](page-cms-how-to-move-dns-to-cloudflare.md) steps (spec 01) |
+| Contact form | When the church picks an inbox, the [contact form how-to](page-cms-how-to-set-up-the-contact-form.md) (spec 08 step 2) |
+| Cutover | TXT validation a week ahead, Cloudflare settings, agree the date with Paul, cutover day (spec 11) |
+| After cutover | Facebook Sharing Debugger on an article (parity 04). No-rollback decision, subscriber note then delete the export, decommission checklist, church handover (spec 12) |
+| Later | Phase 2 [redesign](../redesign/redesign-feature.md) |
+
 ### Practice checklist
 
 Paul does tasks 2 to 8 on the test URL with made-up content, then deletes what he added. The maintainer ticks each in the guide's appendix and notes anything Paul found confusing. Confusing points become guide fixes or config fixes in this spec.
@@ -103,6 +130,8 @@ Paul does tasks 2 to 8 on the test URL with made-up content, then deletes what h
 ---
 
 ## Manual steps (maintainer)
+
+All of them are in [the maintainer checklist](page-cms-how-to-run-the-maintainer-checklist.md), written by this spec. This spec's own steps:
 
 1. Do the round-trip check: in Pages CMS, open and save without changes one article, one event, one notice, the church diary page, the gallery page, a long page with a table or many images, the home page and Site settings. Tell Claude when done.
 2. Add the screenshots to the guide where marked, export it to PDF and send it to Paul.
@@ -120,6 +149,8 @@ Paul does tasks 2 to 8 on the test URL with made-up content, then deletes what h
 - [ ] The guide covers tasks 1 to 11, reads plainly, never names the banned words, and has no em dash (checked in review, not by a test).
 - [ ] Paul has completed the practice checklist.
 - [ ] The church has agreed the privacy policy wording.
+- [ ] The site guide covers every page, what changed, the publishing delay and cutover, under the same writing rules (review).
+- [ ] The maintainer checklist lists every outstanding step from specs 00 to 12 and parity 01 to 04 in order, earlier steps confirmed done or left open with the maintainer, and every other spec's "Manual steps" points to it.
 
 ---
 

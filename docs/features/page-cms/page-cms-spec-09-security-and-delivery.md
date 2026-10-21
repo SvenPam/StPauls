@@ -129,6 +129,8 @@ The site itself sets no cookies; the "Storage" budget scenario checks it in a re
 
 ## Manual steps (maintainer)
 
+_Tracked in [the maintainer checklist](page-cms-how-to-run-the-maintainer-checklist.md) (spec 10), which is the one list to run through. Kept here for detail._
+
 1. HSTS check: merge Task 1's branch, wait for the deploy, then run `curl -sI https://brave-coast-006318103.5.azurestaticapps.net/` and `.../notices` (or ask Claude to, if the sandbox can reach it). Tell Claude every `strict-transport-security` line you see. The rest of the spec waits for this.
 2. After the full merge, run `curl -sI https://brave-coast-006318103.5.azurestaticapps.net/` and check the headers. Open the church diary and gallery pages and check the embeds still load with the CSP in place, and that the contact form (with a test key, if one exists) still posts.
 3. Do the cookie check in the how-to and tell Claude the result.
