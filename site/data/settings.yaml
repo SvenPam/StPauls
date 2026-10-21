@@ -1,6 +1,5 @@
-# Site settings. Paul edits this in Pages CMS as "Site settings".
-contact_access_key: ""
-contact_subject: "Website enquiry"
+contact_access_key: f67b7673-95a4-41e8-adf5-c87234ca2d22
+contact_subject: Website enquiry
 enquiry_types:
   - General Enquiry
   - Website Enquiry
@@ -12,6 +11,6 @@ address:
   - Warton
   - Lancashire
   - PR4 1BD
-facebook_url: "https://www.facebook.com/stpaulswarton"
-map_url: "https://www.google.co.uk/maps/place/Parish+Church+of+Saint+Paul+Warton/53.7513578,-2.8932638,16.25z/data=!4m2!3m1!1s0x487b6a5be3b39591:0x9e22ee85558d2d1d"
-directions_url: "https://www.google.com/maps/dir/?api=1&destination=53.7513578,-2.8932638"
+facebook_url: https://www.facebook.com/stpaulswarton
+map_url: https://www.google.co.uk/maps/place/Parish+Church+of+Saint+Paul+Warton/53.7513578,-2.8932638,16.25z/data=!4m2!3m1!1s0x487b6a5be3b39591:0x9e22ee85558d2d1d
+directions_url: https://www.google.com/maps/dir/?api=1&destination=53.7513578,-2.8932638
