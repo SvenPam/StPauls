@@ -7,4 +7,4 @@ hidden: false
 weight: 100
 image_alt: Image here
 ---
-Pages can be used for the structure of the page.
+Pages can be used for the structure of the ~~page~~.
