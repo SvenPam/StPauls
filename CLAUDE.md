@@ -75,7 +75,6 @@ Do all of these on the spec's branch before it merges:
 | `docs/features/page-cms/page-cms-feature.md` | The plan: decisions, architecture, work outline |
 | `docs/features/page-cms/page-cms-spec-NN-*.md` | One spec per working session, 00 to 12 |
 | `docs/features/page-cms/page-cms-spec-conventions.md` | Shared rules and the names specs pass between each other |
-| `docs/features/design-options/` | Phase 2 design mockups for Paul. Rebuilt by `scripts/design-options/build.mjs` |
 | `.claude/skills/` | Imported obra/superpowers skills, see `.claude/skills/SUPERPOWERS.md` |
 | `site/` | Eleventy site: `content/` (Paul's), `_includes/`, `pages/`, `data/`, `assets/`, `static/` |
 | `config/` | Eleventy modules loaded by `eleventy.config.js`: content (URLs and collections), data, pages, assets, images, dates, filters, topics, `staticwebapp.config.json` |
@@ -108,7 +107,7 @@ The legacy CSS, images and views needed for reference are on `archive/umbraco-20
 
 ## Open items
 
-- Design options (2026-10-20): ten mockups in `docs/features/design-options/`, link going to Paul. Waiting on his pick before any phase 2 spec.
+- Design options (2026-10-20): ten mockups on branch `claude/design-options`, link going to Paul. Waiting on his pick before any phase 2 spec.
 - Contact form inbox: `wartonstpauls@gmail.com` (Paul, 2026-10-21). The form stays hidden until the maintainer creates the Web3Forms key and pastes it into Site settings.
 - Safeguarding page: the personal contact details stay. The Diocese requires the information (Paul, 2026-10-21). Paul may update it after talking to the vicar.
 - DNS: Cloudflare zone added (2026-10-21), waiting for the church contact to change the nameservers at 123 Reg.

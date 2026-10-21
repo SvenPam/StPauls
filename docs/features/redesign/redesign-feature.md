@@ -10,7 +10,7 @@ _Phase 2 is built after Page CMS spec 12, once Paul is settled in Pages CMS. Unt
 
 ## Where it stands
 
-Ten mockups of the home page and one article go to Paul with the email of 2026-10-21, as one link he opens on his own. Full detail, and how to rebuild them, in [design options](../design-options/design-options-feature.md).
+Ten mockups of the home page and one article go to Paul with the email of 2026-10-21, as one link he opens on his own. Full detail, and how to rebuild them, in `docs/features/design-options/design-options-feature.md` on branch `claude/design-options`.
 
 | Group | Designs |
 |---|---|
@@ -24,7 +24,7 @@ Paul was asked for his two or three favourites and anything he would keep or avo
 ## Decided
 
 - **Who signs off:** Paul, for the church. He works with others at the church (the vicar, the church contact who holds the domain), so he may want them to see the options too.
-- **How options are shown:** a private claude.ai page shared by link, with a screenshot of each design and a home page and article to click through. The same files are in `docs/features/design-options/mockups/` if they need to go on the test site instead.
+- **How options are shown:** a private claude.ai page shared by link, with a screenshot of each design and a home page and article to click through. The same files are in `docs/features/design-options/mockups/` on branch `claude/design-options` if they need to go on the test site instead.
 - **Colours:** fair game for the overhaul options (maintainer, 2026-10-20). The small changes and new layouts keep blue and gold.
 
 ## To decide when this starts
