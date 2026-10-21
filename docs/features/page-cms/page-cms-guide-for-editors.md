@@ -13,18 +13,19 @@ You edit the website in Pages CMS. It runs in your web browser on a computer, ta
 
 **The first time**
 
-1. Look for an email from Pages CMS inviting you to edit the St Paul's website.
-2. Click the link in the email. **[screenshot: the invite email]**
-3. Pages CMS opens on the St Paul's website. **[screenshot: the first screen after signing in]**
+1. Look for an email from Pages CMS inviting you to the St Paul's website.
+2. Click the **Join** button in the email. **[screenshot: the invite email]**
+3. Pages CMS sends a second email with a 6-digit code. Type the code into the box on screen. It only works for 5 minutes, so do it straight away.
+4. Pages CMS opens on the St Paul's website. **[screenshot: the first screen after signing in]**
 
 **After that**
 
 1. Go to **app.pagescms.org**. It's worth bookmarking.
-2. Type your email address and ask for a sign-in link. **[screenshot: the sign-in screen]**
-3. Pages CMS emails you a link. Open the email and click it.
+2. Type your email address and click **Continue with email**. **[screenshot: the sign-in screen]**
+3. Pages CMS emails you a new 6-digit code. Type it in.
 4. If Pages CMS asks which website, choose St Paul's.
 
-If a link doesn't work, go back to step 1 and ask for a new one. The old "log in" link on the website also brings you here.
+If the code has run out, click **Resend code**. The old "log in" link on the website also brings you here.
 
 **Finding your way around**
 
@@ -119,17 +120,17 @@ Untick **Hidden** and save to bring it back exactly as it was.
 **Using a picture**
 
 - In an **Image** box, click it and choose a picture from Media, or upload a new one there.
-- In the middle of some text, use the picture button along the top of the text box. **[screenshot: the picture button]**
+- In the middle of some text, use the picture button along the top of the text box, or drag the picture in. **[screenshot: the picture button]**
 
 **Describing a picture**
 
-Every picture has a description box, such as **Image description**. Write one short sentence about what the picture shows, for people who can't see it, for example "The church in spring with crocuses in the churchyard". If the picture is only decoration, leave it empty.
+Every picture has a description box: **Image description** next to an Image box, or **Image alt text** when you click a picture in the middle of some text. Write one short sentence about what the picture shows, for people who can't see it, for example "The church in spring with crocuses in the churchyard". If the picture is only decoration, leave it empty.
 
 **Linking to a document**
 
-1. Upload the document in **Media**.
+1. Upload the document in **Media** and note its name as Media shows it, for example `baptism-form.pdf`.
 2. In the page text, select the words you want people to click, such as "Baptism form".
-3. Click the link button along the top and choose the document. **[screenshot: adding a link to a document]**
+3. Click the **Link** button along the top and type `/uploads/` followed by the name, for example `/uploads/baptism-form.pdf`. **[screenshot: adding a link to a document]**
 4. Click **Save**.
 
 ## 7. Changing the church diary or the gallery
