@@ -3,6 +3,7 @@ title: Easter Services 2026
 header: true
 footer: true
 weight: 2
+hidden: true
 ---
 ### [Ash Wednesday] - [Stations of the Cross] - [Palm Sunday] - [Maundy Thursday] - [Good Friday] - [Easter Vigil] - [Easter Sunday]
 
@@ -37,3 +38,4 @@ Easter Vigil at St Paul's, Warton at 6:45pm.
 Easter Communion at St Paul's, Warton at 9:30am.
 
 ### Details of other Easter Services at Holy Trinity Church, Freckleton can found on their website at [https://www.freckletonparishchurch.org.uk/](https://www.freckletonparishchurch.org.uk/).
+
