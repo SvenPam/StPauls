@@ -1,7 +1,7 @@
 ---
 title: Easter Services 2026
-header: true
-footer: true
+header: false
+footer: false
 weight: 2
 hidden: true
 ---
