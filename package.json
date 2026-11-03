@@ -25,6 +25,7 @@
   },
   "overrides": {
     "chokidar": "4.0.3",
-    "argparse": "2.0.1"
+    "argparse": "2.0.1",
+    "minimatch": "11.0.4"
   }
 }
